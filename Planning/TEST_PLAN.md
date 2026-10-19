@@ -42,44 +42,44 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-037 Delete account removes the user and all their data (SEC-101)
 
 ### A4. Boards
-- [ ] T-040 List returns only the current user's boards
-- [ ] T-041 Create board gives 3 default columns
-- [ ] T-042 Create board with a template gives the template's columns and cards
-- [ ] T-043 Unknown template name returns 422 (SEC-41)
-- [ ] T-044 Get full board returns columns, cards, checklists and labels in position order
-- [ ] T-045 Rename and delete board
-- [ ] T-046 51st board returns 400 (SEC-42)
+- [x] T-040 List returns only the current user's boards
+- [x] T-041 Create board gives 3 default columns
+- [x] T-042 Create board with a template gives the template's columns and cards
+- [x] T-043 Unknown template name returns 422 (SEC-41)
+- [x] T-044 Get full board returns columns, cards, checklists and labels in position order
+- [x] T-045 Rename and delete board
+- [x] T-046 51st board returns 400 (SEC-42)
 
 ### A5. Columns
-- [ ] T-050 Add column appends at the end
-- [ ] T-051 Rename column
-- [ ] T-052 Delete column removes its cards; remaining positions stay contiguous
-- [ ] T-053 Reorder columns saves the new order; an order list that is not exactly the board's column ids returns 400
-- [ ] T-054 21st column returns 400 (SEC-42)
+- [x] T-050 Add column appends at the end
+- [x] T-051 Rename column
+- [x] T-052 Delete column removes its cards; remaining positions stay contiguous
+- [x] T-053 Reorder columns saves the new order; an order list that is not exactly the board's column ids returns 400
+- [x] T-054 21st column returns 400 (SEC-42)
 
 ### A6. Cards
-- [ ] T-060 Create card at the end of a column with default priority Medium
-- [ ] T-061 Update title, details, completed, priority, due date
-- [ ] T-062 Invalid priority returns 422 (SEC-41)
-- [ ] T-063 Delete card removes its checklist items and label links
-- [ ] T-064 Move within a column reorders positions correctly
-- [ ] T-065 Move to another column at a position; both columns stay contiguous
-- [ ] T-066 Move to a position past the end puts the card last
-- [ ] T-067 501st card on a board returns 400 (SEC-42)
+- [x] T-060 Create card at the end of a column with default priority Medium
+- [x] T-061 Update title, details, completed, priority, due date
+- [x] T-062 Invalid priority returns 422 (SEC-41)
+- [x] T-063 Delete card removes its checklist items and label links
+- [x] T-064 Move within a column reorders positions correctly
+- [x] T-065 Move to another column at a position; both columns stay contiguous
+- [x] T-066 Move to a position past the end puts the card last
+- [x] T-067 501st card on a board returns 400 (SEC-42)
 
 ### A7. Checklist and labels
-- [ ] T-070 Add, rename, toggle and delete checklist items
-- [ ] T-071 51st checklist item returns 400 (SEC-42)
-- [ ] T-072 Create and delete labels; deleting a label removes it from cards
-- [ ] T-073 Set card labels replaces the full set
-- [ ] T-074 Invalid label color returns 422 (SEC-41)
+- [x] T-070 Add, rename, toggle and delete checklist items
+- [x] T-071 51st checklist item returns 400 (SEC-42)
+- [x] T-072 Create and delete labels; deleting a label removes it from cards
+- [x] T-073 Set card labels replaces the full set
+- [x] T-074 Invalid label color returns 422 (SEC-41)
 
 ### A8. Authorization (run for every resource type)
-- [ ] T-080 User B gets 404 on user A's board, column, card, checklist item and label, for every method (SEC-20, SEC-21)
-- [ ] T-081 Moving a card into another user's column returns 404 (SEC-22)
-- [ ] T-082 Using another board's label on a card returns 404 (SEC-23)
+- [x] T-080 User B gets 404 on user A's board, column, card, checklist item and label, for every method (SEC-20, SEC-21)
+- [x] T-081 Moving a card into another user's column returns 404 (SEC-22)
+- [x] T-082 Using another board's label on a card returns 404 (SEC-23)
 - [ ] T-083 AI endpoints return 404 for another user's card or board (SEC-24)
-- [ ] T-084 Every non-auth endpoint returns 401 without a cookie
+- [x] T-084 Every non-auth endpoint returns 401 without a cookie
 
 ### A9. CSRF and input limits
 - [ ] T-090 POST with a foreign `Origin` header returns 403 (SEC-33)

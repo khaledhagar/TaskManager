@@ -166,12 +166,12 @@ Everything else is served from the built frontend (`frontend/dist`), with SPA fa
 
 ## Phase 4 - Boards, Columns, Cards, Labels API
 
-- [ ] Board CRUD; new boards start with the 3 default columns, or the chosen template
-- [ ] Column add, rename, delete, reorder
-- [ ] Card create, update (title, details, completed, priority, due_date), delete, move with contiguous positions
-- [ ] Checklist item create, toggle, rename, delete
-- [ ] Labels create, delete, set on card
-- [ ] Unit tests for every endpoint, including: user A cannot access user B's board (404), move and reorder are correct
+- [x] Board CRUD; new boards start with the 3 default columns, or the chosen template
+- [x] Column add, rename, delete, reorder
+- [x] Card create, update (title, details, completed, priority, due_date), delete, move with contiguous positions
+- [x] Checklist item create, toggle, rename, delete
+- [x] Labels create, delete, set on card
+- [x] Unit tests for every endpoint, including: user A cannot access user B's board (404), move and reorder are correct
 
 ## Phase 5 - AI Backend
 

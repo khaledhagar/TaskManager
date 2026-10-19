@@ -22,10 +22,10 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## 3. Authorization (IDOR)
 
-- [ ] Every board, column, card, checklist and label endpoint checks that the board belongs to the current user (SEC-20)
-- [ ] Access to another user's resource returns 404, not 403, so ids are not confirmed (SEC-21)
-- [ ] Moving a card into another user's column is rejected (SEC-22)
-- [ ] Setting a label from another board on a card is rejected (SEC-23)
+- [x] Every board, column, card, checklist and label endpoint checks that the board belongs to the current user (SEC-20)
+- [x] Access to another user's resource returns 404, not 403, so ids are not confirmed (SEC-21)
+- [x] Moving a card into another user's column is rejected (SEC-22)
+- [x] Setting a label from another board on a card is rejected (SEC-23)
 - [ ] AI endpoints only read boards the user owns (SEC-24)
 
 ## 4. CSRF and CORS
@@ -38,8 +38,8 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 ## 5. Input validation and abuse limits
 
 - [ ] All request bodies are Pydantic models with `max_length` on strings (title 200, details 10000, checklist item 300, label 40, chat message 2000) (SEC-40)
-- [ ] Enums validated: priority, label color, template name (SEC-41)
-- [ ] Per-user caps: 50 boards, 20 columns per board, 500 cards per board, 50 checklist items per card (SEC-42)
+- [x] Enums validated: priority, label color, template name (SEC-41)
+- [x] Per-user caps: 50 boards, 20 columns per board, 500 cards per board, 50 checklist items per card (SEC-42)
 - [ ] Request body size limited to 1 MB (SEC-43)
 - [ ] All database access through SQLModel parameters; no string-built SQL (SEC-44)
 
