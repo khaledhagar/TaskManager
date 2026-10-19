@@ -38,4 +38,8 @@ OPENROUTER_API_KEY=...
 JWT_SECRET=...
 ```
 
+On Windows, if the project path is deep, also set `CUSTOM_TIKTOKEN_CACHE_DIR` to a short folder
+(for example `C:/Users/<you>/.cache/tiktoken`). LiteLLM's tokenizer file otherwise exceeds the
+260-character path limit.
+
 See `Planning/PLAN.md` for the implementation plan.
