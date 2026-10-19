@@ -179,7 +179,7 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-217 Auth screen shows Continue with Google, sign in, sign up, guest and Forgot password
 - [x] T-218 Check-your-inbox screen offers Resend email with a cooldown
 - [x] T-219 Reset password page reads the token from the link and validates the new password
-- [ ] T-220 Account menu shows Change password, or Set password for Google-only users
+- [x] T-220 Account menu shows Change password, or Set password for Google-only users
 - [ ] T-221 Attachments: files over the limit or of a blocked type are refused before upload with a clear message
 - [ ] T-222 Attachments: upload progress, success, error, download link, delete with confirm
 - [ ] T-223 Background picker: presets apply at once; photo is shrunk to at most 2560 px before upload; remove works
