@@ -7,7 +7,7 @@ from app import auth
 from app.config import Settings
 from app.db import SessionDep, make_engine
 from app.frontend import mount_frontend
-from app.routes import boards, cards
+from app.routes import ai, boards, cards
 from app.users import cleanup_guests
 
 
@@ -27,5 +27,6 @@ def create_app(settings: Settings) -> FastAPI:
     app.include_router(auth.router)
     app.include_router(boards.router)
     app.include_router(cards.router)
+    app.include_router(ai.router)
     mount_frontend(app, settings.frontend_dist)
     return app

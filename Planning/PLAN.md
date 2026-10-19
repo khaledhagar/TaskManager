@@ -179,13 +179,13 @@ Everything else is served from the built frontend (`frontend/dist`), with SPA fa
 
 ## Phase 5 - AI Backend
 
-- [ ] `ai.py` helper; live smoke test returns a reply from the free model
-- [ ] OpenRouter 429 and timeouts become friendly messages; backup model used when the main one fails
-- [ ] `POST /ai/cards/{id}/checklist` returns 3-7 suggested items (not saved until the user accepts)
-- [ ] `POST /ai/boards` creates a board with columns and cards from a description
-- [ ] `POST /ai/chat` answers using the current board as context and may return proposed actions
-- [ ] Unknown action types or card ids not on the board are dropped from the response
-- [ ] Unit tests with mocked `complete`: valid output, malformed JSON gives a clear 502, authorization enforced
+- [x] `ai.py` helper; live smoke test returns a reply from the free model
+- [x] OpenRouter 429 and timeouts become friendly messages; backup model used when the main one fails
+- [x] `POST /ai/cards/{id}/checklist` returns 3-7 suggested items (not saved until the user accepts)
+- [x] `POST /ai/boards` creates a board with columns and cards from a description
+- [x] `POST /ai/chat` answers using the current board as context and may return proposed actions
+- [x] Unknown action types or card ids not on the board are dropped from the response
+- [x] Unit tests with mocked `complete`: valid output, malformed JSON gives a clear 502, authorization enforced
 
 ## Phase 6 - Frontend Foundation
 

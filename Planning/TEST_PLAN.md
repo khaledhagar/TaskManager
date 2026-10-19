@@ -78,7 +78,7 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-080 User B gets 404 on user A's board, column, card, checklist item and label, for every method (SEC-20, SEC-21)
 - [x] T-081 Moving a card into another user's column returns 404 (SEC-22)
 - [x] T-082 Using another board's label on a card returns 404 (SEC-23)
-- [ ] T-083 AI endpoints return 404 for another user's card or board (SEC-24)
+- [x] T-083 AI endpoints return 404 for another user's card or board (SEC-24)
 - [x] T-084 Every non-auth endpoint returns 401 without a cookie
 
 ### A9. CSRF and input limits
@@ -94,18 +94,18 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [ ] T-102 4th AI call within a minute and 11th within a day return 429 (SEC-52)
 
 ### A11. AI (model call mocked)
-- [ ] T-110 Checklist suggestion returns 3 to 7 items and saves nothing
-- [ ] T-111 Board starter creates a board with the returned columns and cards
-- [ ] T-112 Malformed model JSON returns a friendly 502 (SEC-74)
-- [ ] T-113 Model timeout or error returns a friendly 502 without provider details (SEC-74)
-- [ ] T-114 Chat sends the board as context and returns the reply
-- [ ] T-115 Chat actions with valid card and column ids are returned
-- [ ] T-116 Chat actions with unknown types or ids from other boards are dropped (SEC-72)
-- [ ] T-117 Only the last 20 messages are sent and `max_tokens` is set (SEC-73)
-- [ ] T-118 System prompt marks board content as data (SEC-75)
-- [ ] T-119 Model is `openrouter/nvidia/nemotron-3.5-super-vl:free` with the backup model in the `models` list and `max_tokens` set
-- [ ] T-121 OpenRouter 429 returns a friendly "AI limit reached for today" message (SEC-53)
-- [ ] T-120 Live smoke test (runs only when `OPENROUTER_API_KEY` is set): a real text reply and a structured reply come back
+- [x] T-110 Checklist suggestion returns 3 to 7 items and saves nothing
+- [x] T-111 Board starter creates a board with the returned columns and cards
+- [x] T-112 Malformed model JSON returns a friendly 502 (SEC-74)
+- [x] T-113 Model timeout or error returns a friendly 502 without provider details (SEC-74)
+- [x] T-114 Chat sends the board as context and returns the reply
+- [x] T-115 Chat actions with valid card and column ids are returned
+- [x] T-116 Chat actions with unknown types or ids from other boards are dropped (SEC-72)
+- [x] T-117 Only the last 20 messages are sent and `max_tokens` is set (SEC-73)
+- [x] T-118 System prompt marks board content as data (SEC-75)
+- [x] T-119 Model is `openrouter/nvidia/nemotron-3.5-super-vl:free` with the backup model in the `models` list and `max_tokens` set
+- [x] T-121 OpenRouter 429 returns a friendly "AI limit reached for today" message (SEC-53)
+- [x] T-120 Live smoke test (run with `uv run pytest -m live`; skipped by default to save the free daily quota): a real text reply and a structured reply come back
 
 ### A12. Security headers
 - [ ] T-130 CSP, nosniff, Referrer-Policy and Permissions-Policy headers on HTML and API responses (SEC-80, SEC-81)

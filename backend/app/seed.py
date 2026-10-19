@@ -9,10 +9,14 @@ from app.templates import TEMPLATES
 
 
 def build_board(session: Session, owner_id: int, template: str, title: str | None = None) -> Board:
-    """Create a board with the template's labels, columns, cards and checklists."""
-    data = TEMPLATES[template]
+    """Create a board from a named template."""
+    return build_from_data(session, owner_id, TEMPLATES[template], title)
+
+
+def build_from_data(session: Session, owner_id: int, data: dict, title: str | None = None) -> Board:
+    """Create a board with the data's labels, columns, cards and checklists."""
     board = Board(owner_id=owner_id, title=title or data["title"])
-    labels = {name: Label(name=name, color=color) for name, color in data["labels"]}
+    labels = {name: Label(name=name, color=color) for name, color in data.get("labels", [])}
     board.labels = list(labels.values())
     board.columns = [
         BoardColumn(

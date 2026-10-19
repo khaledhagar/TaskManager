@@ -26,7 +26,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [x] Access to another user's resource returns 404, not 403, so ids are not confirmed (SEC-21)
 - [x] Moving a card into another user's column is rejected (SEC-22)
 - [x] Setting a label from another board on a card is rejected (SEC-23)
-- [ ] AI endpoints only read boards the user owns (SEC-24)
+- [x] AI endpoints only read boards the user owns (SEC-24)
 
 ## 4. CSRF and CORS
 
@@ -60,10 +60,10 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 - [ ] `OPENROUTER_API_KEY` used only on the server; never sent to the browser (SEC-70)
 - [ ] Chat actions are proposals only; nothing is written until the user clicks Confirm, which calls normal, authorized endpoints (SEC-71)
-- [ ] Proposed actions referencing cards or columns not on the user's board are dropped (prompt injection defense) (SEC-72)
-- [ ] Chat history sent to the model is capped (last 20 messages) and `max_tokens` is set (cost control) (SEC-73)
-- [ ] Model errors and timeouts return a friendly 502 without leaking provider details (SEC-74)
-- [ ] System prompt tells the model it only assists with this app; board content is wrapped as data, not instructions (SEC-75)
+- [x] Proposed actions referencing cards or columns not on the user's board are dropped (prompt injection defense) (SEC-72)
+- [x] Chat history sent to the model is capped (last 20 messages) and `max_tokens` is set (cost control) (SEC-73)
+- [x] Model errors and timeouts return a friendly 502 without leaking provider details (SEC-74)
+- [x] System prompt tells the model it only assists with this app; board content is wrapped as data, not instructions (SEC-75)
 - [ ] UI states that AI features send card or board text to a third-party AI service; only the needed text is sent (SEC-76)
 
 ## 9. HTTP security headers
