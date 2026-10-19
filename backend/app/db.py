@@ -1,4 +1,4 @@
-"""SQLite engine setup and the request-scoped session dependency."""
+"""Database engine setup and the request-scoped session dependency."""
 
 from collections.abc import Iterator
 from typing import Annotated
@@ -11,18 +11,21 @@ from app import models  # noqa: F401  (registers tables)
 
 
 def make_engine(url: str) -> Engine:
-    """Create the engine with foreign keys and WAL enabled, and create tables."""
-    engine = create_engine(url, connect_args={"check_same_thread": False})
-
-    @event.listens_for(engine, "connect")
-    def _pragmas(dbapi_conn, _record) -> None:
-        cursor = dbapi_conn.cursor()
-        cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.execute("PRAGMA journal_mode=WAL")
-        cursor.close()
-
+    """Create the engine and tables; SQLite gets foreign keys and WAL enabled."""
+    if not url.startswith("sqlite"):
+        engine = create_engine(url, pool_pre_ping=True)
+    else:
+        engine = create_engine(url, connect_args={"check_same_thread": False})
+        event.listen(engine, "connect", _sqlite_pragmas)
     SQLModel.metadata.create_all(engine)
     return engine
+
+
+def _sqlite_pragmas(dbapi_conn, _record) -> None:
+    cursor = dbapi_conn.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.execute("PRAGMA journal_mode=WAL")
+    cursor.close()
 
 
 def get_session(request: Request) -> Iterator[Session]:

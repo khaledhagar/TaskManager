@@ -88,6 +88,17 @@ Goal: calm, fast, professional - in the spirit of Linear and Trello, but simpler
 - Accessibility: keyboard for everything, visible focus rings, ARIA labels on icon buttons, screen-reader announcements for drag and drop.
 - The `frontend-design` skill guides the visual pass in Phase 9; screenshots are reviewed at 360, 768 and 1440 px in both themes.
 
+## Production Portability
+
+Built and tested locally on SQLite; deployed later to Vercel with hosted Postgres (Neon or Supabase, chosen at deployment).
+These rules keep that move to one small phase:
+
+1. All configuration comes from environment variables (`DATABASE_URL`, `JWT_SECRET`, `OPENROUTER_API_KEY`, `ENV`, `ALLOWED_HOSTS`, `REDIS_URL`).
+2. No SQLite-specific SQL. The SQLite pragmas (foreign keys, WAL) are applied only when the URL is SQLite.
+3. Rate-limit counters live behind one small store class: in-memory locally, Redis (Upstash) in production.
+4. Background jobs (guest cleanup) are plain functions, called on startup locally and from a protected cron endpoint on Vercel.
+5. Nothing is written to local disk at runtime except the SQLite database itself.
+
 ## Data Model
 
 - `users`: id, email (unique, null for guests), password_hash (null for guests), is_guest, created_at
@@ -145,13 +156,13 @@ Everything else is served from the built frontend (`frontend/dist`), with SPA fa
 
 ## Phase 3 - Authentication and Authorization
 
-- [ ] Sign up, sign in, sign out, `me`
-- [ ] Guest sign-in creates a guest user with the demo board
-- [ ] New regular users also get the demo board
-- [ ] Guest upgrade sets email and password on the guest user, boards kept
-- [ ] Guest cleanup on startup removes guests older than 7 days
-- [ ] JWT in httpOnly, SameSite=Lax cookie; `JWT_SECRET` read from `.env`
-- [ ] Unit tests: signup, duplicate email, wrong password, guest flow, upgrade, cleanup, 401 without cookie
+- [x] Sign up, sign in, sign out, `me`
+- [x] Guest sign-in creates a guest user with the demo board
+- [x] New regular users also get the demo board
+- [x] Guest upgrade sets email and password on the guest user, boards kept
+- [x] Guest cleanup on startup removes guests older than 7 days
+- [x] JWT in httpOnly, SameSite=Lax cookie; `JWT_SECRET` read from `.env`
+- [x] Unit tests: signup, duplicate email, wrong password, guest flow, upgrade, cleanup, 401 without cookie
 
 ## Phase 4 - Boards, Columns, Cards, Labels API
 
@@ -237,3 +248,16 @@ Everything else is served from the built frontend (`frontend/dist`), with SPA fa
 - [ ] Every item in `Planning/SECURITY.md` ticked
 - [ ] README has run and test instructions
 - [ ] Server running locally with the built frontend, ready for the user
+
+## Phase 13 - Deployment (Vercel)
+
+- [ ] Choose Postgres provider (Neon or Supabase); add Postgres driver with `uv add`
+- [ ] Full backend test suite passes against Postgres
+- [ ] Alembic set up with an initial migration
+- [ ] Redis rate-limit store (Upstash) behind the same interface; tests pass for both stores
+- [ ] `POST /api/cron/cleanup` protected by `CRON_SECRET`, scheduled in `vercel.json`
+- [ ] `vercel.json`: frontend served from Vercel's CDN, `/api/*` routed to FastAPI
+- [ ] Test deploy confirms the function bundle (including LiteLLM) fits Vercel's size limit; cold start measured
+- [ ] Production environment variables set in Vercel; `ENV=production`, `ALLOWED_HOSTS` set
+- [ ] Playwright smoke suite passes against the deployed URL
+- [ ] Security headers, Secure cookie and HSTS verified on the deployed URL

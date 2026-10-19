@@ -20,6 +20,10 @@ class Settings:
     database_url: str = f"sqlite:///{ROOT / 'backend' / 'taskmanager.db'}"
     frontend_dist: Path = ROOT / "frontend" / "dist"
 
+    def __post_init__(self) -> None:
+        if len(self.jwt_secret) < 32:
+            raise ValueError("JWT_SECRET must be at least 32 characters")
+
     @property
     def production(self) -> bool:
         return self.env == "production"
@@ -27,7 +31,7 @@ class Settings:
 
 def load_settings() -> Settings:
     """Build settings from environment variables; JWT_SECRET is required."""
-    defaults = Settings(jwt_secret="")
+    defaults = Settings(jwt_secret="-" * 32)
     return Settings(
         jwt_secret=os.environ["JWT_SECRET"],
         openrouter_api_key=os.getenv("OPENROUTER_API_KEY", ""),

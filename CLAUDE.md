@@ -61,6 +61,15 @@ The site will be published. It must be secure and meet functional and non-functi
 - `Planning/TEST_PLAN.md`: every test (T-xxx). Write tests first; tick a test only when it exists and passes.
 - Key rules: ownership check on every endpoint (404 for others' data), httpOnly SameSite cookie, Origin check, input length limits, rate limits on auth/guest/AI, strict CSP with no CDNs, no raw HTML in markdown, AI chat actions require user confirmation, API key never sent to the browser.
 
+## Production Target
+
+Build and test locally on SQLite. Production will be Vercel with hosted Postgres (Neon or Supabase), handled in the final Deployment phase. Keep the code portable:
+
+- All configuration from environment variables
+- No SQLite-specific SQL; SQLite pragmas only when the URL is SQLite
+- Rate-limit counters behind one swappable store class (memory locally, Redis in production)
+- Background jobs (guest cleanup) as plain functions, callable on startup or from a cron endpoint
+
 ## UI/UX
 
 Follow the UI/UX Specification in `Planning/PLAN.md`: calm, fast, professional, light and dark themes, optimistic updates, keyboard accessible, WCAG 2.2 AA.

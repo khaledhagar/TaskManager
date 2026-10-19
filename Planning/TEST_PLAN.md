@@ -13,7 +13,7 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-003 Non-API path returns `index.html` (SPA fallback)
 - [ ] T-004 Unhandled error returns generic 500 JSON without a stack trace (SEC-93)
 - [ ] T-005 `/docs` and `/openapi.json` return 404 when `ENV=production` (SEC-91)
-- [ ] T-006 App fails to start when `JWT_SECRET` is missing (SEC-04)
+- [x] T-006 App fails to start when `JWT_SECRET` is missing (SEC-04)
 
 ### A2. Models and seed
 - [x] T-010 Seed creates 1 board, 3 columns (To Do, In Progress, Done), expected cards, labels, one checklist, one overdue card
@@ -22,24 +22,24 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-013 SQLite foreign keys and WAL mode are on (SEC-103)
 
 ### A3. Authentication
-- [ ] T-020 Sign up creates user, sets cookie, seeds demo board
-- [ ] T-021 Sign up with existing email returns 409
-- [ ] T-022 Sign up rejects invalid email, password under 8 or over 128 characters (SEC-02)
-- [ ] T-023 Email is stored lower-cased; sign in is case-insensitive
-- [ ] T-024 Password stored as Argon2 hash, not plain text (SEC-01)
-- [ ] T-025 Sign in with correct password sets cookie
-- [ ] T-026 Unknown email and wrong password return the same 401 message (SEC-03)
-- [ ] T-027 Guest sign-in creates guest user with demo board
-- [ ] T-028 `GET /auth/me` returns the user; without cookie returns 401
-- [ ] T-029 Expired token returns 401 (SEC-05)
-- [ ] T-030 Tampered token and `alg: none` token return 401 (SEC-05, SEC-06)
-- [ ] T-031 Sign out clears the cookie (SEC-07)
-- [ ] T-032 Cookie flags: HttpOnly, SameSite=Lax, Path=/; Secure in production (SEC-10, SEC-11)
-- [ ] T-033 No response body contains the token (SEC-12)
-- [ ] T-034 Guest upgrade sets email and password and keeps boards
-- [ ] T-035 Upgrade from a regular account returns 400; upgrade to a taken email returns 409 (SEC-08)
-- [ ] T-036 Guest cleanup removes guests older than 7 days with their data, keeps newer guests and regular users (SEC-102)
-- [ ] T-037 Delete account removes the user and all their data (SEC-101)
+- [x] T-020 Sign up creates user, sets cookie, seeds demo board
+- [x] T-021 Sign up with existing email returns 409
+- [x] T-022 Sign up rejects invalid email, password under 8 or over 128 characters (SEC-02)
+- [x] T-023 Email is stored lower-cased; sign in is case-insensitive
+- [x] T-024 Password stored as Argon2 hash, not plain text (SEC-01)
+- [x] T-025 Sign in with correct password sets cookie
+- [x] T-026 Unknown email and wrong password return the same 401 message (SEC-03)
+- [x] T-027 Guest sign-in creates guest user with demo board
+- [x] T-028 `GET /auth/me` returns the user; without cookie returns 401
+- [x] T-029 Expired token returns 401 (SEC-05)
+- [x] T-030 Tampered token and `alg: none` token return 401 (SEC-05, SEC-06)
+- [x] T-031 Sign out clears the cookie (SEC-07)
+- [x] T-032 Cookie flags: HttpOnly, SameSite=Lax, Path=/; Secure in production (SEC-10, SEC-11)
+- [x] T-033 No response body contains the token (SEC-12)
+- [x] T-034 Guest upgrade sets email and password and keeps boards
+- [x] T-035 Upgrade from a regular account returns 400; upgrade to a taken email returns 409 (SEC-08)
+- [x] T-036 Guest cleanup removes guests older than 7 days with their data, keeps newer guests and regular users (SEC-102)
+- [x] T-037 Delete account removes the user and all their data (SEC-101)
 
 ### A4. Boards
 - [ ] T-040 List returns only the current user's boards

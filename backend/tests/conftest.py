@@ -41,7 +41,9 @@ def session(settings):
 
 @pytest.fixture
 def client(settings):
-    from app.main import create_app
+    from app.factory import create_app
 
-    with TestClient(create_app(settings)) as c:
+    app = create_app(settings)
+    with TestClient(app) as c:
         yield c
+    app.state.engine.dispose()

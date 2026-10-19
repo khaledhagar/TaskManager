@@ -5,20 +5,20 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## 1. Authentication
 
-- [ ] Passwords hashed with Argon2 (`pwdlib`), never stored or logged in plain text (SEC-01)
-- [ ] Password rules: 8 to 128 characters; email validated and lower-cased (SEC-02)
-- [ ] Sign-in failure message is the same for unknown email and wrong password (no user enumeration) (SEC-03)
-- [ ] JWT signed with HS256 using `JWT_SECRET` (32+ random bytes); app refuses to start without it (SEC-04)
-- [ ] JWT expires after 7 days; expired or tampered tokens return 401 (SEC-05)
-- [ ] `alg` is pinned when decoding (no `none` algorithm) (SEC-06)
-- [ ] Sign out clears the cookie (SEC-07)
-- [ ] Guest upgrade requires a guest session and an unused email (SEC-08)
+- [x] Passwords hashed with Argon2 (`pwdlib`), never stored or logged in plain text (SEC-01)
+- [x] Password rules: 8 to 128 characters; email validated and lower-cased (SEC-02)
+- [x] Sign-in failure message is the same for unknown email and wrong password (no user enumeration) (SEC-03)
+- [x] JWT signed with HS256 using `JWT_SECRET` (32+ random bytes); app refuses to start without it (SEC-04)
+- [x] JWT expires after 7 days; expired or tampered tokens return 401 (SEC-05)
+- [x] `alg` is pinned when decoding (no `none` algorithm) (SEC-06)
+- [x] Sign out clears the cookie (SEC-07)
+- [x] Guest upgrade requires a guest session and an unused email (SEC-08)
 
 ## 2. Session cookie
 
-- [ ] Cookie is `HttpOnly`, `SameSite=Lax`, `Path=/` (SEC-10)
-- [ ] Cookie is `Secure` when `ENV=production` (SEC-11)
-- [ ] Token is never returned in a response body or readable by JavaScript (SEC-12)
+- [x] Cookie is `HttpOnly`, `SameSite=Lax`, `Path=/` (SEC-10)
+- [x] Cookie is `Secure` when `ENV=production` (SEC-11)
+- [x] Token is never returned in a response body or readable by JavaScript (SEC-12)
 
 ## 3. Authorization (IDOR)
 
@@ -89,8 +89,8 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 ## 12. Data protection
 
 - [x] Deleting a board removes all its columns, cards, checklists and labels (SEC-100)
-- [ ] Users can delete their own account and all its data (SEC-101)
-- [ ] Guest accounts older than 7 days are removed (SEC-102)
+- [x] Users can delete their own account and all its data (SEC-101)
+- [x] Guest accounts older than 7 days are removed (SEC-102)
 - [x] SQLite runs in WAL mode with foreign keys on (SEC-103)
 
 ---
@@ -126,6 +126,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [ ] Failed optimistic updates roll back and show an error (NFR-31)
 - [ ] Database file location configurable via `DATABASE_URL`; README covers backup by copying the file (NFR-32)
 - [ ] Server starts with one command and serves the built frontend (NFR-33)
+- [ ] Portability rules in `Planning/PLAN.md` followed: config from env, no SQLite-specific SQL, swappable rate-limit store, background jobs as plain functions (NFR-34)
 
 ## Maintainability
 
