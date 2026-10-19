@@ -20,7 +20,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 7 - Frontend Foundation | 6 / 6 | Done |
 | Phase 8 - Board UI | 11 / 11 | Done |
 | Phase 9 - Files (attachments and board backgrounds) | 8 / 8 | Done |
-| Phase 10 - Focus Timer (Pomodoro) | 0 / 5 | Not started |
+| Phase 10 - Focus Timer (Pomodoro) | 0 / 6 | Not started |
 | Phase 11 - AI UI | 0 / 4 | Not started |
 | Phase 12 - Polish | 0 / 5 | Not started |
 | Phase 13 - Security and Non-Functional Hardening | 0 / 5 | Not started |
@@ -79,7 +79,7 @@ The app will be published, so two companion checklists are part of every phase:
 27. Change password while signed in; Google-only users can add a password
 28. Board background: upload a photo from the computer (shrunk in the browser, re-saved on the server) or pick a preset; remove it
 29. File attachments on cards with limits: 4 MB per file, 10 files per card, 100 MB per account (10 MB for guests); images, PDF, text, CSV and Office files only
-30. Pomodoro focus timer on the board: 25 / 5 or 50 / 10 minutes, start, pause, reset focus, reset break, skip; chip with time left, chime and optional notification
+30. Pomodoro focus timer on the board, opt-in: off by default and turned on with a "Focus timer" button; 25 / 5 or 50 / 10 minutes, start, pause, reset focus, reset break, skip; chip with time left, chime and optional notification
 
 ### Enhancement review (N1-N8 approved on 2026-10-19; the rest deferred)
 
@@ -201,7 +201,8 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 
 ## Focus Timer Design
 
-- Frontend only; no backend or database changes. State (mode, phase, end time, paused remaining time) is saved in the browser so it survives reloads.
+- Opt-in: off by default. The board header shows only a "Focus timer" button; turning it on opens the timer panel. "Turn off focus timer" stops and clears the timer and hides it again. The on/off choice is remembered per browser.
+- Frontend only; no backend or database changes. State (enabled, mode, phase, end time, paused remaining time) is saved in the browser so it survives reloads.
 - Modes: 25 min focus / 5 min break, or 50 min focus / 10 min break.
 - Controls: start, pause, reset focus, reset break (each resets only its own phase), skip to break or focus.
 - The countdown is computed from a fixed end time, so it stays exact in background tabs and after reloads.
@@ -320,6 +321,7 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 ## Phase 10 - Focus Timer (Pomodoro)
 
 - [ ] Timer logic as pure functions computed from a fixed end time
+- [ ] Opt-in: hidden behind a "Focus timer" button until the user turns it on; "Turn off focus timer" stops, clears and hides it; choice remembered
 - [ ] Header chip and panel: 25/5 or 50/10, start, pause, reset focus, reset break, skip
 - [ ] Phase switch with chime (can be muted) and optional notification; tab title shows time left
 - [ ] State survives reload; screen-reader announcements on phase changes only
@@ -365,7 +367,7 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [ ] Two users cannot see each other's boards
 - [ ] Upload a board background and see it after reload; remove it
 - [ ] Attach a PDF and an image to a card, download them, delete one; an oversized file is refused
-- [ ] Focus timer with a fast-forwarded browser clock: focus ends, break starts, reset focus and reset break work, 50/10 mode
+- [ ] Focus timer: off by default; turn it on, run it with a fast-forwarded browser clock (focus ends, break starts, reset focus and reset break work, 50/10 mode); turn it off
 - [ ] All defects fixed and re-tested
 
 ## Phase 15 - Done

@@ -56,7 +56,7 @@ The full plan with phases and success criteria is in `Planning/PLAN.md`. Keep it
 - Emails sent through Gmail SMTP with an App Password (console mode in development and tests)
 - Board background: upload a photo from the computer or pick a preset
 - File attachments on cards: 4 MB per file, 10 per card, 100 MB per account (10 MB guests); images, PDF, text, CSV, Office only
-- Pomodoro focus timer: 25/5 or 50/10 minutes, start, pause, reset focus, reset break, skip
+- Pomodoro focus timer, opt-in (off by default, enabled with a Focus timer button): 25/5 or 50/10 minutes, start, pause, reset focus, reset break, skip
 
 ## Security and Testing
 

@@ -190,6 +190,7 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [ ] T-228 Timer: 25/5 and 50/10 modes; switching mode resets cleanly
 - [ ] T-229 Timer: pause keeps the remaining time; skip moves to the other phase
 - [ ] T-230 Timer: tab title shows time left; phase change announced once; mute stops the chime
+- [ ] T-231 Timer is off by default (only the Focus timer button shows); turning it on shows the panel; turning it off stops it, clears it and hides it; the choice survives a reload
 
 ## C. End-to-end tests (Playwright, `frontend/e2e/`)
 
@@ -203,7 +204,7 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [ ] T-322 Upload a background photo; it shows after reload; remove it
 - [ ] T-323 Attach a PDF and an image, download both, delete one
 - [ ] T-324 A 5 MB file is refused with a clear message
-- [ ] T-325 Focus timer with the browser clock fast-forwarded 25 minutes: break starts; reset focus and reset break work
+- [ ] T-325 Focus timer is off by default; turn it on, fast-forward the browser clock 25 minutes: break starts; reset focus and reset break work; turn it off
 - [ ] T-326 Focus timer 50/10 mode and state kept after reload
 - [ ] T-302 Guest upgrade keeps boards and allows sign in with the new email
 - [ ] T-303 Create a blank board with 3 columns; create a board from each template
