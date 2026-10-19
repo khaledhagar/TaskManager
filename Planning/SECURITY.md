@@ -88,10 +88,10 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## 12. Data protection
 
-- [ ] Deleting a board removes all its columns, cards, checklists and labels (SEC-100)
+- [x] Deleting a board removes all its columns, cards, checklists and labels (SEC-100)
 - [ ] Users can delete their own account and all its data (SEC-101)
 - [ ] Guest accounts older than 7 days are removed (SEC-102)
-- [ ] SQLite runs in WAL mode with foreign keys on (SEC-103)
+- [x] SQLite runs in WAL mode with foreign keys on (SEC-103)
 
 ---
 

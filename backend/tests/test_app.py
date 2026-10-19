@@ -4,7 +4,7 @@
 def test_health(client):
     r = client.get("/api/health")
     assert r.status_code == 200
-    assert r.json()["status"] == "ok"
+    assert r.json() == {"status": "ok", "database": "ok"}
 
 
 def test_unknown_api_path_is_json_404(client):

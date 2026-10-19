@@ -8,7 +8,7 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 ## A. Backend unit tests (`backend/tests/`)
 
 ### A1. App and health
-- [ ] T-001 `GET /api/health` returns 200 with app and database status (NFR-30)
+- [x] T-001 `GET /api/health` returns 200 with app and database status (NFR-30)
 - [x] T-002 Unknown `/api/*` path returns JSON 404, not the SPA page
 - [x] T-003 Non-API path returns `index.html` (SPA fallback)
 - [ ] T-004 Unhandled error returns generic 500 JSON without a stack trace (SEC-93)
@@ -16,10 +16,10 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [ ] T-006 App fails to start when `JWT_SECRET` is missing (SEC-04)
 
 ### A2. Models and seed
-- [ ] T-010 Seed creates 1 board, 3 columns (To Do, In Progress, Done), expected cards, labels, one checklist, one overdue card
-- [ ] T-011 Each template (Blank, Sprint, Bug tracking, Personal) builds the expected columns and cards
-- [ ] T-012 Deleting a board removes its columns, cards, checklist items, labels and card labels (SEC-100)
-- [ ] T-013 SQLite foreign keys and WAL mode are on (SEC-103)
+- [x] T-010 Seed creates 1 board, 3 columns (To Do, In Progress, Done), expected cards, labels, one checklist, one overdue card
+- [x] T-011 Each template (Blank, Sprint, Bug tracking, Personal) builds the expected columns and cards
+- [x] T-012 Deleting a board removes its columns, cards, checklist items, labels and card labels (SEC-100)
+- [x] T-013 SQLite foreign keys and WAL mode are on (SEC-103)
 
 ### A3. Authentication
 - [ ] T-020 Sign up creates user, sets cookie, seeds demo board

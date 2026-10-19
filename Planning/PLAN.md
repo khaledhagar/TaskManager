@@ -137,11 +137,11 @@ Everything else is served from the built frontend (`frontend/dist`), with SPA fa
 
 ## Phase 2 - Database and Models
 
-- [ ] SQLModel tables for all models above
-- [ ] Tables created on startup; DB path configurable for tests
-- [ ] Seed function creates the demo board: 3 columns, realistic cards, labels, priorities, due dates (one overdue), one checklist
-- [ ] Board templates (Blank, Sprint, Bug tracking, Personal) defined as data and built by the same seed code
-- [ ] Unit tests: seed produces 1 board / 3 columns / expected cards; cascade delete removes children
+- [x] SQLModel tables for all models above
+- [x] Tables created on startup; DB path configurable for tests
+- [x] Seed function creates the demo board: 3 columns, realistic cards, labels, priorities, due dates (one overdue), one checklist
+- [x] Board templates (Blank, Sprint, Bug tracking, Personal) defined as data and built by the same seed code
+- [x] Unit tests: seed produces 1 board / 3 columns / expected cards; cascade delete removes children
 
 ## Phase 3 - Authentication and Authorization
 

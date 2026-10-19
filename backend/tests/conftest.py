@@ -4,6 +4,7 @@ import os
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlmodel import Session
 
 from app.config import Settings
 
@@ -20,8 +21,22 @@ def dist(tmp_path):
 
 
 @pytest.fixture
-def settings(dist):
-    return Settings(jwt_secret="x" * 64, frontend_dist=dist)
+def settings(dist, tmp_path):
+    return Settings(
+        jwt_secret="x" * 64,
+        frontend_dist=dist,
+        database_url=f"sqlite:///{tmp_path / 'test.db'}",
+    )
+
+
+@pytest.fixture
+def session(settings):
+    from app.db import make_engine
+
+    engine = make_engine(settings.database_url)
+    with Session(engine) as s:
+        yield s
+    engine.dispose()
 
 
 @pytest.fixture
