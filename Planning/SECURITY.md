@@ -49,7 +49,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [ ] No CORS middleware: frontend and API share one origin (SEC-30)
 - [ ] State-changing endpoints accept only `application/json` bodies, so cross-site forms cannot call them (SEC-31)
 - [ ] `SameSite=Lax` cookie blocks cross-site POST with credentials (SEC-32)
-- [ ] Requests with a foreign `Origin` header on POST/PATCH/PUT/DELETE are rejected with 403 (SEC-33)
+- [x] Requests with a foreign `Origin` header on POST/PATCH/PUT/DELETE are rejected with 403 (SEC-33)
 
 ## 5. Input validation and abuse limits
 
@@ -61,18 +61,18 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## 5b. File uploads (attachments and board backgrounds)
 
-- [ ] Attachments: 4 MB per file, 10 per card, 100 MB per account, 10 MB per guest; checked on the server (SEC-130)
-- [ ] Backgrounds: 10 MB upload limit, at most 2 MB stored after re-encoding (SEC-131)
-- [ ] File type decided by real content (magic bytes) plus extension, against an allow list; SVG, HTML, scripts and programs rejected (SEC-132)
-- [ ] Images opened and re-saved with Pillow: fake or broken images rejected, metadata (GPS, camera) stripped (SEC-133)
-- [ ] Stored under random keys; the user's file name is display-only and sanitized; no path traversal (SEC-134)
-- [ ] Downloads only through an owner-checked endpoint; other users get 404; no public links (SEC-135)
-- [ ] Download headers: `Content-Disposition: attachment` (inline only for images), stored content type, `nosniff`, `Content-Security-Policy: sandbox` (SEC-136)
-- [ ] Upload endpoints protected by the Origin check, because multipart forms can be sent cross-site (SEC-137)
+- [x] Attachments: 4 MB per file, 10 per card, 100 MB per account, 10 MB per guest; checked on the server (SEC-130)
+- [x] Backgrounds: 10 MB upload limit, at most 2 MB stored after re-encoding (SEC-131)
+- [x] File type decided by real content (magic bytes) plus extension, against an allow list; SVG, HTML, scripts and programs rejected (SEC-132)
+- [x] Images opened and re-saved with Pillow: fake or broken images rejected, metadata (GPS, camera) stripped (SEC-133)
+- [x] Stored under random keys; the user's file name is display-only and sanitized; no path traversal (SEC-134)
+- [x] Downloads only through an owner-checked endpoint; other users get 404; no public links (SEC-135)
+- [x] Download headers: `Content-Disposition: attachment` (inline only for images), stored content type, `nosniff`, `Content-Security-Policy: sandbox` (SEC-136)
+- [x] Upload endpoints protected by the Origin check, because multipart forms can be sent cross-site (SEC-137)
 - [ ] Uploads rate-limited: 20 per minute per user (SEC-138)
-- [ ] Deleting a card, column, board or account deletes its stored files; no orphans left (SEC-139)
-- [ ] Request size checked before reading the whole body (no memory exhaustion) (SEC-140)
-- [ ] Storage credentials only in `.env` / Vercel settings; local storage folder git-ignored (SEC-141)
+- [x] Deleting a card, column, board or account deletes its stored files; no orphans left (SEC-139)
+- [x] Request size checked before reading the whole body (no memory exhaustion) (SEC-140)
+- [x] Storage credentials only in `.env` / Vercel settings; local storage folder git-ignored (SEC-141)
 - [ ] Focus timer stores only timer state in the browser; no personal data (SEC-142)
 
 ## 6. Rate limiting

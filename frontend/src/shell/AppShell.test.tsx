@@ -35,7 +35,13 @@ const LIST = [
 
 function boardFor(id: number) {
   const title = LIST.find((b) => b.id === id)?.title ?? 'New'
-  return { id, title, labels: [], columns: [{ id: 1, title: 'To Do', position: 0, cards: [] }] }
+  return {
+    id,
+    title,
+    labels: [],
+    columns: [{ id: 1, title: 'To Do', position: 0, cards: [] }],
+    background: { kind: 'none' as const, preset: null, version: 0 },
+  }
 }
 
 function renderShell(user: User = member, props: Partial<Parameters<typeof AppShell>[0]> = {}) {

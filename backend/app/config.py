@@ -19,6 +19,7 @@ class Settings:
     env: str = "development"
     database_url: str = f"sqlite:///{ROOT / 'backend' / 'taskmanager.db'}"
     frontend_dist: Path = ROOT / "frontend" / "dist"
+    storage_dir: Path = ROOT / "backend" / "storage"
     app_url: str = "http://localhost:8000"
     email_mode: str = "console"
     smtp_host: str = "smtp.gmail.com"
@@ -53,6 +54,7 @@ def load_settings() -> Settings:
         env=env("ENV", d.env),
         database_url=env("DATABASE_URL", d.database_url),
         frontend_dist=Path(env("FRONTEND_DIST", d.frontend_dist)),
+        storage_dir=Path(env("STORAGE_DIR", d.storage_dir)),
         app_url=env("APP_URL", d.app_url).rstrip("/"),
         email_mode=env("EMAIL_MODE", d.email_mode),
         smtp_host=env("SMTP_HOST", d.smtp_host),

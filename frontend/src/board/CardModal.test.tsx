@@ -18,6 +18,7 @@ const card: Card = {
     { id: 11, text: 'Draft wireframe', done: true, position: 0 },
     { id: 12, text: 'Review copy', done: false, position: 1 },
   ],
+  attachments: [],
 }
 const labels = [
   { id: 1, name: 'Design', color: 'purple' as const },

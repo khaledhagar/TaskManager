@@ -69,6 +69,12 @@ class Board(SQLModel, table=True):
     title: str
     created_at: datetime = Field(default_factory=utcnow)
 
+    background_kind: str = "none"
+    background_preset: str | None = None
+    background_key: str | None = None
+    background_size: int = 0
+    background_version: int = 0
+
     owner: User = Relationship(back_populates="boards")
     columns: list["BoardColumn"] = Relationship(
         back_populates="board",
@@ -121,6 +127,29 @@ class Card(SQLModel, table=True):
         sa_relationship_kwargs={"order_by": "ChecklistItem.position"},
     )
     labels: list["Label"] = Relationship(back_populates="cards", link_model=CardLabel)
+    attachments: list["Attachment"] = Relationship(
+        back_populates="card",
+        cascade_delete=True,
+        sa_relationship_kwargs={"order_by": "Attachment.id"},
+    )
+
+
+class Attachment(SQLModel, table=True):
+    """File attached to a card; bytes live in storage under a random key."""
+
+    __tablename__ = "attachments"
+
+    id: int | None = Field(default=None, primary_key=True)
+    card_id: int = Field(foreign_key="cards.id", ondelete="CASCADE", index=True)
+    owner_id: int = Field(foreign_key="users.id", ondelete="CASCADE", index=True)
+    filename: str
+    content_type: str
+    size: int
+    is_image: bool = False
+    storage_key: str = Field(unique=True)
+    created_at: datetime = Field(default_factory=utcnow)
+
+    card: Card = Relationship(back_populates="attachments")
 
 
 class ChecklistItem(SQLModel, table=True):

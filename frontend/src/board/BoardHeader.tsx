@@ -14,10 +14,11 @@ type Props = {
   onRename: (title: string) => void
   onDelete: () => Promise<void>
   onHelp: () => void
+  onBackground: () => void
 }
 
 /** Board title (click to rename), completion progress and board options. */
-export function BoardHeader({ board, onRename, onDelete, onHelp }: Props) {
+export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground }: Props) {
   const [confirming, setConfirming] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { done, total, percent } = progress(board)
@@ -62,6 +63,7 @@ export function BoardHeader({ board, onRename, onDelete, onHelp }: Props) {
         triggerClassName={ui.iconButton}
         trigger={<MoreHorizontal size={18} aria-hidden="true" />}
         items={[
+          { kind: 'action', label: 'Change background', onSelect: onBackground },
           { kind: 'action', label: 'Keyboard shortcuts', onSelect: onHelp },
           { kind: 'separator' },
           { kind: 'action', label: 'Delete board', danger: true, onSelect: () => setConfirming(true) },

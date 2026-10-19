@@ -91,6 +91,22 @@ class LabelOut(BaseModel):
     color: LabelColor
 
 
+class AttachmentOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    filename: str
+    content_type: str
+    size: int
+    is_image: bool
+    created_at: datetime
+
+
+class BackgroundOut(BaseModel):
+    kind: str
+    preset: str | None
+    version: int
+
+
 class CardOut(BaseModel):
     id: int
     title: str
@@ -101,6 +117,7 @@ class CardOut(BaseModel):
     position: int
     label_ids: list[int]
     checklist: list[ItemOut]
+    attachments: list[AttachmentOut]
 
 
 class ColumnOut(BaseModel):
@@ -122,6 +139,7 @@ class BoardOut(BaseModel):
     title: str
     labels: list[LabelOut]
     columns: list[ColumnOut]
+    background: BackgroundOut
 
 
 def card_out(card: Card) -> CardOut:
@@ -135,6 +153,7 @@ def card_out(card: Card) -> CardOut:
         position=card.position,
         label_ids=sorted(label.id for label in card.labels),
         checklist=[ItemOut.model_validate(i) for i in card.checklist],
+        attachments=[AttachmentOut.model_validate(a) for a in card.attachments],
     )
 
 
@@ -153,4 +172,13 @@ def board_out(board: Board) -> BoardOut:
         title=board.title,
         labels=[LabelOut.model_validate(lbl) for lbl in board.labels],
         columns=[column_out(c) for c in board.columns],
+        background=background_out(board),
+    )
+
+
+def background_out(board: Board) -> BackgroundOut:
+    return BackgroundOut(
+        kind=board.background_kind,
+        preset=board.background_preset,
+        version=board.background_version,
     )

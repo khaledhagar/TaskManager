@@ -24,6 +24,7 @@ const card: Card = {
     { id: 1, text: 'a', done: true, position: 0 },
     { id: 2, text: 'b', done: false, position: 1 },
   ],
+  attachments: [],
 }
 const labels = [
   { id: 9, name: 'Bug', color: 'red' as const },

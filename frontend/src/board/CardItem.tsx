@@ -1,4 +1,4 @@
-import { AlignLeft, CalendarDays, Check, ListChecks } from 'lucide-react'
+import { AlignLeft, CalendarDays, Check, ListChecks, Paperclip } from 'lucide-react'
 import type { ButtonHTMLAttributes, Ref } from 'react'
 import type { Card, Label } from '../api/boards'
 import css from './board.module.css'
@@ -63,6 +63,13 @@ export function CardItem({ card, labels, onOpen, onToggle, activatorRef, activat
               <ListChecks size={12} aria-hidden="true" />
               <span className="visually-hidden">Checklist </span>
               {done}/{card.checklist.length}
+            </span>
+          ) : null}
+          {card.attachments.length ? (
+            <span className={css.metaItem}>
+              <Paperclip size={12} aria-hidden="true" />
+              <span className="visually-hidden">Attachments </span>
+              {card.attachments.length}
             </span>
           ) : null}
           {card.details.trim() ? (

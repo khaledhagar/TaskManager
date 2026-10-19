@@ -24,7 +24,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   vi.mocked(auth.config).mockResolvedValue({ google: false })
   vi.mocked(boards.list).mockResolvedValue([{ id: 1, title: 'Website Launch', created_at: '' }])
-  vi.mocked(boards.get).mockResolvedValue({ id: 1, title: 'Website Launch', labels: [], columns: [] })
+  vi.mocked(boards.get).mockResolvedValue({ id: 1, title: 'Website Launch', labels: [], columns: [], background: { kind: 'none' as const, preset: null, version: 0 } })
 })
 
 describe('app routing', () => {

@@ -111,7 +111,7 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-084 Every non-auth endpoint returns 401 without a cookie
 
 ### A9. CSRF and input limits
-- [ ] T-090 POST with a foreign `Origin` header returns 403 (SEC-33)
+- [x] T-090 POST with a foreign `Origin` header returns 403 (SEC-33)
 - [ ] T-091 Form-encoded body on a JSON endpoint returns 422 (SEC-31)
 - [ ] T-092 Strings over their `max_length` return 422 for every field (SEC-40)
 - [ ] T-093 Body over 1 MB returns 413 (SEC-43)
@@ -142,20 +142,20 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [ ] T-132 Request with an untrusted Host header is rejected in production (SEC-92)
 
 ### A14. Files: attachments and backgrounds (Phase 9)
-- [ ] T-170 Upload an attachment, list it on the card, download it with the same bytes, delete it
-- [ ] T-171 File over 4 MB returns 413; 11th file on a card returns 400 (SEC-130)
-- [ ] T-172 Account over 100 MB (guest over 10 MB) returns 400 (SEC-130)
-- [ ] T-173 Renamed program (`.exe` content named `.pdf`), SVG and HTML are rejected (SEC-132)
-- [ ] T-174 Fake image (text named `.png`) rejected as attachment preview and as background (SEC-133)
-- [ ] T-175 Background photo with GPS metadata is stored without it; stored size at most 2 MB (SEC-131, SEC-133)
-- [ ] T-176 Stored key is random; a file name like `../../x.txt` is stored safely and shown sanitized (SEC-134)
-- [ ] T-177 Other users get 404 for download, delete and background of someone else's card or board (SEC-135)
-- [ ] T-178 Download headers: attachment disposition, content type, nosniff, sandbox CSP (SEC-136)
-- [ ] T-179 Cross-site multipart upload (foreign Origin) returns 403 (SEC-137)
-- [ ] T-180 Deleting a card, column, board or account removes the stored files (SEC-139)
-- [ ] T-181 Background preset set and removed; unknown preset returns 422
-- [ ] T-182 Usage endpoint reports bytes used and the limit
-- [ ] T-183 Local storage put / get / delete and missing-key behaviour
+- [x] T-170 Upload an attachment, list it on the card, download it with the same bytes, delete it
+- [x] T-171 File over 4 MB returns 413; 11th file on a card returns 400 (SEC-130)
+- [x] T-172 Account over 100 MB (guest over 10 MB) returns 400 (SEC-130)
+- [x] T-173 Renamed program (`.exe` content named `.pdf`), SVG and HTML are rejected (SEC-132)
+- [x] T-174 Fake image (text named `.png`) rejected as attachment preview and as background (SEC-133)
+- [x] T-175 Background photo with GPS metadata is stored without it; stored size at most 2 MB (SEC-131, SEC-133)
+- [x] T-176 Stored key is random; a file name like `../../x.txt` is stored safely and shown sanitized (SEC-134)
+- [x] T-177 Other users get 404 for download, delete and background of someone else's card or board (SEC-135)
+- [x] T-178 Download headers: attachment disposition, content type, nosniff, sandbox CSP (SEC-136)
+- [x] T-179 Cross-site multipart upload (foreign Origin) returns 403 (SEC-137)
+- [x] T-180 Deleting a card, column, board or account removes the stored files (SEC-139)
+- [x] T-181 Background preset set and removed; unknown preset returns 422
+- [x] T-182 Usage endpoint reports bytes used and the limit
+- [x] T-183 Local storage put / get / delete and missing-key behaviour
 
 ## B. Frontend unit tests (`frontend/src/**/*.test.tsx`)
 
@@ -180,10 +180,10 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-218 Check-your-inbox screen offers Resend email with a cooldown
 - [x] T-219 Reset password page reads the token from the link and validates the new password
 - [x] T-220 Account menu shows Change password, or Set password for Google-only users
-- [ ] T-221 Attachments: files over the limit or of a blocked type are refused before upload with a clear message
-- [ ] T-222 Attachments: upload progress, success, error, download link, delete with confirm
-- [ ] T-223 Background picker: presets apply at once; photo is shrunk to at most 2560 px before upload; remove works
-- [ ] T-224 Board stays readable over a background (dim layer and solid columns present)
+- [x] T-221 Attachments: files over the limit or of a blocked type are refused before upload with a clear message
+- [x] T-222 Attachments: upload progress, success, error, download link, delete with confirm
+- [x] T-223 Background picker: presets apply at once; photo is shrunk to at most 2560 px before upload; remove works
+- [x] T-224 Board stays readable over a background (dim layer and solid columns present)
 - [ ] T-225 Timer: remaining time computed from the end time, correct after a simulated reload
 - [ ] T-226 Timer: focus end switches to break; break end waits for the user before the next focus
 - [ ] T-227 Timer: reset focus and reset break each reset only their own phase

@@ -1,6 +1,7 @@
 import { Check, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import type { Card, Label, Priority } from '../api/boards'
+import { AttachmentsSection } from '../files/AttachmentsSection'
 import { Dialog } from '../ui/Dialog'
 import ui from '../ui/ui.module.css'
 import css from './board.module.css'
@@ -24,6 +25,7 @@ export function CardModal({ card, labels, actions, onClose }: Props) {
           <TitleEditor title={card.title} onSave={(title) => update({ title })} />
           <DescriptionEditor details={card.details} onSave={(details) => update({ details })} />
           <ChecklistEditor card={card} actions={actions} />
+          <AttachmentsSection card={card} actions={actions} />
         </div>
         <aside className={css.modalSide}>
           <button

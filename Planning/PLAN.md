@@ -19,7 +19,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 6 - Account Security (backend) | 8 / 9 | Done (live Gmail/Google check moved to Phase 15) |
 | Phase 7 - Frontend Foundation | 6 / 6 | Done |
 | Phase 8 - Board UI | 11 / 11 | Done |
-| Phase 9 - Files (attachments and board backgrounds) | 0 / 8 | Not started |
+| Phase 9 - Files (attachments and board backgrounds) | 8 / 8 | Done |
 | Phase 10 - Focus Timer (Pomodoro) | 0 / 5 | Not started |
 | Phase 11 - AI UI | 0 / 4 | Not started |
 | Phase 12 - Polish | 0 / 5 | Not started |
@@ -308,14 +308,14 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 
 ## Phase 9 - Files (attachments and board backgrounds)
 
-- [ ] Storage interface with local folder implementation; storage folder git-ignored
-- [ ] `attachments` table and board background fields
-- [ ] Upload, download, delete attachments with type, size, per-card and per-account limits
-- [ ] Board background: upload photo, choose preset, remove; image checked and re-saved with Pillow
-- [ ] Owner checks, safe download headers, files deleted with their card, column, board or account
-- [ ] Card modal Attachments section: drag and drop or choose files, progress, preview for images, download, delete
-- [ ] Board menu "Change background": upload (shrunk in the browser first), presets, remove; readable over any photo
-- [ ] Unit tests for every rule above (backend and frontend)
+- [x] Storage interface with local folder implementation; storage folder git-ignored
+- [x] `attachments` table and board background fields
+- [x] Upload, download, delete attachments with type, size, per-card and per-account limits
+- [x] Board background: upload photo, choose preset, remove; image checked and re-saved with Pillow
+- [x] Owner checks, safe download headers, files deleted with their card, column, board or account
+- [x] Card modal Attachments section: drag and drop or choose files, progress, preview for images, download, delete
+- [x] Board menu "Change background": upload (shrunk in the browser first), presets, remove; readable over any photo
+- [x] Unit tests for every rule above (backend and frontend)
 
 ## Phase 10 - Focus Timer (Pomodoro)
 

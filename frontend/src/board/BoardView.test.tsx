@@ -26,6 +26,7 @@ const card = (id: number, title: string, extra = {}) => ({
   position: 0,
   label_ids: [] as number[],
   checklist: [],
+  attachments: [],
   ...extra,
 })
 
@@ -33,6 +34,7 @@ function sample(): Board {
   return {
     id: 1,
     title: 'Website Launch',
+    background: { kind: 'none' as const, preset: null, version: 0 },
     labels: [{ id: 5, name: 'Bug', color: 'red' }],
     columns: [
       {

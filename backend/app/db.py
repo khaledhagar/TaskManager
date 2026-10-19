@@ -7,7 +7,7 @@ from fastapi import Depends, Request
 from sqlalchemy import Engine, event
 from sqlmodel import Session, SQLModel, create_engine
 
-from app import models  # noqa: F401  (registers tables)
+from app import file_cleanup, models  # noqa: F401  (registers tables and file cleanup hooks)
 
 
 def make_engine(url: str) -> Engine:
@@ -30,7 +30,7 @@ def _sqlite_pragmas(dbapi_conn, _record) -> None:
 
 def get_session(request: Request) -> Iterator[Session]:
     """Yield a session bound to the app's engine."""
-    with Session(request.app.state.engine) as session:
+    with Session(request.app.state.engine, info={"storage": request.app.state.storage}) as session:
         yield session
 
 

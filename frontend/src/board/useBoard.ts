@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { boards, type Board, type Card, type CardPatch, type LabelColor } from '../api/boards'
+import { boards, type Attachment, type Background, type Board, type Card, type CardPatch, type LabelColor } from '../api/boards'
+import { files } from '../api/files'
 import { useToast } from '../ui/toastContext'
 import * as logic from './logic'
 
@@ -173,6 +174,15 @@ export function useBoard(boardId: number) {
         })),
         () => boards.removeItem(itemId),
       ),
+
+    attachmentAdded: (cardId: number, attachment: Attachment) =>
+      commit(withCard(cardId, (c) => ({ attachments: [...c.attachments, attachment] }))(ref.current!)),
+    deleteAttachment: (cardId: number, attachmentId: number) =>
+      mutate(
+        withCard(cardId, (c) => ({ attachments: c.attachments.filter((a) => a.id !== attachmentId) })),
+        () => files.remove(attachmentId),
+      ),
+    setBackground: (background: Background) => commit({ ...ref.current!, background }),
 
     addLabel: (name: string, color: LabelColor) =>
       create(() => boards.addLabel(boardId, name, color), (b, label) => ({ ...b, labels: [...b.labels, label] })),

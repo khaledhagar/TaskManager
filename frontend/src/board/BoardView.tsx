@@ -1,6 +1,8 @@
 import { Plus } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { boards } from '../api/boards'
+import { Backdrop } from '../files/Backdrop'
+import { BackgroundPicker } from '../files/BackgroundPicker'
 import { InlineText } from '../ui/InlineText'
 import ui from '../ui/ui.module.css'
 import css from './board.module.css'
@@ -26,6 +28,7 @@ export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
   const [openCardId, setOpenCardId] = useState<number | null>(null)
   const [composing, setComposing] = useState<number | null>(null)
   const [help, setHelp] = useState(false)
+  const [picking, setPicking] = useState(false)
   const searchRef = useRef<HTMLInputElement>(null)
 
   useShortcuts({
@@ -48,7 +51,9 @@ export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
   const openCard = openCardId === null ? undefined : findCard(board, openCardId)?.card
 
   return (
-    <section className={css.board}>
+    <section className={css.board} data-backdrop={board.background.kind !== 'none' || undefined}>
+      <Backdrop boardId={board.id} background={board.background} />
+      <div className={css.boardTop}>
       <BoardHeader
         board={board}
         onRename={(title) => {
@@ -60,6 +65,7 @@ export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
           onDeleted(board.id)
         }}
         onHelp={() => setHelp(true)}
+        onBackground={() => setPicking(true)}
       />
       <FilterBar
         filters={filters}
@@ -77,6 +83,7 @@ export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
           </button>
         </p>
       ) : null}
+      </div>
       <BoardColumns
         board={board}
         actions={actions}
@@ -97,6 +104,12 @@ export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
         />
       ) : null}
       <ShortcutsHelp open={help} onClose={() => setHelp(false)} />
+      <BackgroundPicker
+        open={picking}
+        board={board}
+        onClose={() => setPicking(false)}
+        onChange={actions.setBackground}
+      />
     </section>
   )
 }

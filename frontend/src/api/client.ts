@@ -37,7 +37,8 @@ export async function api<T = unknown>(path: string, options: Options = {}): Pro
   return data as T
 }
 
-function messageFrom(status: number, data: unknown): string {
+/** Turn an error response into a message fit for the user. */
+export function messageFrom(status: number, data: unknown): string {
   const detail = (data as { detail?: unknown } | null)?.detail
   if (typeof detail === 'string') return detail
   if (Array.isArray(detail) && detail.length > 0) {

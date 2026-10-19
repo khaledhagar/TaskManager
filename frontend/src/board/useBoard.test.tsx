@@ -22,10 +22,12 @@ function sample(): Board {
     position: 0,
     label_ids: [],
     checklist: [],
+    attachments: [],
   })
   return {
     id: 1,
     title: 'B',
+    background: { kind: 'none' as const, preset: null, version: 0 },
     labels: [],
     columns: [
       { id: 1, title: 'To Do', position: 0, cards: [card(1), card(2)] },

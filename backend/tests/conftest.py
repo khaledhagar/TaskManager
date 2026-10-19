@@ -27,6 +27,7 @@ def settings(dist, tmp_path):
         frontend_dist=dist,
         database_url=f"sqlite:///{tmp_path / 'test.db'}",
         app_url="http://app.test",
+        storage_dir=tmp_path / "storage",
     )
 
 

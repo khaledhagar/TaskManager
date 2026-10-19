@@ -1,0 +1,164 @@
+/* Attachments, background picker and the board backdrop. */
+.list {
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
+
+.thumb,
+.icon {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 6px;
+}
+
+.thumb {
+  object-fit: cover;
+  background: var(--surface-sunken);
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  background: var(--surface-sunken);
+  color: var(--muted);
+}
+
+.name {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.upload {
+  display: grid;
+  gap: 4px;
+}
+
+.errors {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  list-style: none;
+}
+
+.drop {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 14px;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius-card);
+  color: var(--muted);
+  text-align: center;
+}
+
+.drop[data-dragging] {
+  border-color: var(--focus);
+  background: var(--surface-sunken);
+}
+
+.drop:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.choose {
+  color: var(--link);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.presets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.preset {
+  display: flex;
+  align-items: flex-end;
+  height: 64px;
+  padding: 8px;
+  border: 2px solid transparent;
+  border-radius: var(--radius-card);
+  color: #ffffff;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 40%);
+}
+
+.preset[aria-pressed="true"] {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 2px var(--surface) inset;
+}
+
+.photoRow {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+}
+
+.photoRow label {
+  cursor: pointer;
+}
+
+.photoRow:focus-within label {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.backdrop {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+}
+
+.dim {
+  position: absolute;
+  inset: 0;
+  background: rgb(3 33 71 / 22%);
+}
+
+:root[data-theme="dark"] .dim {
+  background: rgb(2 12 30 / 50%);
+}
+
+[data-preset="navy"] {
+  background-image: linear-gradient(135deg, #032147, #0d4f8b);
+}
+
+[data-preset="dusk"] {
+  background-image: linear-gradient(135deg, #2a1546, #753991);
+}
+
+[data-preset="sky"] {
+  background-image: linear-gradient(135deg, #0f6fa3, #6cc4ec);
+}
+
+[data-preset="meadow"] {
+  background-image: linear-gradient(135deg, #0f5e45, #6fbf8f);
+}
+
+[data-preset="sunrise"] {
+  background-image: linear-gradient(135deg, #c98a00, #e2673a);
+}
+
+[data-preset="graphite"] {
+  background-image: linear-gradient(135deg, #2b2f36, #5b6370);
+}

@@ -6,6 +6,15 @@ export type LabelColor = 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purpl
 export type BoardSummary = { id: number; title: string; created_at: string }
 export type Label = { id: number; name: string; color: LabelColor }
 export type ChecklistItem = { id: number; text: string; done: boolean; position: number }
+export type Attachment = {
+  id: number
+  filename: string
+  content_type: string
+  size: number
+  is_image: boolean
+  created_at: string
+}
+export type Background = { kind: 'none' | 'preset' | 'image'; preset: string | null; version: number }
 export type Card = {
   id: number
   title: string
@@ -16,9 +25,16 @@ export type Card = {
   position: number
   label_ids: number[]
   checklist: ChecklistItem[]
+  attachments: Attachment[]
 }
 export type Column = { id: number; title: string; position: number; cards: Card[] }
-export type Board = { id: number; title: string; labels: Label[]; columns: Column[] }
+export type Board = {
+  id: number
+  title: string
+  labels: Label[]
+  columns: Column[]
+  background: Background
+}
 export type CardPatch = Partial<
   Pick<Card, 'title' | 'details' | 'completed' | 'priority' | 'due_date'>
 >
