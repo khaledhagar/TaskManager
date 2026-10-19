@@ -43,6 +43,10 @@
 - Keyboard shortcuts: N, /, Esc, ?
 - Markdown in card descriptions
 
+## Start Here (new session)
+
+Read `Planning/SESSION_LOG.md` first: current status, the user's working preferences, run and test commands, environment gotchas, decisions already made, and the next steps. Update it at the end of every session.
+
 ## Plan
 
 The full plan with phases and success criteria is in `Planning/PLAN.md`. Keep it updated: tick criteria as they are met.
