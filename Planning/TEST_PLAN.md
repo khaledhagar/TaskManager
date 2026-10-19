@@ -143,10 +143,10 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 
 ## B. Frontend unit tests (`frontend/src/**/*.test.tsx`)
 
-- [ ] T-200 API client sends credentials and JSON; turns error responses into readable messages
-- [ ] T-201 API client shows a specific message for 429
-- [ ] T-202 Auth form: validates email and password length; switches between sign in and sign up
-- [ ] T-203 Theme toggle switches theme and saves the choice
+- [x] T-200 API client sends credentials and JSON; turns error responses into readable messages
+- [x] T-201 API client shows a specific message for 429
+- [x] T-202 Auth form: validates email and password length; switches between sign in and sign up
+- [x] T-203 Theme toggle switches theme and saves the choice
 - [ ] T-204 Card shows title, priority badge, labels, due date, checklist progress
 - [ ] T-205 Due-date status: overdue, due within 2 days, later, completed (no warning)
 - [ ] T-206 Filter logic: text search, label, priority, completed, combined
@@ -160,10 +160,10 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [ ] T-214 Confirming a chat action calls the matching card endpoint
 - [ ] T-215 Optimistic move rolls back and shows an error when the API fails (NFR-31)
 - [ ] T-216 No `dangerouslySetInnerHTML` in the source (checked by a grep test) (SEC-60)
-- [ ] T-217 Auth screen shows Continue with Google, sign in, sign up, guest and Forgot password
-- [ ] T-218 Check-your-inbox screen offers Resend email with a cooldown
-- [ ] T-219 Reset password page reads the token from the link and validates the new password
-- [ ] T-220 Account menu shows Change password, or Set password for Google-only users
+- [x] T-217 Auth screen shows Continue with Google, sign in, sign up, guest and Forgot password
+- [x] T-218 Check-your-inbox screen offers Resend email with a cooldown
+- [x] T-219 Reset password page reads the token from the link and validates the new password
+- [x] T-220 Account menu shows Change password, or Set password for Google-only users
 
 ## C. End-to-end tests (Playwright, `frontend/e2e/`)
 

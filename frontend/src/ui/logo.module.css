@@ -1,0 +1,32 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+}
+
+.inverted {
+  color: #ffffff;
+}
+
+.mark {
+  width: 28px;
+  height: 28px;
+}
+
+.inverted .mark rect:first-child,
+:root[data-theme="dark"] .mark rect:first-child {
+  fill: rgb(255 255 255 / 10%);
+}
+
+@media (max-width: 640px) {
+  .collapsible .word {
+    display: none;
+  }
+}
+
+.word {
+  font-size: var(--text-md);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}

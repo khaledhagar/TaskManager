@@ -1,8 +1,56 @@
 import { render, screen } from '@testing-library/react'
-import { expect, test } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { auth } from './api/auth'
+import { boards } from './api/boards'
+import { ApiError } from './api/client'
 import App from './App'
 
-test('renders the app title', () => {
-  render(<App />)
-  expect(screen.getByRole('heading', { name: 'Task Manager' })).toBeInTheDocument()
+vi.mock('./api/auth', async (original) => {
+  const actual = await original<typeof import('./api/auth')>()
+  return { ...actual, auth: { me: vi.fn(), config: vi.fn(), verify: vi.fn() } }
+})
+vi.mock('./api/boards', () => ({ boards: { list: vi.fn(), get: vi.fn() } }))
+
+const member = {
+  id: 1,
+  email: 'alice@example.com',
+  is_guest: false,
+  email_verified: true,
+  has_password: true,
+  google_linked: false,
+}
+
+beforeEach(() => {
+  vi.clearAllMocks()
+  vi.mocked(auth.config).mockResolvedValue({ google: false })
+  vi.mocked(boards.list).mockResolvedValue([{ id: 1, title: 'Website Launch', created_at: '' }])
+  vi.mocked(boards.get).mockResolvedValue({ id: 1, title: 'Website Launch', labels: [], columns: [] })
+})
+
+describe('app routing', () => {
+  test('signed-out visitors see sign in', async () => {
+    history.replaceState(null, '', '/')
+    vi.mocked(auth.me).mockRejectedValue(new ApiError(401, 'Not signed in'))
+    render(<App />)
+    expect(
+      await screen.findByRole('heading', { name: 'Sign in to Task Manager' }),
+    ).toBeInTheDocument()
+  })
+
+  test('signed-in users see their board, even when opening /signin', async () => {
+    history.replaceState(null, '', '/signin')
+    vi.mocked(auth.me).mockResolvedValue(member)
+    render(<App />)
+    expect(await screen.findByRole('heading', { name: 'Website Launch' })).toBeInTheDocument()
+    expect(location.pathname).toBe('/')
+  })
+
+  test('the verification link signs in and opens the app', async () => {
+    history.replaceState(null, '', '/verify?token=tok-1234567890')
+    vi.mocked(auth.me).mockRejectedValue(new ApiError(401, 'Not signed in'))
+    vi.mocked(auth.verify).mockResolvedValue(member)
+    render(<App />)
+    expect(await screen.findByRole('heading', { name: 'Website Launch' })).toBeInTheDocument()
+    expect(location.pathname).toBe('/')
+  })
 })

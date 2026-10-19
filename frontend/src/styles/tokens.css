@@ -1,0 +1,64 @@
+/* Design tokens. Brand colors from CLAUDE.md; text shades adjusted for WCAG AA contrast. */
+:root {
+  --brand-navy: #032147;
+  --brand-blue: #209dd7;
+  --brand-purple: #753991;
+  --brand-yellow: #ecad0a;
+  --brand-gray: #888888;
+
+  --wall: #f5f7fa;
+  --surface: #ffffff;
+  --surface-sunken: #eef2f7;
+  --border: #e1e6ee;
+  --border-strong: #cbd3df;
+  --ink: #032147;
+  --text: #1d2b42;
+  --muted: #64686f;
+  --link: #1677a8;
+  --focus: #209dd7;
+  --primary: #753991;
+  --primary-hover: #5f2c78;
+  --on-primary: #ffffff;
+  --accent: #ecad0a;
+  --on-accent: #032147;
+  --danger: #b4331f;
+  --danger-soft: #fbeae7;
+  --success: #23794c;
+  --lift: 0 1px 2px rgb(3 33 71 / 6%), 0 8px 24px rgb(3 33 71 / 12%);
+
+  --font: "Instrument Sans Variable", system-ui, sans-serif;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-md: 16px;
+  --text-lg: 20px;
+  --text-xl: 28px;
+  --text-2xl: 40px;
+
+  --radius-control: 6px;
+  --radius-card: 8px;
+  --radius-panel: 14px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --wall: #04193a;
+  --surface: #0b2a55;
+  --surface-sunken: #072247;
+  --border: #1b3d6b;
+  --border-strong: #2a5288;
+  --ink: #f2f6fb;
+  --text: #e7edf5;
+  --muted: #9aa6b8;
+  --link: #4fb6e6;
+  --focus: #4fb6e6;
+  --primary: #8a4aa8;
+  --primary-hover: #9d5dbb;
+  --danger: #ff8a73;
+  --danger-soft: #3a1d2a;
+  --success: #5fd39a;
+  --lift: 0 1px 2px rgb(0 0 0 / 30%), 0 10px 28px rgb(0 0 0 / 40%);
+
+  color-scheme: dark;
+}

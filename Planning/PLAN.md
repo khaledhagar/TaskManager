@@ -7,6 +7,25 @@ The app will be published, so two companion checklists are part of every phase:
 - `Planning/SECURITY.md`: security and non-functional requirements (SEC-xx, NFR-xx)
 - `Planning/TEST_PLAN.md`: every test (T-xxx), written test first; a phase is done only when its tests pass
 
+## Progress
+
+| Phase | Tasks done | Status |
+|-------|-----------|--------|
+| Phase 1 - Scaffolding | 7 / 7 | Done |
+| Phase 2 - Database and Models | 5 / 5 | Done |
+| Phase 3 - Authentication and Authorization | 7 / 7 | Done |
+| Phase 4 - Boards, Columns, Cards, Labels API | 6 / 6 | Done |
+| Phase 5 - AI Backend | 7 / 7 | Done |
+| Phase 6 - Account Security (backend) | 8 / 9 | Done (live Gmail/Google check moved to Phase 13) |
+| Phase 7 - Frontend Foundation | 6 / 6 | Done |
+| Phase 8 - Board UI | 0 / 11 | Not started |
+| Phase 9 - AI UI | 0 / 4 | Not started |
+| Phase 10 - Polish | 0 / 5 | Not started |
+| Phase 11 - Security and Non-Functional Hardening | 0 / 5 | Not started |
+| Phase 12 - Integration Testing (Playwright) | 0 / 14 | Not started |
+| Phase 13 - Done | 0 / 5 | Not started |
+| Phase 14 - Deployment (Vercel) | 0 / 11 | Not started |
+
 ## Stack
 
 | Layer | Choice |
@@ -82,9 +101,11 @@ Reviewed against the confirmed list above for overlap and cost.
 Goal: calm, fast, professional - in the spirit of Linear and Trello, but simpler.
 
 - Layout: slim top bar (logo, board switcher, search, AI chat toggle, theme toggle, account menu); board header with title, progress bar and filters; columns as rounded panels that scroll horizontally; chat as a right-side drawer.
-- Typography: one sans family (Inter, self-hosted), 14 px base, clear scale (12 / 14 / 16 / 20 / 28), navy `#032147` headings, gray `#888888` supporting text.
+- Concept: a planning wall. The board is a calm, cool surface; cards are crisp paper. The one bold moment is the sign-in screen: a live miniature board on navy where a card slides from To Do to Done, showing the product's job. Everything else stays quiet.
+- Typography: Instrument Sans (variable, self-hosted), 14 px base, scale 12 / 14 / 16 / 20 / 28 / 40, weights 400 / 500 / 600, slightly tight tracking on headings, sentence case everywhere (no all-caps labels).
+- Contrast (measured 2026-10-20): brand blue `#209dd7` (3.06:1) and gray `#888888` (3.54:1) fail AA for small text on white, so they are used for focus rings, icons and large text only; small text uses `#64686f` (5.22:1) and links use `#1677a8` (4.95:1). Dark theme: wall `#04193a`, cards `#0b2a55`, text `#e7edf5`, muted `#9aa6b8`, links `#4fb6e6`, primary `#8a4aa8`.
 - Color roles: purple `#753991` primary buttons, blue `#209dd7` links and focus rings, yellow `#ecad0a` accent lines, the progress bar and due-soon state; red for overdue and destructive actions. Dark theme uses deep navy surfaces with the same accents, contrast checked to 4.5:1.
-- Spacing and shape: 4 px grid, 8 px card radius, 12 px panel radius, soft layered shadows; cards lift slightly on hover and while dragging.
+- Spacing and shape: 4 px grid; radius by size, not one value everywhere: 6 px controls, 8 px cards, 14 px panels and dialogs; light wall `#f5f7fa` with white cards and a single soft shadow only on lifted or dragged cards.
 - Feedback: optimistic updates everywhere; skeleton loaders on first load; toasts for errors and undo; inline editing (click a title, Enter saves, Esc cancels).
 - Cards: title, then a compact meta row (priority dot, labels as small pills, due date chip, checklist progress like "3/5"); completed cards are dimmed with a strikethrough title.
 - Card modal: two-column on desktop (content left; priority, due date, labels and AI actions right), full-screen sheet on mobile.
@@ -228,16 +249,16 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [x] Google sign-in (login + callback) with account linking and guest upgrade via Google
 - [x] Guest upgrade with email + password requires verification
 - [x] Unit tests for every flow, including expired, reused and tampered tokens, enumeration-safe responses, and a faked Google provider
-- [ ] Live check: one real verification email sent through Gmail SMTP; one real Google sign-in in the browser
+- [ ] Live check: one real verification email sent through Gmail SMTP; one real Google sign-in in the browser (moved to Phase 13 by the user)
 
 ## Phase 7 - Frontend Foundation
 
-- [ ] Design tokens from the color scheme (accent `#ecad0a`, primary `#209dd7`, secondary `#753991`, navy `#032147`, gray `#888888`), light and dark themes
-- [ ] Typed API client using `fetch` with cookies
-- [ ] Auth screen: "Continue with Google" (Google branding guidelines), sign in, sign up, "Continue as guest", "Forgot password?"
-- [ ] Account pages: check-your-inbox, verify link landing, reset password, change or set password in the account menu
-- [ ] App shell: header with board switcher, new board, theme toggle, account menu (sign out, upgrade guest)
-- [ ] Vitest tests: auth form validation, API client error handling, theme toggle
+- [x] Design tokens from the color scheme (accent `#ecad0a`, primary `#209dd7`, secondary `#753991`, navy `#032147`, gray `#888888`), light and dark themes
+- [x] Typed API client using `fetch` with cookies
+- [x] Auth screen: "Continue with Google" (Google branding guidelines), sign in, sign up, "Continue as guest", "Forgot password?"
+- [x] Account pages: check-your-inbox, verify link landing, reset password, change or set password in the account menu
+- [x] App shell: header with board switcher, new board, theme toggle, account menu (sign out, upgrade guest)
+- [x] Vitest tests: auth form validation, API client error handling, theme toggle
 
 ## Phase 8 - Board UI
 
@@ -295,6 +316,7 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 
 ## Phase 13 - Done
 
+- [ ] Live account checks from Phase 6: real Gmail verification email and real Google sign-in
 - [ ] Every test in `Planning/TEST_PLAN.md` ticked and passing
 - [ ] Every item in `Planning/SECURITY.md` ticked
 - [ ] README has run and test instructions
