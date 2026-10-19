@@ -79,9 +79,9 @@ Follow the UI/UX Specification in `Planning/PLAN.md`: calm, fast, professional, 
 ## AI design
 
 
-When writing code to make calls to LLMs, use your Cerebras skill to use LiteLLM with the Cerebras API directly, model `cerebras/gpt-oss-120b` (OpenRouter was dropped on 2026-10-20: no credits, and free OpenRouter models were too slow or rate-limited)
+When writing code to make calls to LLMs, use LiteLLM via OpenRouter with a free model: `openrouter/nvidia/nemotron-3.5-super-vl:free`, falling back to `openrouter/nvidia/nemotron-3-super-120b-a12b:free`. Always set `max_tokens`. See "AI Design" in `Planning/PLAN.md` for the free-tier limits (50 requests per day for the whole account) and how the app handles them.
 
-There is a CEREBRAS_API_KEY in the .env file in the project root (free tier from cloud.cerebras.ai).
+There is an OPENROUTER_API_KEY in the .env file in the project root (free tier, no credits).
 
 
 

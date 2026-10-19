@@ -47,7 +47,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 - [ ] Sign in and sign up: 10 per minute per IP (SEC-50)
 - [ ] Guest creation: 5 per hour per IP (SEC-51)
-- [ ] AI endpoints: 20 per minute and 200 per day per user (SEC-52)
+- [ ] AI endpoints: 3 per minute and 10 per day per user, because the whole account only has 50 free requests per day (SEC-52)
 - [ ] Exceeded limits return 429 with a clear message shown in the UI (SEC-53)
 
 ## 7. Output and XSS
@@ -58,12 +58,13 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## 8. AI-specific risks
 
-- [ ] `CEREBRAS_API_KEY` used only on the server; never sent to the browser (SEC-70)
+- [ ] `OPENROUTER_API_KEY` used only on the server; never sent to the browser (SEC-70)
 - [ ] Chat actions are proposals only; nothing is written until the user clicks Confirm, which calls normal, authorized endpoints (SEC-71)
 - [ ] Proposed actions referencing cards or columns not on the user's board are dropped (prompt injection defense) (SEC-72)
 - [ ] Chat history sent to the model is capped (last 20 messages) and `max_tokens` is set (cost control) (SEC-73)
 - [ ] Model errors and timeouts return a friendly 502 without leaking provider details (SEC-74)
 - [ ] System prompt tells the model it only assists with this app; board content is wrapped as data, not instructions (SEC-75)
+- [ ] UI states that AI features send card or board text to a third-party AI service; only the needed text is sent (SEC-76)
 
 ## 9. HTTP security headers
 

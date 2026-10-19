@@ -15,7 +15,7 @@ class Settings:
     """Runtime configuration for the app."""
 
     jwt_secret: str
-    cerebras_api_key: str = ""
+    openrouter_api_key: str = ""
     env: str = "development"
     database_url: str = f"sqlite:///{ROOT / 'backend' / 'taskmanager.db'}"
     frontend_dist: Path = ROOT / "frontend" / "dist"
@@ -34,7 +34,7 @@ def load_settings() -> Settings:
     defaults = Settings(jwt_secret="-" * 32)
     return Settings(
         jwt_secret=os.environ["JWT_SECRET"],
-        cerebras_api_key=os.getenv("CEREBRAS_API_KEY", ""),
+        openrouter_api_key=os.getenv("OPENROUTER_API_KEY", ""),
         env=os.getenv("ENV", defaults.env),
         database_url=os.getenv("DATABASE_URL", defaults.database_url),
         frontend_dist=Path(os.getenv("FRONTEND_DIST", defaults.frontend_dist)),

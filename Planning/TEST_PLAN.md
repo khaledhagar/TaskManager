@@ -91,7 +91,7 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 ### A10. Rate limits
 - [ ] T-100 11th sign-in within a minute from one IP returns 429 (SEC-50)
 - [ ] T-101 6th guest creation within an hour returns 429 (SEC-51)
-- [ ] T-102 21st AI call within a minute returns 429 (SEC-52)
+- [ ] T-102 4th AI call within a minute and 11th within a day return 429 (SEC-52)
 
 ### A11. AI (model call mocked)
 - [ ] T-110 Checklist suggestion returns 3 to 7 items and saves nothing
@@ -103,8 +103,9 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [ ] T-116 Chat actions with unknown types or ids from other boards are dropped (SEC-72)
 - [ ] T-117 Only the last 20 messages are sent and `max_tokens` is set (SEC-73)
 - [ ] T-118 System prompt marks board content as data (SEC-75)
-- [ ] T-119 Model is `cerebras/gpt-oss-120b` with `max_tokens` and `reasoning_effort="low"` set
-- [ ] T-120 Live smoke test (runs only when `CEREBRAS_API_KEY` is set): a real text reply and a structured reply come back
+- [ ] T-119 Model is `openrouter/nvidia/nemotron-3.5-super-vl:free` with the backup model in the `models` list and `max_tokens` set
+- [ ] T-121 OpenRouter 429 returns a friendly "AI limit reached for today" message (SEC-53)
+- [ ] T-120 Live smoke test (runs only when `OPENROUTER_API_KEY` is set): a real text reply and a structured reply come back
 
 ### A12. Security headers
 - [ ] T-130 CSP, nosniff, Referrer-Policy and Permissions-Policy headers on HTML and API responses (SEC-80, SEC-81)
