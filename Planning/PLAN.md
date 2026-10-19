@@ -14,7 +14,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Backend | Python 3.13, FastAPI, uv project in `backend/` |
 | Database | SQLite via SQLModel |
 | Auth | Argon2 password hashing (`pwdlib`), JWT (`PyJWT`) in an httpOnly cookie |
-| AI | LiteLLM -> OpenRouter, model `openrouter/openai/gpt-oss-120b`, Cerebras as provider |
+| AI | LiteLLM -> Cerebras API directly, model `cerebras/gpt-oss-120b` (free tier) |
 | Frontend | React + TypeScript + Vite in `frontend/`, built to static files |
 | Drag and drop | `@dnd-kit/core` + `@dnd-kit/sortable` |
 | UI | Hand-written CSS with design tokens, `lucide-react` icons, self-hosted fonts via Fontsource, `react-markdown` |
@@ -93,7 +93,7 @@ Goal: calm, fast, professional - in the spirit of Linear and Trello, but simpler
 Built and tested locally on SQLite; deployed later to Vercel with hosted Postgres (Neon or Supabase, chosen at deployment).
 These rules keep that move to one small phase:
 
-1. All configuration comes from environment variables (`DATABASE_URL`, `JWT_SECRET`, `OPENROUTER_API_KEY`, `ENV`, `ALLOWED_HOSTS`, `REDIS_URL`).
+1. All configuration comes from environment variables (`DATABASE_URL`, `JWT_SECRET`, `CEREBRAS_API_KEY`, `ENV`, `ALLOWED_HOSTS`, `REDIS_URL`).
 2. No SQLite-specific SQL. The SQLite pragmas (foreign keys, WAL) are applied only when the URL is SQLite.
 3. Rate-limit counters live behind one small store class: in-memory locally, Redis (Upstash) in production.
 4. Background jobs (guest cleanup) are plain functions, called on startup locally and from a protected cron endpoint on Vercel.
@@ -127,8 +127,10 @@ Everything else is served from the built frontend (`frontend/dist`), with SPA fa
 
 ## AI Design
 
-- One module `backend/app/ai.py` with a single `complete(messages)` helper calling `litellm.completion` with model `openrouter/openai/gpt-oss-120b` and OpenRouter provider routing set to Cerebras.
-- `OPENROUTER_API_KEY` read from the root `.env`.
+- One module `backend/app/ai.py` with a single `complete(messages)` helper calling `litellm.completion` with model `cerebras/gpt-oss-120b`.
+- `CEREBRAS_API_KEY` read from the root `.env`. Calls go straight to Cerebras (no OpenRouter), so there is no provider fallback; if Cerebras is unavailable the user sees a friendly error.
+- Every call sets `max_tokens` (2000) and `reasoning_effort="low"` to keep latency and free-tier usage low.
+- Why not OpenRouter (2026-10-20): the account has no credits; the free `gpt-oss-120b:free` variant had no providers; free alternatives were rate-limited or took about 20s per answer, and free providers may log prompts containing users' board data.
 - Checklist generator and board starter ask for JSON output and validate it with Pydantic.
 - Chat sends the user's current board (columns, cards with ids, due dates, priorities) plus a short description of the app's features as context; history is kept in the browser and sent with each request.
 - Chat replies are JSON: `{"reply": str, "actions": [...]}`. Actions are `create_card`, `move_card`, `complete_card`. The browser shows each action with a Confirm button that calls the normal card endpoints, so no extra write endpoint is needed.

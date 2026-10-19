@@ -79,9 +79,9 @@ Follow the UI/UX Specification in `Planning/PLAN.md`: calm, fast, professional, 
 ## AI design
 
 
-When writing code to make calls to LLMs, use your Cerebras skill to use LiteLLM via OpenRouter to the `openrouter/openai/gpt-oss-120b` model with Cerebras as the inference provider
+When writing code to make calls to LLMs, use your Cerebras skill to use LiteLLM with the Cerebras API directly, model `cerebras/gpt-oss-120b` (OpenRouter was dropped on 2026-10-20: no credits, and free OpenRouter models were too slow or rate-limited)
 
-There is an OPENROUTER_API_KEY in the .env file in the project root.
+There is a CEREBRAS_API_KEY in the .env file in the project root (free tier from cloud.cerebras.ai).
 
 
 

@@ -103,8 +103,8 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [ ] T-116 Chat actions with unknown types or ids from other boards are dropped (SEC-72)
 - [ ] T-117 Only the last 20 messages are sent and `max_tokens` is set (SEC-73)
 - [ ] T-118 System prompt marks board content as data (SEC-75)
-- [ ] T-119 Model is `openrouter/openai/gpt-oss-120b` with Cerebras provider routing
-- [ ] T-120 Live smoke test (runs only when `OPENROUTER_API_KEY` is set): a real reply comes back
+- [ ] T-119 Model is `cerebras/gpt-oss-120b` with `max_tokens` and `reasoning_effort="low"` set
+- [ ] T-120 Live smoke test (runs only when `CEREBRAS_API_KEY` is set): a real text reply and a structured reply come back
 
 ### A12. Security headers
 - [ ] T-130 CSP, nosniff, Referrer-Policy and Permissions-Policy headers on HTML and API responses (SEC-80, SEC-81)

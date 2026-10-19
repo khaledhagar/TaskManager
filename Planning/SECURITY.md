@@ -58,7 +58,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## 8. AI-specific risks
 
-- [ ] `OPENROUTER_API_KEY` used only on the server; never sent to the browser (SEC-70)
+- [ ] `CEREBRAS_API_KEY` used only on the server; never sent to the browser (SEC-70)
 - [ ] Chat actions are proposals only; nothing is written until the user clicks Confirm, which calls normal, authorized endpoints (SEC-71)
 - [ ] Proposed actions referencing cards or columns not on the user's board are dropped (prompt injection defense) (SEC-72)
 - [ ] Chat history sent to the model is capped (last 20 messages) and `max_tokens` is set (cost control) (SEC-73)
