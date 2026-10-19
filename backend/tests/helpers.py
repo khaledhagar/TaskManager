@@ -2,10 +2,25 @@
 
 from fastapi.testclient import TestClient
 
+PASSWORD = "correct-horse"
+
+
+def outbox(client: TestClient) -> list:
+    return client.app.state.mailer.outbox
+
+
+def link_token(client: TestClient, path: str = "/verify") -> str:
+    """Token from the link in the most recent email for `path`."""
+    text = outbox(client)[-1].text
+    return text.split(f"{path}?token=")[1].split()[0]
+
 
 def sign_up(client: TestClient, email: str = "alice@example.com") -> None:
-    r = client.post("/api/auth/signup", json={"email": email, "password": "correct-horse"})
+    """Sign up and verify, leaving the client signed in."""
+    r = client.post("/api/auth/signup", json={"email": email, "password": PASSWORD})
     assert r.status_code == 201
+    r = client.post("/api/auth/verify", json={"token": link_token(client)})
+    assert r.status_code == 200
 
 
 def first_board(client: TestClient) -> dict:

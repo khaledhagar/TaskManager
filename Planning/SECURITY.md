@@ -16,17 +16,17 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## 1b. Email verification, password reset and Google sign-in
 
-- [ ] Email + password accounts cannot sign in until the email is verified (SEC-110)
-- [ ] Verification and reset tokens: 32+ random bytes from `secrets`, stored only as SHA-256 hashes (SEC-111)
-- [ ] Verification links expire after 24 hours, reset links after 30 minutes; both single use (SEC-112)
-- [ ] Forgot password and resend verification give the same answer whether or not the account exists (SEC-113)
-- [ ] Password reset or change signs out all other sessions (token version in the JWT) (SEC-114)
-- [ ] Change password requires the current password (unless the account has none yet) (SEC-115)
-- [ ] Google sign-in checks `state`, PKCE, ID token signature, issuer, audience and nonce (SEC-116)
-- [ ] Only Google accounts with `email_verified` are accepted; linking to an existing account happens only then (SEC-117)
-- [ ] Email links built from `APP_URL` (https in production), never from the request Host header (SEC-118)
-- [ ] Gmail App Password and Google client secret only in `.env` / Vercel settings; never logged or sent to the browser (SEC-119)
-- [ ] Emails never contain passwords; reset email says what to do if the user did not ask for it (SEC-120)
+- [x] Email + password accounts cannot sign in until the email is verified (SEC-110)
+- [x] Verification and reset tokens: 32+ random bytes from `secrets`, stored only as SHA-256 hashes (SEC-111)
+- [x] Verification links expire after 24 hours, reset links after 30 minutes; both single use (SEC-112)
+- [x] Forgot password and resend verification give the same answer whether or not the account exists (SEC-113)
+- [x] Password reset or change signs out all other sessions (token version in the JWT) (SEC-114)
+- [x] Change password requires the current password (unless the account has none yet) (SEC-115)
+- [x] Google sign-in checks `state`, PKCE, ID token signature, issuer, audience and nonce (SEC-116)
+- [x] Only Google accounts with `email_verified` are accepted; linking to an existing account happens only then (SEC-117)
+- [x] Email links built from `APP_URL` (https in production), never from the request Host header (SEC-118)
+- [x] Gmail App Password and Google client secret only in `.env` / Vercel settings; never logged or sent to the browser (SEC-119)
+- [x] Emails never contain passwords; reset email says what to do if the user did not ask for it (SEC-120)
 - [ ] Forgot password and resend verification: 3 per hour per email, 10 per hour per IP (SEC-121)
 - [ ] Reset and verify pages do not leak the token to third parties (`Referrer-Policy`, no external resources) (SEC-122)
 

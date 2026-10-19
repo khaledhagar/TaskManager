@@ -22,12 +22,12 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-013 SQLite foreign keys and WAL mode are on (SEC-103)
 
 ### A3. Authentication
-- [ ] T-020 Sign up creates an unverified user, seeds demo board, sends a verification email, does not sign in (reworked in Phase 6; was: signs in at once)
+- [x] T-020 Sign up creates an unverified user, seeds demo board, sends a verification email, does not sign in
 - [x] T-021 Sign up with existing email returns 409
 - [x] T-022 Sign up rejects invalid email, password under 8 or over 128 characters (SEC-02)
 - [x] T-023 Email is stored lower-cased; sign in is case-insensitive
 - [x] T-024 Password stored as Argon2 hash, not plain text (SEC-01)
-- [ ] T-025 Sign in with correct password sets cookie for a verified user (reworked in Phase 6)
+- [x] T-025 Sign in with correct password sets cookie for a verified user
 - [x] T-026 Unknown email and wrong password return the same 401 message (SEC-03)
 - [x] T-027 Guest sign-in creates guest user with demo board
 - [x] T-028 `GET /auth/me` returns the user; without cookie returns 401
@@ -36,36 +36,36 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-031 Sign out clears the cookie (SEC-07)
 - [x] T-032 Cookie flags: HttpOnly, SameSite=Lax, Path=/; Secure in production (SEC-10, SEC-11)
 - [x] T-033 No response body contains the token (SEC-12)
-- [ ] T-034 Guest upgrade with email + password sends a verification email; after verifying, boards are kept (reworked in Phase 6)
+- [x] T-034 Guest upgrade with email + password sends a verification email; after verifying, boards are kept
 - [x] T-035 Upgrade from a regular account returns 400; upgrade to a taken email returns 409 (SEC-08)
 - [x] T-036 Guest cleanup removes guests older than 7 days with their data, keeps newer guests and regular users (SEC-102)
 - [x] T-037 Delete account removes the user and all their data (SEC-101)
 
 ### A3b. Email verification, password reset, Google sign-in (Phase 6)
-- [ ] T-140 Sign in before verifying returns 403 with a "verify your email" message (SEC-110)
-- [ ] T-141 Verification link verifies the account and signs in
-- [ ] T-142 Expired verification token is rejected; reused token is rejected (SEC-112)
-- [ ] T-143 Tampered or unknown token is rejected
-- [ ] T-144 Only the token hash is stored in the database (SEC-111)
-- [ ] T-145 Resend verification sends a new email; answer is the same for unknown emails (SEC-113)
-- [ ] T-146 Forgot password sends a reset email; answer is the same for unknown emails (SEC-113)
-- [ ] T-147 Reset with a valid token sets the new password; old password no longer works
-- [ ] T-148 Reset token expires after 30 minutes and works once (SEC-112)
-- [ ] T-149 Reset signs out other sessions (old JWT rejected) (SEC-114)
-- [ ] T-150 Reset password follows the same length rules as sign up (SEC-02)
-- [ ] T-151 Change password requires the correct current password (SEC-115)
-- [ ] T-152 Change password signs out other sessions but keeps the current one (SEC-114)
-- [ ] T-153 Google-only user can set a password without a current password (SEC-115)
-- [ ] T-154 Google login redirects to Google with state and PKCE parameters (SEC-116)
-- [ ] T-155 Google callback with a wrong or missing state is rejected (SEC-116)
-- [ ] T-156 Google callback creates a verified user with the demo board and signs in
-- [ ] T-157 Google callback for an existing password account links it and marks it verified (SEC-117)
-- [ ] T-158 Google account with `email_verified: false` is rejected (SEC-117)
-- [ ] T-159 Signed-in guest using Google keeps their boards and stops being a guest
-- [ ] T-160 Google email already linked to a different Google account is rejected
-- [ ] T-161 Email links use `APP_URL`, not the request Host header (SEC-118)
-- [ ] T-162 Console mailer logs the link; SMTP mailer uses STARTTLS with the configured user (smtplib faked) (SEC-119)
-- [ ] T-163 Reset email text contains no password and explains what to do if not requested (SEC-120)
+- [x] T-140 Sign in before verifying returns 403 with a "verify your email" message (SEC-110)
+- [x] T-141 Verification link verifies the account and signs in
+- [x] T-142 Expired verification token is rejected; reused token is rejected (SEC-112)
+- [x] T-143 Tampered or unknown token is rejected
+- [x] T-144 Only the token hash is stored in the database (SEC-111)
+- [x] T-145 Resend verification sends a new email; answer is the same for unknown emails (SEC-113)
+- [x] T-146 Forgot password sends a reset email; answer is the same for unknown emails (SEC-113)
+- [x] T-147 Reset with a valid token sets the new password; old password no longer works
+- [x] T-148 Reset token expires after 30 minutes and works once (SEC-112)
+- [x] T-149 Reset signs out other sessions (old JWT rejected) (SEC-114)
+- [x] T-150 Reset password follows the same length rules as sign up (SEC-02)
+- [x] T-151 Change password requires the correct current password (SEC-115)
+- [x] T-152 Change password signs out other sessions but keeps the current one (SEC-114)
+- [x] T-153 Google-only user can set a password without a current password (SEC-115)
+- [x] T-154 Google login redirects to Google with state and PKCE parameters (SEC-116)
+- [x] T-155 Google callback with a wrong or missing state is rejected (SEC-116)
+- [x] T-156 Google callback creates a verified user with the demo board and signs in
+- [x] T-157 Google callback for an existing password account links it and marks it verified (SEC-117)
+- [x] T-158 Google account with `email_verified: false` is rejected (SEC-117)
+- [x] T-159 Signed-in guest using Google keeps their boards and stops being a guest
+- [x] T-160 Google email already linked to a different Google account is rejected
+- [x] T-161 Email links use `APP_URL`, not the request Host header (SEC-118)
+- [x] T-162 Console mailer logs the link; SMTP mailer uses STARTTLS with the configured user (smtplib faked) (SEC-119)
+- [x] T-163 Reset email text contains no password and explains what to do if not requested (SEC-120)
 - [ ] T-164 4th forgot-password request for one email within an hour returns 429 (SEC-121)
 - [ ] T-165 Live: one real verification email arrives through Gmail SMTP (manual check)
 - [ ] T-166 Live: one real Google sign-in completes in the browser (manual check)

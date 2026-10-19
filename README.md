@@ -35,8 +35,20 @@ Create a `.env` file in the project root:
 
 ```
 OPENROUTER_API_KEY=...
-JWT_SECRET=...
+JWT_SECRET=...            # 32+ random characters
+APP_URL=http://localhost:8000
+
+# Email: console (default) logs links; smtp sends through Gmail with an App Password
+EMAIL_MODE=console
+SMTP_USER=you@gmail.com
+SMTP_PASSWORD=...
+
+# Google sign-in (optional; the button is hidden when not set)
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
 ```
+
+Google OAuth redirect URI: `{APP_URL}/api/auth/google/callback`.
 
 On Windows, if the project path is deep, also set `CUSTOM_TIKTOKEN_CACHE_DIR` to a short folder
 (for example `C:/Users/<you>/.cache/tiktoken`). LiteLLM's tokenizer file otherwise exceeds the

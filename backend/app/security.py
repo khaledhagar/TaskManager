@@ -18,25 +18,26 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(password: str, password_hash: str | None) -> bool:
-    """Check a password; hashes a dummy when there is no user to keep timing equal."""
+    """Check a password; hashes a dummy when there is none to keep timing equal."""
     if password_hash is None:
         _hasher.verify(password, _DUMMY_HASH)
         return False
     return _hasher.verify(password, password_hash)
 
 
-def create_token(user_id: int, secret: str, expires_in: timedelta = TOKEN_TTL) -> str:
+def create_token(user_id: int, version: int, secret: str, expires_in: timedelta = TOKEN_TTL) -> str:
+    """Session JWT carrying the user id and the user's token version."""
     now = datetime.now(UTC)
-    payload = {"sub": str(user_id), "iat": now, "exp": now + expires_in}
+    payload = {"sub": str(user_id), "ver": version, "iat": now, "exp": now + expires_in}
     return jwt.encode(payload, secret, algorithm=ALGORITHM)
 
 
-def read_token(token: str, secret: str) -> int | None:
-    """Return the user id from a valid token, or None."""
+def read_token(token: str, secret: str) -> tuple[int, int] | None:
+    """Return (user id, token version) from a valid token, or None."""
     try:
         payload = jwt.decode(
-            token, secret, algorithms=[ALGORITHM], options={"require": ["exp", "sub"]}
+            token, secret, algorithms=[ALGORITHM], options={"require": ["exp", "sub", "ver"]}
         )
-        return int(payload["sub"])
+        return int(payload["sub"]), int(payload["ver"])
     except (jwt.InvalidTokenError, ValueError):
         return None

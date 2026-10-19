@@ -26,6 +26,7 @@ def settings(dist, tmp_path):
         jwt_secret="x" * 64,
         frontend_dist=dist,
         database_url=f"sqlite:///{tmp_path / 'test.db'}",
+        app_url="http://app.test",
     )
 
 

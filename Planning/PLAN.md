@@ -220,14 +220,14 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 
 ## Phase 6 - Account Security (backend)
 
-- [ ] `users` gets `email_verified`, `google_id`, `token_version`; new `email_tokens` table
-- [ ] Mailer with console and SMTP modes; console mode used by all tests
-- [ ] Sign up sends a verification email; unverified accounts cannot sign in (clear message plus resend option)
-- [ ] Verify, resend verification, forgot password, reset password, change password endpoints
-- [ ] Token versioning: reset or change password signs out other sessions
-- [ ] Google sign-in (login + callback) with account linking and guest upgrade via Google
-- [ ] Guest upgrade with email + password requires verification
-- [ ] Unit tests for every flow, including expired, reused and tampered tokens, enumeration-safe responses, and a faked Google provider
+- [x] `users` gets `email_verified`, `google_id`, `token_version`; new `email_tokens` table
+- [x] Mailer with console and SMTP modes; console mode used by all tests
+- [x] Sign up sends a verification email; unverified accounts cannot sign in (clear message plus resend option)
+- [x] Verify, resend verification, forgot password, reset password, change password endpoints
+- [x] Token versioning: reset or change password signs out other sessions
+- [x] Google sign-in (login + callback) with account linking and guest upgrade via Google
+- [x] Guest upgrade with email + password requires verification
+- [x] Unit tests for every flow, including expired, reused and tampered tokens, enumeration-safe responses, and a faked Google provider
 - [ ] Live check: one real verification email sent through Gmail SMTP; one real Google sign-in in the browser
 
 ## Phase 7 - Frontend Foundation

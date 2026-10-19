@@ -34,9 +34,31 @@ class User(SQLModel, table=True):
     email: str | None = Field(default=None, unique=True, index=True)
     password_hash: str | None = None
     is_guest: bool = False
+    email_verified: bool = False
+    google_id: str | None = Field(default=None, unique=True, index=True)
+    token_version: int = 0
     created_at: datetime = Field(default_factory=utcnow)
 
     boards: list["Board"] = Relationship(back_populates="owner", cascade_delete=True)
+    email_tokens: list["EmailToken"] = Relationship(cascade_delete=True)
+
+
+class TokenPurpose(StrEnum):
+    verify = "verify"
+    reset = "reset"
+
+
+class EmailToken(SQLModel, table=True):
+    """Single-use emailed link token; only its SHA-256 hash is stored."""
+
+    __tablename__ = "email_tokens"
+
+    id: int | None = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="users.id", ondelete="CASCADE", index=True)
+    purpose: TokenPurpose
+    token_hash: str = Field(unique=True, index=True)
+    expires_at: datetime
+    used_at: datetime | None = None
 
 
 class Board(SQLModel, table=True):

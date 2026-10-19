@@ -2,12 +2,15 @@
 
 from fastapi import FastAPI
 from sqlmodel import Session, text
+from starlette.middleware.sessions import SessionMiddleware
 
-from app import auth
+from app import auth, google
 from app.config import Settings
 from app.db import SessionDep, make_engine
 from app.frontend import mount_frontend
-from app.routes import ai, boards, cards
+from app.mailer import Mailer
+from app.routes import account, ai, boards, cards
+from app.routes import google as google_routes
 from app.users import cleanup_guests
 
 
@@ -16,6 +19,17 @@ def create_app(settings: Settings) -> FastAPI:
     app = FastAPI(title="Task Manager")
     app.state.settings = settings
     app.state.engine = make_engine(settings.database_url)
+    app.state.mailer = Mailer(settings)
+    app.state.oauth = google.make_oauth(settings) if settings.google_enabled else None
+    # Short-lived cookie holding only the Google sign-in state, nonce and PKCE verifier.
+    app.add_middleware(
+        SessionMiddleware,
+        secret_key=settings.jwt_secret,
+        session_cookie="oauth_state",
+        max_age=600,
+        same_site="lax",
+        https_only=settings.production,
+    )
     with Session(app.state.engine) as session:
         cleanup_guests(session)
 
@@ -24,9 +38,7 @@ def create_app(settings: Settings) -> FastAPI:
         session.exec(text("SELECT 1"))
         return {"status": "ok", "database": "ok"}
 
-    app.include_router(auth.router)
-    app.include_router(boards.router)
-    app.include_router(cards.router)
-    app.include_router(ai.router)
+    for module in (auth, account, google_routes, boards, cards, ai):
+        app.include_router(module.router)
     mount_frontend(app, settings.frontend_dist)
     return app

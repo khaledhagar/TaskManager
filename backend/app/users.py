@@ -14,9 +14,26 @@ def find_by_email(session: Session, email: str) -> User | None:
     return session.exec(select(User).where(User.email == email)).first()
 
 
-def create_user(session: Session, email: str | None, password_hash: str | None) -> User:
+def find_by_google_id(session: Session, google_id: str) -> User | None:
+    return session.exec(select(User).where(User.google_id == google_id)).first()
+
+
+def create_user(
+    session: Session,
+    email: str | None,
+    password_hash: str | None,
+    *,
+    verified: bool = False,
+    google_id: str | None = None,
+) -> User:
     """Create a user (guest when email is None) with the demo board."""
-    user = User(email=email, password_hash=password_hash, is_guest=email is None)
+    user = User(
+        email=email,
+        password_hash=password_hash,
+        is_guest=email is None,
+        email_verified=verified,
+        google_id=google_id,
+    )
     session.add(user)
     session.commit()
     session.refresh(user)

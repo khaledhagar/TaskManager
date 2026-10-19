@@ -98,6 +98,13 @@ def test_every_data_endpoint_requires_sign_in(client):
         "/api/auth/signin",
         "/api/auth/guest",
         "/api/auth/signout",
+        "/api/auth/verify",
+        "/api/auth/resend-verification",
+        "/api/auth/forgot-password",
+        "/api/auth/reset-password",
+        "/api/auth/config",
+        "/api/auth/google/login",
+        "/api/auth/google/callback",
     }
     checked = 0
     for path, operations in client.app.openapi()["paths"].items():
