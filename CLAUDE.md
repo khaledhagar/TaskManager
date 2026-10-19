@@ -49,13 +49,15 @@ The full plan with phases and success criteria is in `Planning/PLAN.md`. Keep it
 
 - Stack: FastAPI + SQLModel/SQLite, pwdlib + PyJWT cookie auth, LiteLLM, React + TypeScript + Vite, dnd-kit
 - Tests: pytest, vitest, Playwright
-- Phases: scaffolding, database, auth, board API, AI backend, account security, frontend foundation, board UI, files, focus timer, AI UI, polish, hardening, integration testing, done, deployment
+- Phases: scaffolding, database, auth, board API, AI backend, account security, frontend foundation, board UI, files, focus timer, languages, AI UI, polish, hardening, integration testing, done, deployment
 - Deferred enhancements (N9-N14 in the plan) are not built unless the user approves them
 - Also: delete account (needed for a published site)
 - Continue with Google (no password needed), email verification for email + password accounts, forgot / reset password by email, change password; Google-only users can add a password
 - Emails sent through Gmail SMTP with an App Password (console mode in development and tests)
 - Board background: upload a photo from the computer or pick a preset
 - File attachments on cards: 4 MB per file, 10 per card, 100 MB per account (10 MB guests); images, PDF, text, CSV, Office only
+- English and Arabic with a language button; Arabic is right-to-left; server messages, emails, demo data and AI answers follow the language
+- Dark mode and responsive design (phone, tablet, laptop, desktop) for every feature, in both languages
 - Pomodoro focus timer, opt-in (off by default, enabled with a Focus timer button): 25/5 or 50/10 minutes, start, pause, reset focus, reset break, skip
 
 ## Security and Testing

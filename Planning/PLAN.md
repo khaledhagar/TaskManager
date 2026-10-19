@@ -16,17 +16,18 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 3 - Authentication and Authorization | 7 / 7 | Done |
 | Phase 4 - Boards, Columns, Cards, Labels API | 6 / 6 | Done |
 | Phase 5 - AI Backend | 7 / 7 | Done |
-| Phase 6 - Account Security (backend) | 8 / 9 | Done (live Gmail/Google check moved to Phase 15) |
+| Phase 6 - Account Security (backend) | 8 / 9 | Done (live Gmail/Google check moved to Phase 16) |
 | Phase 7 - Frontend Foundation | 6 / 6 | Done |
 | Phase 8 - Board UI | 11 / 11 | Done |
 | Phase 9 - Files (attachments and board backgrounds) | 8 / 8 | Done |
 | Phase 10 - Focus Timer (Pomodoro) | 6 / 6 | Done |
-| Phase 11 - AI UI | 0 / 4 | Not started |
-| Phase 12 - Polish | 0 / 6 | Not started |
-| Phase 13 - Security and Non-Functional Hardening | 0 / 5 | Not started |
-| Phase 14 - Integration Testing (Playwright) | 0 / 17 | Not started |
-| Phase 15 - Done | 0 / 5 | Not started |
-| Phase 16 - Deployment (Vercel) | 0 / 12 | Not started |
+| Phase 11 - Languages: English and Arabic | 0 / 9 | Not started |
+| Phase 12 - AI UI | 0 / 4 | Not started |
+| Phase 13 - Polish | 0 / 8 | Not started |
+| Phase 14 - Security and Non-Functional Hardening | 0 / 5 | Not started |
+| Phase 15 - Integration Testing (Playwright) | 0 / 19 | Not started |
+| Phase 16 - Done | 0 / 5 | Not started |
+| Phase 17 - Deployment (Vercel) | 0 / 12 | Not started |
 
 ## Stack
 
@@ -40,6 +41,7 @@ The app will be published, so two companion checklists are part of every phase:
 | AI | LiteLLM -> OpenRouter free models: `nvidia/nemotron-3.5-super-vl:free`, backup `nvidia/nemotron-3-super-120b-a12b:free` |
 | Frontend | React + TypeScript + Vite in `frontend/`, built to static files |
 | Drag and drop | `@dnd-kit/core` + `@dnd-kit/sortable` |
+| Languages | English and Arabic with a small typed dictionary per language (no library), `Intl` for dates, numbers and plural rules, right-to-left layout for Arabic, IBM Plex Sans Arabic via Fontsource |
 | UI | Hand-written CSS with design tokens, `lucide-react` icons, self-hosted fonts via Fontsource, `react-markdown` |
 | Security | Security headers middleware, in-memory rate limiter, `TrustedHostMiddleware`, Origin check |
 | Unit tests | `pytest` + FastAPI `TestClient` (backend), `vitest` + Testing Library (frontend) |
@@ -79,6 +81,9 @@ The app will be published, so two companion checklists are part of every phase:
 27. Change password while signed in; Google-only users can add a password
 28. Board background: upload a photo from the computer (shrunk in the browser, re-saved on the server) or pick a preset; remove it
 29. File attachments on cards with limits: 4 MB per file, 10 files per card, 100 MB per account (10 MB for guests); images, PDF, text, CSV and Office files only
+31. English and Arabic: a language button in the header and on the sign-in screen; Arabic switches the whole app to right-to-left; every text, server message, email, demo board, template and AI answer follows the chosen language
+32. Dark mode in every screen and both languages (already built in Phase 7; verified again in Phase 13)
+33. Responsive design: every feature works at phone (360 px), tablet (768 px), laptop (1024 px) and desktop (1440 px) widths, with touch drag and drop on phones
 30. Pomodoro focus timer on the board, opt-in: off by default and turned on with a "Focus timer" button; 25 / 5 or 50 / 10 minutes, start, pause, reset focus, reset break, skip; chip with time left, chime and optional notification
 
 ### Enhancement review (N1-N8 approved on 2026-10-19; the rest deferred)
@@ -118,7 +123,7 @@ Goal: calm, fast, professional - in the spirit of Linear and Trello, but simpler
 - Motion: 150-200 ms ease-out transitions, drag overlay with a slight tilt, all disabled under `prefers-reduced-motion`.
 - Empty states: short helpful text plus one clear action (for example "No cards yet - press N to add one").
 - Accessibility: keyboard for everything, visible focus rings, ARIA labels on icon buttons, screen-reader announcements for drag and drop.
-- The `frontend-design` skill guides the visual pass in Phase 12; screenshots are reviewed at 360, 768 and 1440 px in both themes.
+- The `frontend-design` skill guides the visual pass in Phase 13; screenshots are reviewed at 360, 768 and 1440 px in both themes.
 
 ## Production Portability
 
@@ -133,7 +138,7 @@ These rules keep that move to one small phase:
 
 ## Data Model
 
-- `users`: id, email (unique, null for guests), password_hash (null for guests and Google-only users), is_guest, email_verified, google_id (unique, null unless linked), token_version (bumped to sign out all sessions), created_at
+- `users`: id, email (unique, null for guests), password_hash (null for guests and Google-only users), is_guest, language (`en` or `ar`), email_verified, google_id (unique, null unless linked), token_version (bumped to sign out all sessions), created_at
 - `email_tokens`: id, user_id -> users, purpose (`verify` or `reset`), token_hash (SHA-256; the raw token is only in the emailed link), expires_at, used_at
 - `boards`: id, owner_id -> users, title, created_at
 - `columns`: id, board_id -> boards, title, position
@@ -159,6 +164,7 @@ Authorization rule: a user can only read or change boards they own (and everythi
 - Files: `POST /cards/{id}/attachments` (multipart), `GET /attachments/{id}` (download), `DELETE /attachments/{id}`, `GET /files/usage`
 - Background: `PUT /boards/{id}/background` (multipart image), `PUT /boards/{id}/background/preset`, `DELETE /boards/{id}/background`, `GET /boards/{id}/background`
 
+Every request sends `Accept-Language` (`en` or `ar`); server messages, emails, seeded demo boards, templates and AI answers use it. `PATCH /auth/me` saves the signed-in user's language.
 Search, filters, undo and keyboard shortcuts run in the browser; no API needed.
 Undo: the card or column is hidden at once and the DELETE is sent after 5 seconds unless the user clicks Undo.
 Everything else is served from the built frontend (`frontend/dist`), with SPA fallback to `index.html`.
@@ -186,6 +192,17 @@ Rules:
 - Rate limits: forgot password and resend verification 3 per hour per email and 10 per hour per IP.
 
 Setup needed from the user (free, no billing): a Gmail App Password (requires 2-step verification on that Gmail account), and a Google Cloud OAuth client (consent screen + Web client with the callback URL).
+
+## Languages Design
+
+- Two dictionaries, `en` and `ar`, as typed TypeScript objects: the Arabic one must have every English key (the type checker enforces it) and the same `{placeholders}`.
+- A `t(key, params)` function and a `useI18n()` hook; plural messages use `Intl.PluralRules` (Arabic has six plural forms: zero, one, two, few, many, other).
+- Dates with `Intl.DateTimeFormat` (Arabic month names); digits are Western 0-9 by default (`ar-u-nu-latn`), switchable to Arabic-Indic digits with one setting.
+- Switching language sets `<html lang dir>`; Arabic is `dir="rtl"`. All CSS uses logical properties (`margin-inline-start`, `inset-inline-end`, `text-align: start`) so the layout mirrors by itself; direction icons (chevrons, skip arrows) are mirrored in RTL.
+- The choice is saved in the browser (works before sign-in) and on the account (`users.language`), and sent as `Accept-Language` on every request.
+- Server: user-facing error messages, verification and reset emails, the demo board and templates exist in both languages; the AI prompts ask for answers in the user's language.
+- Arabic font: IBM Plex Sans Arabic (self-hosted with Fontsource; its `unicode-range` means it is only downloaded when Arabic text appears).
+- Names the user types (boards, cards, labels) are never translated.
 
 ## Files Design
 
@@ -282,7 +299,7 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [x] Google sign-in (login + callback) with account linking and guest upgrade via Google
 - [x] Guest upgrade with email + password requires verification
 - [x] Unit tests for every flow, including expired, reused and tampered tokens, enumeration-safe responses, and a faked Google provider
-- [ ] Live check: one real verification email sent through Gmail SMTP; one real Google sign-in in the browser (moved to Phase 15 by the user)
+- [ ] Live check: one real verification email sent through Gmail SMTP; one real Google sign-in in the browser (moved to Phase 16 by the user)
 
 ## Phase 7 - Frontend Foundation
 
@@ -327,14 +344,26 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [x] State survives reload; screen-reader announcements on phase changes only
 - [x] Unit tests for timer logic and controls
 
-## Phase 11 - AI UI
+## Phase 11 - Languages: English and Arabic
+
+- [ ] i18n core: `en` and `ar` dictionaries (typed, same keys and placeholders), `t()`, `useI18n()`, plural rules, date and number formatting
+- [ ] Language button ("العربية" / "English") in the app header and on the sign-in screens; choice saved in the browser and on the account; `<html lang dir>` updated
+- [ ] Every existing screen uses `t()`: sign-in and account pages, shell, board, card window, attachments, background picker, focus timer, toasts, shortcuts help
+- [ ] Right-to-left layout: CSS converted to logical properties; direction icons mirrored; drag and drop and keyboard moves work in RTL
+- [ ] Arabic font (IBM Plex Sans Arabic) self-hosted
+- [ ] Backend: `users.language`, `Accept-Language` handling, translated server messages, Arabic verification and reset emails, Arabic demo board and templates
+- [ ] AI prompts ask for answers in the user's language (used by Phase 12)
+- [ ] Unit tests for every rule above (frontend and backend)
+- [ ] Screenshots reviewed in Arabic at 360, 768 and 1440 px in light and dark themes
+
+## Phase 12 - AI UI
 
 - [ ] "Suggest checklist" button in card modal; user picks which items to add
 - [ ] New board dialog: Blank, templates, or "Describe it to AI"
 - [ ] Chat side panel with message history, loading state, clear button, and Confirm buttons for proposed actions
 - [ ] Vitest tests: suggestion selection, chat message rendering
 
-## Phase 12 - Polish
+## Phase 13 - Polish
 
 - [ ] Consistent spacing, typography, shadows, hover and focus states in both themes
 - [ ] Smooth drag overlay and drop animation
@@ -342,8 +371,10 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [ ] Enter to save, Escape to cancel/close
 - [ ] Responsive layout: columns scroll horizontally on small screens
 - [ ] On phones, keep the board menu on the same line as the focus timer (it wraps today)
+- [ ] Touch drag and drop on phones and tablets (press and hold to pick up a card, page still scrolls normally)
+- [ ] Responsive and theme pass: every feature checked at 360, 768, 1024 and 1440 px, in light and dark themes, in English and Arabic; no page-level horizontal scroll; tap targets at least 40 px on touch screens
 
-## Phase 13 - Security and Non-Functional Hardening
+## Phase 14 - Security and Non-Functional Hardening
 
 - [ ] Security headers, Origin check, body size limit, TrustedHost, production settings (`ENV=production`)
 - [ ] Rate limits on auth, guest and AI endpoints
@@ -351,7 +382,7 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [ ] Every SEC-xx item in `Planning/SECURITY.md` checked with its test
 - [ ] Dependency audits clean; ruff and tsc clean; coverage 90% or more
 
-## Phase 14 - Integration Testing (Playwright)
+## Phase 15 - Integration Testing (Playwright)
 
 - [ ] Guest flow: continue as guest, demo board with dummy data visible
 - [ ] Sign up, verify email (link read from console mode), sign out, sign in, data persists; guest upgrade keeps boards
@@ -366,12 +397,14 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [ ] Board from template
 - [ ] AI: suggest checklist, AI board starter, chat reply, chat action confirmed and applied (live, with key)
 - [ ] Two users cannot see each other's boards
+- [ ] Switch to Arabic: layout becomes right-to-left, texts are Arabic, choice survives reload and sign-in; emails and AI answers in Arabic
+- [ ] Main flows at phone and tablet sizes, including touch drag and drop
 - [ ] Upload a board background and see it after reload; remove it
 - [ ] Attach a PDF and an image to a card, download them, delete one; an oversized file is refused
 - [ ] Focus timer: off by default; turn it on, run it with a fast-forwarded browser clock (focus ends, break starts, reset focus and reset break work, 50/10 mode); turn it off
 - [ ] All defects fixed and re-tested
 
-## Phase 15 - Done
+## Phase 16 - Done
 
 - [ ] Live account checks from Phase 6: real Gmail verification email and real Google sign-in
 - [ ] Every test in `Planning/TEST_PLAN.md` ticked and passing
@@ -379,7 +412,7 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [ ] README has run and test instructions
 - [ ] Server running locally with the built frontend, ready for the user
 
-## Phase 16 - Deployment (Vercel)
+## Phase 17 - Deployment (Vercel)
 
 - [ ] Choose Postgres provider (Neon or Supabase); add Postgres driver with `uv add`
 - [ ] Full backend test suite passes against Postgres
