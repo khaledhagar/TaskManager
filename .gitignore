@@ -11,6 +11,9 @@ __pycache__/
 .coverage
 htmlcov/
 
+# Local file storage (uploads in development)
+backend/storage/
+
 # Database
 *.db
 *.sqlite

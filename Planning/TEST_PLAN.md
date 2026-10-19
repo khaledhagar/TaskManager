@@ -141,6 +141,22 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [ ] T-131 HSTS only when `ENV=production` (SEC-82)
 - [ ] T-132 Request with an untrusted Host header is rejected in production (SEC-92)
 
+### A14. Files: attachments and backgrounds (Phase 9)
+- [ ] T-170 Upload an attachment, list it on the card, download it with the same bytes, delete it
+- [ ] T-171 File over 4 MB returns 413; 11th file on a card returns 400 (SEC-130)
+- [ ] T-172 Account over 100 MB (guest over 10 MB) returns 400 (SEC-130)
+- [ ] T-173 Renamed program (`.exe` content named `.pdf`), SVG and HTML are rejected (SEC-132)
+- [ ] T-174 Fake image (text named `.png`) rejected as attachment preview and as background (SEC-133)
+- [ ] T-175 Background photo with GPS metadata is stored without it; stored size at most 2 MB (SEC-131, SEC-133)
+- [ ] T-176 Stored key is random; a file name like `../../x.txt` is stored safely and shown sanitized (SEC-134)
+- [ ] T-177 Other users get 404 for download, delete and background of someone else's card or board (SEC-135)
+- [ ] T-178 Download headers: attachment disposition, content type, nosniff, sandbox CSP (SEC-136)
+- [ ] T-179 Cross-site multipart upload (foreign Origin) returns 403 (SEC-137)
+- [ ] T-180 Deleting a card, column, board or account removes the stored files (SEC-139)
+- [ ] T-181 Background preset set and removed; unknown preset returns 422
+- [ ] T-182 Usage endpoint reports bytes used and the limit
+- [ ] T-183 Local storage put / get / delete and missing-key behaviour
+
 ## B. Frontend unit tests (`frontend/src/**/*.test.tsx`)
 
 - [x] T-200 API client sends credentials and JSON; turns error responses into readable messages
@@ -163,7 +179,17 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-217 Auth screen shows Continue with Google, sign in, sign up, guest and Forgot password
 - [x] T-218 Check-your-inbox screen offers Resend email with a cooldown
 - [x] T-219 Reset password page reads the token from the link and validates the new password
-- [x] T-220 Account menu shows Change password, or Set password for Google-only users
+- [ ] T-220 Account menu shows Change password, or Set password for Google-only users
+- [ ] T-221 Attachments: files over the limit or of a blocked type are refused before upload with a clear message
+- [ ] T-222 Attachments: upload progress, success, error, download link, delete with confirm
+- [ ] T-223 Background picker: presets apply at once; photo is shrunk to at most 2560 px before upload; remove works
+- [ ] T-224 Board stays readable over a background (dim layer and solid columns present)
+- [ ] T-225 Timer: remaining time computed from the end time, correct after a simulated reload
+- [ ] T-226 Timer: focus end switches to break; break end waits for the user before the next focus
+- [ ] T-227 Timer: reset focus and reset break each reset only their own phase
+- [ ] T-228 Timer: 25/5 and 50/10 modes; switching mode resets cleanly
+- [ ] T-229 Timer: pause keeps the remaining time; skip moves to the other phase
+- [ ] T-230 Timer: tab title shows time left; phase change announced once; mute stops the chime
 
 ## C. End-to-end tests (Playwright, `frontend/e2e/`)
 
@@ -174,6 +200,11 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [ ] T-319 Password change in one browser signs out a second browser
 - [ ] T-320 Continue with Google using a faked Google provider in test mode
 - [ ] T-321 Unverified account sees the verify message and can resend the email
+- [ ] T-322 Upload a background photo; it shows after reload; remove it
+- [ ] T-323 Attach a PDF and an image, download both, delete one
+- [ ] T-324 A 5 MB file is refused with a clear message
+- [ ] T-325 Focus timer with the browser clock fast-forwarded 25 minutes: break starts; reset focus and reset break work
+- [ ] T-326 Focus timer 50/10 mode and state kept after reload
 - [ ] T-302 Guest upgrade keeps boards and allows sign in with the new email
 - [ ] T-303 Create a blank board with 3 columns; create a board from each template
 - [ ] T-304 Rename, add, reorder (drag) and delete columns; undo column delete

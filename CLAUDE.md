@@ -49,11 +49,14 @@ The full plan with phases and success criteria is in `Planning/PLAN.md`. Keep it
 
 - Stack: FastAPI + SQLModel/SQLite, pwdlib + PyJWT cookie auth, LiteLLM, React + TypeScript + Vite, dnd-kit
 - Tests: pytest, vitest, Playwright
-- Phases: scaffolding, database, auth, board API, AI backend, account security, frontend foundation, board UI, AI UI, polish, hardening, integration testing, done, deployment
+- Phases: scaffolding, database, auth, board API, AI backend, account security, frontend foundation, board UI, files, focus timer, AI UI, polish, hardening, integration testing, done, deployment
 - Deferred enhancements (N9-N14 in the plan) are not built unless the user approves them
 - Also: delete account (needed for a published site)
 - Continue with Google (no password needed), email verification for email + password accounts, forgot / reset password by email, change password; Google-only users can add a password
 - Emails sent through Gmail SMTP with an App Password (console mode in development and tests)
+- Board background: upload a photo from the computer or pick a preset
+- File attachments on cards: 4 MB per file, 10 per card, 100 MB per account (10 MB guests); images, PDF, text, CSV, Office only
+- Pomodoro focus timer: 25/5 or 50/10 minutes, start, pause, reset focus, reset break, skip
 
 ## Security and Testing
 
@@ -70,6 +73,7 @@ Build and test locally on SQLite. Production will be Vercel with hosted Postgres
 - All configuration from environment variables
 - No SQLite-specific SQL; SQLite pragmas only when the URL is SQLite
 - Rate-limit counters behind one swappable store class (memory locally, Redis in production)
+- File storage behind one interface (local folder in development, S3-compatible R2 or Supabase Storage in production)
 - Background jobs (guest cleanup) as plain functions, callable on startup or from a cron endpoint
 
 ## UI/UX

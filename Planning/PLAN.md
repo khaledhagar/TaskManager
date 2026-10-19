@@ -16,15 +16,17 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 3 - Authentication and Authorization | 7 / 7 | Done |
 | Phase 4 - Boards, Columns, Cards, Labels API | 6 / 6 | Done |
 | Phase 5 - AI Backend | 7 / 7 | Done |
-| Phase 6 - Account Security (backend) | 8 / 9 | Done (live Gmail/Google check moved to Phase 13) |
+| Phase 6 - Account Security (backend) | 8 / 9 | Done (live Gmail/Google check moved to Phase 15) |
 | Phase 7 - Frontend Foundation | 6 / 6 | Done |
 | Phase 8 - Board UI | 0 / 11 | Not started |
-| Phase 9 - AI UI | 0 / 4 | Not started |
-| Phase 10 - Polish | 0 / 5 | Not started |
-| Phase 11 - Security and Non-Functional Hardening | 0 / 5 | Not started |
-| Phase 12 - Integration Testing (Playwright) | 0 / 14 | Not started |
-| Phase 13 - Done | 0 / 5 | Not started |
-| Phase 14 - Deployment (Vercel) | 0 / 11 | Not started |
+| Phase 9 - Files (attachments and board backgrounds) | 0 / 8 | Not started |
+| Phase 10 - Focus Timer (Pomodoro) | 0 / 5 | Not started |
+| Phase 11 - AI UI | 0 / 4 | Not started |
+| Phase 12 - Polish | 0 / 5 | Not started |
+| Phase 13 - Security and Non-Functional Hardening | 0 / 5 | Not started |
+| Phase 14 - Integration Testing (Playwright) | 0 / 17 | Not started |
+| Phase 15 - Done | 0 / 5 | Not started |
+| Phase 16 - Deployment (Vercel) | 0 / 12 | Not started |
 
 ## Stack
 
@@ -33,6 +35,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Backend | Python 3.13, FastAPI, uv project in `backend/` |
 | Database | SQLite via SQLModel |
 | Auth | Argon2 password hashing (`pwdlib`), JWT (`PyJWT`) in an httpOnly cookie, Google sign-in via `authlib` (OpenID Connect) |
+| Files | `Pillow` checks and re-encodes images; storage behind one small interface: local folder in development, S3-compatible service in production (Cloudflare R2 or Supabase Storage, chosen at deployment) |
 | Email | Gmail SMTP with an App Password (standard library `smtplib`); console mode logs links in development and tests |
 | AI | LiteLLM -> OpenRouter free models: `nvidia/nemotron-3.5-super-vl:free`, backup `nvidia/nemotron-3-super-120b-a12b:free` |
 | Frontend | React + TypeScript + Vite in `frontend/`, built to static files |
@@ -74,6 +77,9 @@ The app will be published, so two companion checklists are part of every phase:
 25. Email verification for email + password accounts (link valid 24 hours, single use)
 26. Forgot password and reset password by email (link valid 30 minutes, single use)
 27. Change password while signed in; Google-only users can add a password
+28. Board background: upload a photo from the computer (shrunk in the browser, re-saved on the server) or pick a preset; remove it
+29. File attachments on cards with limits: 4 MB per file, 10 files per card, 100 MB per account (10 MB for guests); images, PDF, text, CSV and Office files only
+30. Pomodoro focus timer on the board: 25 / 5 or 50 / 10 minutes, start, pause, reset focus, reset break, skip; chip with time left, chime and optional notification
 
 ### Enhancement review (N1-N8 approved on 2026-10-19; the rest deferred)
 
@@ -112,18 +118,18 @@ Goal: calm, fast, professional - in the spirit of Linear and Trello, but simpler
 - Motion: 150-200 ms ease-out transitions, drag overlay with a slight tilt, all disabled under `prefers-reduced-motion`.
 - Empty states: short helpful text plus one clear action (for example "No cards yet - press N to add one").
 - Accessibility: keyboard for everything, visible focus rings, ARIA labels on icon buttons, screen-reader announcements for drag and drop.
-- The `frontend-design` skill guides the visual pass in Phase 10; screenshots are reviewed at 360, 768 and 1440 px in both themes.
+- The `frontend-design` skill guides the visual pass in Phase 12; screenshots are reviewed at 360, 768 and 1440 px in both themes.
 
 ## Production Portability
 
 Built and tested locally on SQLite; deployed later to Vercel with hosted Postgres (Neon or Supabase, chosen at deployment).
 These rules keep that move to one small phase:
 
-1. All configuration comes from environment variables (`DATABASE_URL`, `JWT_SECRET`, `OPENROUTER_API_KEY`, `ENV`, `ALLOWED_HOSTS`, `REDIS_URL`, `APP_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `SMTP_USER`, `SMTP_PASSWORD`, `EMAIL_MODE`).
+1. All configuration comes from environment variables (`DATABASE_URL`, `JWT_SECRET`, `OPENROUTER_API_KEY`, `ENV`, `ALLOWED_HOSTS`, `REDIS_URL`, `APP_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `SMTP_USER`, `SMTP_PASSWORD`, `EMAIL_MODE`, `STORAGE_MODE`, `STORAGE_DIR`, `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`).
 2. No SQLite-specific SQL. The SQLite pragmas (foreign keys, WAL) are applied only when the URL is SQLite.
 3. Rate-limit counters live behind one small store class: in-memory locally, Redis (Upstash) in production.
 4. Background jobs (guest cleanup) are plain functions, called on startup locally and from a protected cron endpoint on Vercel.
-5. Nothing is written to local disk at runtime except the SQLite database itself.
+5. Nothing is written to local disk at runtime except the SQLite database and, in development only, the local file storage folder. Production files go to S3-compatible storage through the same interface.
 
 ## Data Model
 
@@ -135,6 +141,8 @@ These rules keep that move to one small phase:
 - `checklist_items`: id, card_id -> cards, text, done, position
 - `labels`: id, board_id -> boards, name, color
 - `card_labels`: card_id -> cards, label_id -> labels
+- `attachments`: id, card_id -> cards, owner_id -> users, filename (display only, sanitized), content_type, size, storage_key (random), created_at
+- `boards` gains: background_kind (`none`, `preset`, `image`), background_preset, background_key
 
 Authorization rule: a user can only read or change boards they own (and everything under them).
 
@@ -148,6 +156,8 @@ Authorization rule: a user can only read or change boards they own (and everythi
 - Checklist: `POST /cards/{id}/checklist`, `PATCH /checklist/{id}`, `DELETE /checklist/{id}`
 - Labels: `POST /boards/{id}/labels`, `DELETE /labels/{id}`, `PUT /cards/{id}/labels`
 - AI: `POST /ai/cards/{id}/checklist`, `POST /ai/boards`, `POST /ai/chat`
+- Files: `POST /cards/{id}/attachments` (multipart), `GET /attachments/{id}` (download), `DELETE /attachments/{id}`, `GET /files/usage`
+- Background: `PUT /boards/{id}/background` (multipart image), `PUT /boards/{id}/background/preset`, `DELETE /boards/{id}/background`, `GET /boards/{id}/background`
 
 Search, filters, undo and keyboard shortcuts run in the browser; no API needed.
 Undo: the card or column is hidden at once and the DELETE is sent after 5 seconds unless the user clicks Undo.
@@ -176,6 +186,28 @@ Rules:
 - Rate limits: forgot password and resend verification 3 per hour per email and 10 per hour per IP.
 
 Setup needed from the user (free, no billing): a Gmail App Password (requires 2-step verification on that Gmail account), and a Google Cloud OAuth client (consent screen + Web client with the callback URL).
+
+## Files Design
+
+- Storage interface with `put(key, bytes, content_type)`, `get(key)`, `delete(key)`: `LocalStorage` (folder, development and tests) and `S3Storage` (production, added in the deployment phase). Keys are random UUIDs; the user's file name is only stored for display.
+- Limits: 4 MB per attachment (Vercel rejects requests over 4.5 MB), 10 attachments per card, 100 MB per account and 10 MB per guest; backgrounds up to 10 MB before shrinking, at most 2 MB stored.
+- Allowed attachment types, checked by the file's real content (magic bytes) and extension together: JPG, PNG, WebP, GIF, PDF, TXT, CSV, DOCX, XLSX, PPTX. Never SVG, HTML, scripts or programs.
+- Images (backgrounds and image previews) are opened and re-saved with Pillow, which rejects fake images and strips metadata such as GPS location. The browser shrinks backgrounds to at most 2560 px wide (WebP) before upload.
+- Downloads go through an owner-checked endpoint with `Content-Disposition: attachment` (images may display inline), the stored content type, `X-Content-Type-Options: nosniff` and a restrictive CSP. No public file links.
+- Multipart uploads can be sent cross-site like plain forms, so upload endpoints rely on the Origin check (SEC-33) and get their own rate limit.
+- Deleting a card, column, board or account deletes its stored files too.
+- Background presets are CSS gradients in the brand colors and need no storage. Over a photo, the board is dimmed slightly and columns keep solid surfaces so cards stay readable.
+- Production storage provider (chosen at deployment): Cloudflare R2 (about 10 GB free, no download fees) or Supabase Storage (about 1 GB free; free projects pause after about a week without activity; one account if the database is also Supabase). Both are S3-compatible, so the code is the same.
+
+## Focus Timer Design
+
+- Frontend only; no backend or database changes. State (mode, phase, end time, paused remaining time) is saved in the browser so it survives reloads.
+- Modes: 25 min focus / 5 min break, or 50 min focus / 10 min break.
+- Controls: start, pause, reset focus, reset break (each resets only its own phase), skip to break or focus.
+- The countdown is computed from a fixed end time, so it stays exact in background tabs and after reloads.
+- When focus ends: short chime (Web Audio, can be muted), optional browser notification, break starts. When the break ends, the timer asks before starting the next focus.
+- Shown as a chip in the board header with time left (yellow for focus, blue for break) and in the tab title; screen readers hear phase changes, not every second.
+- Possible later extension: link the timer to a card and count completed sessions.
 
 ## AI Design
 
@@ -249,7 +281,7 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [x] Google sign-in (login + callback) with account linking and guest upgrade via Google
 - [x] Guest upgrade with email + password requires verification
 - [x] Unit tests for every flow, including expired, reused and tampered tokens, enumeration-safe responses, and a faked Google provider
-- [ ] Live check: one real verification email sent through Gmail SMTP; one real Google sign-in in the browser (moved to Phase 13 by the user)
+- [ ] Live check: one real verification email sent through Gmail SMTP; one real Google sign-in in the browser (moved to Phase 15 by the user)
 
 ## Phase 7 - Frontend Foundation
 
@@ -274,14 +306,33 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [ ] Keyboard shortcuts N, /, Esc, ? with a help dialog
 - [ ] Vitest tests: card render, modal edits, filtering logic, due-date status, undo timer
 
-## Phase 9 - AI UI
+## Phase 9 - Files (attachments and board backgrounds)
+
+- [ ] Storage interface with local folder implementation; storage folder git-ignored
+- [ ] `attachments` table and board background fields
+- [ ] Upload, download, delete attachments with type, size, per-card and per-account limits
+- [ ] Board background: upload photo, choose preset, remove; image checked and re-saved with Pillow
+- [ ] Owner checks, safe download headers, files deleted with their card, column, board or account
+- [ ] Card modal Attachments section: drag and drop or choose files, progress, preview for images, download, delete
+- [ ] Board menu "Change background": upload (shrunk in the browser first), presets, remove; readable over any photo
+- [ ] Unit tests for every rule above (backend and frontend)
+
+## Phase 10 - Focus Timer (Pomodoro)
+
+- [ ] Timer logic as pure functions computed from a fixed end time
+- [ ] Header chip and panel: 25/5 or 50/10, start, pause, reset focus, reset break, skip
+- [ ] Phase switch with chime (can be muted) and optional notification; tab title shows time left
+- [ ] State survives reload; screen-reader announcements on phase changes only
+- [ ] Unit tests for timer logic and controls
+
+## Phase 11 - AI UI
 
 - [ ] "Suggest checklist" button in card modal; user picks which items to add
 - [ ] New board dialog: Blank, templates, or "Describe it to AI"
 - [ ] Chat side panel with message history, loading state, clear button, and Confirm buttons for proposed actions
 - [ ] Vitest tests: suggestion selection, chat message rendering
 
-## Phase 10 - Polish
+## Phase 12 - Polish
 
 - [ ] Consistent spacing, typography, shadows, hover and focus states in both themes
 - [ ] Smooth drag overlay and drop animation
@@ -289,7 +340,7 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [ ] Enter to save, Escape to cancel/close
 - [ ] Responsive layout: columns scroll horizontally on small screens
 
-## Phase 11 - Security and Non-Functional Hardening
+## Phase 13 - Security and Non-Functional Hardening
 
 - [ ] Security headers, Origin check, body size limit, TrustedHost, production settings (`ENV=production`)
 - [ ] Rate limits on auth, guest and AI endpoints
@@ -297,7 +348,7 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [ ] Every SEC-xx item in `Planning/SECURITY.md` checked with its test
 - [ ] Dependency audits clean; ruff and tsc clean; coverage 90% or more
 
-## Phase 12 - Integration Testing (Playwright)
+## Phase 14 - Integration Testing (Playwright)
 
 - [ ] Guest flow: continue as guest, demo board with dummy data visible
 - [ ] Sign up, verify email (link read from console mode), sign out, sign in, data persists; guest upgrade keeps boards
@@ -312,9 +363,12 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [ ] Board from template
 - [ ] AI: suggest checklist, AI board starter, chat reply, chat action confirmed and applied (live, with key)
 - [ ] Two users cannot see each other's boards
+- [ ] Upload a board background and see it after reload; remove it
+- [ ] Attach a PDF and an image to a card, download them, delete one; an oversized file is refused
+- [ ] Focus timer with a fast-forwarded browser clock: focus ends, break starts, reset focus and reset break work, 50/10 mode
 - [ ] All defects fixed and re-tested
 
-## Phase 13 - Done
+## Phase 15 - Done
 
 - [ ] Live account checks from Phase 6: real Gmail verification email and real Google sign-in
 - [ ] Every test in `Planning/TEST_PLAN.md` ticked and passing
@@ -322,7 +376,7 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [ ] README has run and test instructions
 - [ ] Server running locally with the built frontend, ready for the user
 
-## Phase 14 - Deployment (Vercel)
+## Phase 16 - Deployment (Vercel)
 
 - [ ] Choose Postgres provider (Neon or Supabase); add Postgres driver with `uv add`
 - [ ] Full backend test suite passes against Postgres
@@ -333,5 +387,6 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [ ] Test deploy confirms the function bundle (including LiteLLM) fits Vercel's size limit; cold start measured
 - [ ] Production environment variables set in Vercel; `ENV=production`, `ALLOWED_HOSTS`, `APP_URL`, `EMAIL_MODE=smtp` set
 - [ ] Production callback URL added to the Google OAuth client
+- [ ] File storage provider chosen (Cloudflare R2, or Supabase Storage if the database is Supabase); `S3Storage` added with `uv add boto3`; upload, download and delete verified on the deployed URL; uploads stay under Vercel's 4.5 MB limit
 - [ ] Playwright smoke suite passes against the deployed URL
 - [ ] Security headers, Secure cookie and HSTS verified on the deployed URL

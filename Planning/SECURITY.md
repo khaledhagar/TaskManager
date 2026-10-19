@@ -59,6 +59,22 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [ ] Request body size limited to 1 MB (SEC-43)
 - [ ] All database access through SQLModel parameters; no string-built SQL (SEC-44)
 
+## 5b. File uploads (attachments and board backgrounds)
+
+- [ ] Attachments: 4 MB per file, 10 per card, 100 MB per account, 10 MB per guest; checked on the server (SEC-130)
+- [ ] Backgrounds: 10 MB upload limit, at most 2 MB stored after re-encoding (SEC-131)
+- [ ] File type decided by real content (magic bytes) plus extension, against an allow list; SVG, HTML, scripts and programs rejected (SEC-132)
+- [ ] Images opened and re-saved with Pillow: fake or broken images rejected, metadata (GPS, camera) stripped (SEC-133)
+- [ ] Stored under random keys; the user's file name is display-only and sanitized; no path traversal (SEC-134)
+- [ ] Downloads only through an owner-checked endpoint; other users get 404; no public links (SEC-135)
+- [ ] Download headers: `Content-Disposition: attachment` (inline only for images), stored content type, `nosniff`, `Content-Security-Policy: sandbox` (SEC-136)
+- [ ] Upload endpoints protected by the Origin check, because multipart forms can be sent cross-site (SEC-137)
+- [ ] Uploads rate-limited: 20 per minute per user (SEC-138)
+- [ ] Deleting a card, column, board or account deletes its stored files; no orphans left (SEC-139)
+- [ ] Request size checked before reading the whole body (no memory exhaustion) (SEC-140)
+- [ ] Storage credentials only in `.env` / Vercel settings; local storage folder git-ignored (SEC-141)
+- [ ] Focus timer stores only timer state in the browser; no personal data (SEC-142)
+
 ## 6. Rate limiting
 
 - [ ] Sign in and sign up: 10 per minute per IP (SEC-50)
