@@ -73,7 +73,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [x] Deleting a card, column, board or account deletes its stored files; no orphans left (SEC-139)
 - [x] Request size checked before reading the whole body (no memory exhaustion) (SEC-140)
 - [x] Storage credentials only in `.env` / Vercel settings; local storage folder git-ignored (SEC-141)
-- [ ] Focus timer stores only timer state in the browser; no personal data (SEC-142)
+- [x] Focus timer stores only timer state in the browser; no personal data (SEC-142)
 
 ## 6. Rate limiting
 

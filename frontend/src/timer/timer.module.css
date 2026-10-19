@@ -1,0 +1,137 @@
+.root {
+  position: relative;
+}
+
+.enable,
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.enable:hover,
+.chip:hover {
+  background: var(--surface-sunken);
+}
+
+.chip[data-phase="focus"] {
+  border-color: var(--accent);
+  background: rgb(236 173 10 / 16%);
+}
+
+.chip[data-phase="break"] {
+  border-color: var(--brand-blue);
+  background: rgb(32 157 215 / 14%);
+}
+
+.chipTime {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.chip:not([data-running]) .chipTime {
+  opacity: 0.7;
+}
+
+.panel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 8px);
+  right: 0;
+  display: grid;
+  gap: 12px;
+  width: 300px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  box-shadow: var(--lift);
+}
+
+.modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  border-radius: var(--radius-control);
+  background: var(--surface-sunken);
+}
+
+.mode {
+  padding: 6px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.mode[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgb(3 33 71 / 10%);
+}
+
+.clock {
+  display: grid;
+  justify-items: center;
+  padding: 10px 0 4px;
+  border-top: 3px solid var(--accent);
+}
+
+.clock[data-phase="break"] {
+  border-top-color: var(--brand-blue);
+}
+
+.clockTime {
+  color: var(--ink);
+  font-size: var(--text-2xl);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.clockPhase {
+  color: var(--muted);
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.controls button {
+  min-height: 34px;
+  padding: 0 8px;
+  font-size: var(--text-xs);
+}
+
+.controls button:last-child {
+  grid-column: span 2;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .panel {
+    position: fixed;
+    top: auto;
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    width: auto;
+  }
+}

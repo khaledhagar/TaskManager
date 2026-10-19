@@ -20,9 +20,9 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 7 - Frontend Foundation | 6 / 6 | Done |
 | Phase 8 - Board UI | 11 / 11 | Done |
 | Phase 9 - Files (attachments and board backgrounds) | 8 / 8 | Done |
-| Phase 10 - Focus Timer (Pomodoro) | 0 / 6 | Not started |
+| Phase 10 - Focus Timer (Pomodoro) | 6 / 6 | Done |
 | Phase 11 - AI UI | 0 / 4 | Not started |
-| Phase 12 - Polish | 0 / 5 | Not started |
+| Phase 12 - Polish | 0 / 6 | Not started |
 | Phase 13 - Security and Non-Functional Hardening | 0 / 5 | Not started |
 | Phase 14 - Integration Testing (Playwright) | 0 / 17 | Not started |
 | Phase 15 - Done | 0 / 5 | Not started |
@@ -320,12 +320,12 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 
 ## Phase 10 - Focus Timer (Pomodoro)
 
-- [ ] Timer logic as pure functions computed from a fixed end time
-- [ ] Opt-in: hidden behind a "Focus timer" button until the user turns it on; "Turn off focus timer" stops, clears and hides it; choice remembered
-- [ ] Header chip and panel: 25/5 or 50/10, start, pause, reset focus, reset break, skip
-- [ ] Phase switch with chime (can be muted) and optional notification; tab title shows time left
-- [ ] State survives reload; screen-reader announcements on phase changes only
-- [ ] Unit tests for timer logic and controls
+- [x] Timer logic as pure functions computed from a fixed end time
+- [x] Opt-in: hidden behind a "Focus timer" button until the user turns it on; "Turn off focus timer" stops, clears and hides it; choice remembered
+- [x] Header chip and panel: 25/5 or 50/10, start, pause, reset focus, reset break, skip
+- [x] Phase switch with chime (can be muted) and optional notification; tab title shows time left
+- [x] State survives reload; screen-reader announcements on phase changes only
+- [x] Unit tests for timer logic and controls
 
 ## Phase 11 - AI UI
 
@@ -341,6 +341,7 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [ ] Empty states (no cards, no boards, no search results)
 - [ ] Enter to save, Escape to cancel/close
 - [ ] Responsive layout: columns scroll horizontally on small screens
+- [ ] On phones, keep the board menu on the same line as the focus timer (it wraps today)
 
 ## Phase 13 - Security and Non-Functional Hardening
 

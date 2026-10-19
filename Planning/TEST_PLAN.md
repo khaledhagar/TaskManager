@@ -184,13 +184,13 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-222 Attachments: upload progress, success, error, download link, delete with confirm
 - [x] T-223 Background picker: presets apply at once; photo is shrunk to at most 2560 px before upload; remove works
 - [x] T-224 Board stays readable over a background (dim layer and solid columns present)
-- [ ] T-225 Timer: remaining time computed from the end time, correct after a simulated reload
-- [ ] T-226 Timer: focus end switches to break; break end waits for the user before the next focus
-- [ ] T-227 Timer: reset focus and reset break each reset only their own phase
-- [ ] T-228 Timer: 25/5 and 50/10 modes; switching mode resets cleanly
-- [ ] T-229 Timer: pause keeps the remaining time; skip moves to the other phase
-- [ ] T-230 Timer: tab title shows time left; phase change announced once; mute stops the chime
-- [ ] T-231 Timer is off by default (only the Focus timer button shows); turning it on shows the panel; turning it off stops it, clears it and hides it; the choice survives a reload
+- [x] T-225 Timer: remaining time computed from the end time, correct after a simulated reload
+- [x] T-226 Timer: focus end switches to break; break end waits for the user before the next focus
+- [x] T-227 Timer: reset focus and reset break each reset only their own phase
+- [x] T-228 Timer: 25/5 and 50/10 modes; switching mode resets cleanly
+- [x] T-229 Timer: pause keeps the remaining time; skip moves to the other phase
+- [x] T-230 Timer: tab title shows time left; phase change announced once; mute stops the chime
+- [x] T-231 Timer is off by default (only the Focus timer button shows); turning it on shows the panel; turning it off stops it, clears it and hides it; the choice survives a reload
 
 ## C. End-to-end tests (Playwright, `frontend/e2e/`)
 

@@ -1,6 +1,7 @@
 import { MoreHorizontal } from 'lucide-react'
 import { useState } from 'react'
 import type { Board } from '../api/boards'
+import { FocusTimer } from '../timer/FocusTimer'
 import { Dialog } from '../ui/Dialog'
 import dialog from '../ui/dialog.module.css'
 import { InlineText } from '../ui/InlineText'
@@ -57,6 +58,7 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground }:
         </div>
         <span className={ui.hint}>{total ? `${done} of ${total} done` : 'No cards yet'}</span>
       </div>
+      <FocusTimer />
       <Menu
         label="Board options"
         align="end"
