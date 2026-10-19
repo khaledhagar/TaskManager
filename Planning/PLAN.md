@@ -13,7 +13,8 @@ The app will be published, so two companion checklists are part of every phase:
 |-------|--------|
 | Backend | Python 3.13, FastAPI, uv project in `backend/` |
 | Database | SQLite via SQLModel |
-| Auth | Argon2 password hashing (`pwdlib`), JWT (`PyJWT`) in an httpOnly cookie |
+| Auth | Argon2 password hashing (`pwdlib`), JWT (`PyJWT`) in an httpOnly cookie, Google sign-in via `authlib` (OpenID Connect) |
+| Email | Gmail SMTP with an App Password (standard library `smtplib`); console mode logs links in development and tests |
 | AI | LiteLLM -> OpenRouter free models: `nvidia/nemotron-3.5-super-vl:free`, backup `nvidia/nemotron-3-super-120b-a12b:free` |
 | Frontend | React + TypeScript + Vite in `frontend/`, built to static files |
 | Drag and drop | `@dnd-kit/core` + `@dnd-kit/sortable` |
@@ -50,6 +51,10 @@ The app will be published, so two companion checklists are part of every phase:
 21. Keyboard shortcuts: N new card, / search, Esc close, ? help (N7)
 22. Markdown rendering in card description (N8)
 23. Delete account and all its data (needed for a published site, SEC-101)
+24. Continue with Google: sign up and sign in with a Google account, no password needed
+25. Email verification for email + password accounts (link valid 24 hours, single use)
+26. Forgot password and reset password by email (link valid 30 minutes, single use)
+27. Change password while signed in; Google-only users can add a password
 
 ### Enhancement review (N1-N8 approved on 2026-10-19; the rest deferred)
 
@@ -86,14 +91,14 @@ Goal: calm, fast, professional - in the spirit of Linear and Trello, but simpler
 - Motion: 150-200 ms ease-out transitions, drag overlay with a slight tilt, all disabled under `prefers-reduced-motion`.
 - Empty states: short helpful text plus one clear action (for example "No cards yet - press N to add one").
 - Accessibility: keyboard for everything, visible focus rings, ARIA labels on icon buttons, screen-reader announcements for drag and drop.
-- The `frontend-design` skill guides the visual pass in Phase 9; screenshots are reviewed at 360, 768 and 1440 px in both themes.
+- The `frontend-design` skill guides the visual pass in Phase 10; screenshots are reviewed at 360, 768 and 1440 px in both themes.
 
 ## Production Portability
 
 Built and tested locally on SQLite; deployed later to Vercel with hosted Postgres (Neon or Supabase, chosen at deployment).
 These rules keep that move to one small phase:
 
-1. All configuration comes from environment variables (`DATABASE_URL`, `JWT_SECRET`, `OPENROUTER_API_KEY`, `ENV`, `ALLOWED_HOSTS`, `REDIS_URL`).
+1. All configuration comes from environment variables (`DATABASE_URL`, `JWT_SECRET`, `OPENROUTER_API_KEY`, `ENV`, `ALLOWED_HOSTS`, `REDIS_URL`, `APP_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `SMTP_USER`, `SMTP_PASSWORD`, `EMAIL_MODE`).
 2. No SQLite-specific SQL. The SQLite pragmas (foreign keys, WAL) are applied only when the URL is SQLite.
 3. Rate-limit counters live behind one small store class: in-memory locally, Redis (Upstash) in production.
 4. Background jobs (guest cleanup) are plain functions, called on startup locally and from a protected cron endpoint on Vercel.
@@ -101,7 +106,8 @@ These rules keep that move to one small phase:
 
 ## Data Model
 
-- `users`: id, email (unique, null for guests), password_hash (null for guests), is_guest, created_at
+- `users`: id, email (unique, null for guests), password_hash (null for guests and Google-only users), is_guest, email_verified, google_id (unique, null unless linked), token_version (bumped to sign out all sessions), created_at
+- `email_tokens`: id, user_id -> users, purpose (`verify` or `reset`), token_hash (SHA-256; the raw token is only in the emailed link), expires_at, used_at
 - `boards`: id, owner_id -> users, title, created_at
 - `columns`: id, board_id -> boards, title, position
 - `cards`: id, column_id -> columns, title, details, completed, priority, due_date, position, created_at
@@ -114,6 +120,7 @@ Authorization rule: a user can only read or change boards they own (and everythi
 ## API (all under `/api`)
 
 - Auth: `POST /auth/signup`, `POST /auth/signin`, `POST /auth/guest`, `POST /auth/upgrade`, `POST /auth/signout`, `GET /auth/me`, `DELETE /auth/me`
+- Account security: `GET /auth/google/login`, `GET /auth/google/callback`, `POST /auth/verify`, `POST /auth/resend-verification`, `POST /auth/forgot-password`, `POST /auth/reset-password`, `POST /auth/change-password`
 - Boards: `GET /boards`, `POST /boards` (optional `template`), `GET /boards/{id}` (full board), `PATCH /boards/{id}`, `DELETE /boards/{id}`
 - Columns: `POST /boards/{id}/columns`, `PATCH /columns/{id}`, `DELETE /columns/{id}`, `POST /boards/{id}/columns/order`
 - Cards: `POST /columns/{id}/cards`, `PATCH /cards/{id}`, `DELETE /cards/{id}`, `POST /cards/{id}/move`
@@ -124,6 +131,30 @@ Authorization rule: a user can only read or change boards they own (and everythi
 Search, filters, undo and keyboard shortcuts run in the browser; no API needed.
 Undo: the card or column is hidden at once and the DELETE is sent after 5 seconds unless the user clicks Undo.
 Everything else is served from the built frontend (`frontend/dist`), with SPA fallback to `index.html`.
+
+## Account Security Design
+
+Ways in:
+
+| Way in | Flow | Email check |
+|--------|------|-------------|
+| Continue with Google | Redirect to Google, back to `/api/auth/google/callback`, signed in | Not needed: only Google accounts with `email_verified` are accepted |
+| Email + password | Sign up, "check your inbox", click link, verified and signed in | Required before sign-in; "Resend email" available |
+| Guest | One click | None; can upgrade later with Google or email + password |
+
+Rules:
+
+- Signing in with Google when a password account already uses that email links the two (Google has proven the email); the account becomes verified.
+- Google-only users can add a password through "Forgot password" or "Set password" in the account menu; afterwards both ways work.
+- Guest upgrade with Google links the Google account to the guest user; with email + password it sends a verification email and the account stays a guest until verified. Boards are kept either way.
+- Forgot password always answers "If an account exists, we sent a link" (no user enumeration). Reset links expire after 30 minutes, verification links after 24 hours; both are single use and stored only as SHA-256 hashes.
+- A password reset or change bumps `token_version`, signing out every other session; the JWT carries the version and is rejected when it no longer matches.
+- Google sign-in uses Authlib's OpenID Connect client: `state` and PKCE are checked, the ID token signature, issuer, audience and nonce are verified.
+- Email links use `APP_URL` (https in production). Emails are plain text plus simple HTML, never containing passwords.
+- `EMAIL_MODE=console` (default in development and tests) logs links instead of sending; `EMAIL_MODE=smtp` sends through Gmail SMTP (`smtp.gmail.com:587`, STARTTLS) using `SMTP_USER` and an App Password in `SMTP_PASSWORD`. Gmail allows about 500 emails per day.
+- Rate limits: forgot password and resend verification 3 per hour per email and 10 per hour per IP.
+
+Setup needed from the user (free, no billing): a Gmail App Password (requires 2-step verification on that Gmail account), and a Google Cloud OAuth client (consent screen + Web client with the callback URL).
 
 ## AI Design
 
@@ -136,7 +167,7 @@ Everything else is served from the built frontend (`frontend/dist`), with SPA fa
 - Checklist generator and board starter ask for JSON output and validate it with Pydantic.
 - Chat sends the user's current board (columns, cards with ids, due dates, priorities) plus a short description of the app's features as context; history is kept in the browser and sent with each request.
 - Chat replies are JSON: `{"reply": str, "actions": [...]}`. Actions are `create_card`, `move_card`, `complete_card`. The browser shows each action with a Confirm button that calls the normal card endpoints, so no extra write endpoint is needed.
-- Unit tests mock `complete`; one live smoke test runs only when the API key is present.
+- Unit tests mock `complete`; one live smoke test runs only with `uv run pytest -m live`.
 
 ---
 
@@ -187,15 +218,28 @@ Everything else is served from the built frontend (`frontend/dist`), with SPA fa
 - [x] Unknown action types or card ids not on the board are dropped from the response
 - [x] Unit tests with mocked `complete`: valid output, malformed JSON gives a clear 502, authorization enforced
 
-## Phase 6 - Frontend Foundation
+## Phase 6 - Account Security (backend)
+
+- [ ] `users` gets `email_verified`, `google_id`, `token_version`; new `email_tokens` table
+- [ ] Mailer with console and SMTP modes; console mode used by all tests
+- [ ] Sign up sends a verification email; unverified accounts cannot sign in (clear message plus resend option)
+- [ ] Verify, resend verification, forgot password, reset password, change password endpoints
+- [ ] Token versioning: reset or change password signs out other sessions
+- [ ] Google sign-in (login + callback) with account linking and guest upgrade via Google
+- [ ] Guest upgrade with email + password requires verification
+- [ ] Unit tests for every flow, including expired, reused and tampered tokens, enumeration-safe responses, and a faked Google provider
+- [ ] Live check: one real verification email sent through Gmail SMTP; one real Google sign-in in the browser
+
+## Phase 7 - Frontend Foundation
 
 - [ ] Design tokens from the color scheme (accent `#ecad0a`, primary `#209dd7`, secondary `#753991`, navy `#032147`, gray `#888888`), light and dark themes
 - [ ] Typed API client using `fetch` with cookies
-- [ ] Auth screen: sign in, sign up, "Continue as guest"
+- [ ] Auth screen: "Continue with Google" (Google branding guidelines), sign in, sign up, "Continue as guest", "Forgot password?"
+- [ ] Account pages: check-your-inbox, verify link landing, reset password, change or set password in the account menu
 - [ ] App shell: header with board switcher, new board, theme toggle, account menu (sign out, upgrade guest)
 - [ ] Vitest tests: auth form validation, API client error handling, theme toggle
 
-## Phase 7 - Board UI
+## Phase 8 - Board UI
 
 - [ ] Board view renders columns and cards
 - [ ] Inline column rename, add column, delete column, drag to reorder columns
@@ -209,14 +253,14 @@ Everything else is served from the built frontend (`frontend/dist`), with SPA fa
 - [ ] Keyboard shortcuts N, /, Esc, ? with a help dialog
 - [ ] Vitest tests: card render, modal edits, filtering logic, due-date status, undo timer
 
-## Phase 8 - AI UI
+## Phase 9 - AI UI
 
 - [ ] "Suggest checklist" button in card modal; user picks which items to add
 - [ ] New board dialog: Blank, templates, or "Describe it to AI"
 - [ ] Chat side panel with message history, loading state, clear button, and Confirm buttons for proposed actions
 - [ ] Vitest tests: suggestion selection, chat message rendering
 
-## Phase 9 - Polish
+## Phase 10 - Polish
 
 - [ ] Consistent spacing, typography, shadows, hover and focus states in both themes
 - [ ] Smooth drag overlay and drop animation
@@ -224,7 +268,7 @@ Everything else is served from the built frontend (`frontend/dist`), with SPA fa
 - [ ] Enter to save, Escape to cancel/close
 - [ ] Responsive layout: columns scroll horizontally on small screens
 
-## Phase 10 - Security and Non-Functional Hardening
+## Phase 11 - Security and Non-Functional Hardening
 
 - [ ] Security headers, Origin check, body size limit, TrustedHost, production settings (`ENV=production`)
 - [ ] Rate limits on auth, guest and AI endpoints
@@ -232,10 +276,12 @@ Everything else is served from the built frontend (`frontend/dist`), with SPA fa
 - [ ] Every SEC-xx item in `Planning/SECURITY.md` checked with its test
 - [ ] Dependency audits clean; ruff and tsc clean; coverage 90% or more
 
-## Phase 11 - Integration Testing (Playwright)
+## Phase 12 - Integration Testing (Playwright)
 
 - [ ] Guest flow: continue as guest, demo board with dummy data visible
-- [ ] Sign up, sign out, sign in, data persists; guest upgrade keeps boards
+- [ ] Sign up, verify email (link read from console mode), sign out, sign in, data persists; guest upgrade keeps boards
+- [ ] Forgot password, reset, old password rejected, other session signed out
+- [ ] Google sign-in with a faked Google provider in test mode
 - [ ] Create board with 3 default columns; rename, add, reorder, delete columns
 - [ ] Add card, edit description, due date, labels, checklist, mark completed, delete
 - [ ] Drag a card to another column; reload; position persists
@@ -247,14 +293,14 @@ Everything else is served from the built frontend (`frontend/dist`), with SPA fa
 - [ ] Two users cannot see each other's boards
 - [ ] All defects fixed and re-tested
 
-## Phase 12 - Done
+## Phase 13 - Done
 
 - [ ] Every test in `Planning/TEST_PLAN.md` ticked and passing
 - [ ] Every item in `Planning/SECURITY.md` ticked
 - [ ] README has run and test instructions
 - [ ] Server running locally with the built frontend, ready for the user
 
-## Phase 13 - Deployment (Vercel)
+## Phase 14 - Deployment (Vercel)
 
 - [ ] Choose Postgres provider (Neon or Supabase); add Postgres driver with `uv add`
 - [ ] Full backend test suite passes against Postgres
@@ -263,6 +309,7 @@ Everything else is served from the built frontend (`frontend/dist`), with SPA fa
 - [ ] `POST /api/cron/cleanup` protected by `CRON_SECRET`, scheduled in `vercel.json`
 - [ ] `vercel.json`: frontend served from Vercel's CDN, `/api/*` routed to FastAPI
 - [ ] Test deploy confirms the function bundle (including LiteLLM) fits Vercel's size limit; cold start measured
-- [ ] Production environment variables set in Vercel; `ENV=production`, `ALLOWED_HOSTS` set
+- [ ] Production environment variables set in Vercel; `ENV=production`, `ALLOWED_HOSTS`, `APP_URL`, `EMAIL_MODE=smtp` set
+- [ ] Production callback URL added to the Google OAuth client
 - [ ] Playwright smoke suite passes against the deployed URL
 - [ ] Security headers, Secure cookie and HSTS verified on the deployed URL

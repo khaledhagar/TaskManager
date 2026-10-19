@@ -49,9 +49,11 @@ The full plan with phases and success criteria is in `Planning/PLAN.md`. Keep it
 
 - Stack: FastAPI + SQLModel/SQLite, pwdlib + PyJWT cookie auth, LiteLLM, React + TypeScript + Vite, dnd-kit
 - Tests: pytest, vitest, Playwright
-- Phases: scaffolding, database, auth, board API, AI backend, frontend foundation, board UI, AI UI, polish, integration testing, done
+- Phases: scaffolding, database, auth, board API, AI backend, account security, frontend foundation, board UI, AI UI, polish, hardening, integration testing, done, deployment
 - Deferred enhancements (N9-N14 in the plan) are not built unless the user approves them
 - Also: delete account (needed for a published site)
+- Continue with Google (no password needed), email verification for email + password accounts, forgot / reset password by email, change password; Google-only users can add a password
+- Emails sent through Gmail SMTP with an App Password (console mode in development and tests)
 
 ## Security and Testing
 
