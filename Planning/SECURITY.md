@@ -84,8 +84,8 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## 7. Output and XSS
 
-- [ ] React escapes all text; no `dangerouslySetInnerHTML` anywhere (SEC-60)
-- [ ] Markdown rendered with `react-markdown` without raw HTML; only `http`, `https` and `mailto` links allowed; links open with `rel="noopener noreferrer"` (SEC-61)
+- [x] React escapes all text; no `dangerouslySetInnerHTML` anywhere (SEC-60)
+- [x] Markdown rendered with `react-markdown` without raw HTML; only `http`, `https` and `mailto` links allowed; links open with `rel="noopener noreferrer"` (SEC-61)
 - [ ] AI output is treated as untrusted text and rendered the same safe way (SEC-62)
 
 ## 8. AI-specific risks

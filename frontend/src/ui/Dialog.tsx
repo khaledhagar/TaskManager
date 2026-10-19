@@ -2,10 +2,17 @@ import { X } from 'lucide-react'
 import { useEffect, useId, useRef, type ReactNode } from 'react'
 import css from './dialog.module.css'
 
-type Props = { open: boolean; onClose: () => void; title: string; children: ReactNode }
+type Props = {
+  open: boolean
+  onClose: () => void
+  title: string
+  children: ReactNode
+  hideTitle?: boolean
+  wide?: boolean
+}
 
 /** Native modal dialog: focus trap, Escape to close and focus return come from the browser. */
-export function Dialog({ open, onClose, title, children }: Props) {
+export function Dialog({ open, onClose, title, children, hideTitle = false, wide = false }: Props) {
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
 
@@ -19,15 +26,15 @@ export function Dialog({ open, onClose, title, children }: Props) {
   return (
     <dialog
       ref={ref}
-      className={css.dialog}
+      className={`${css.dialog} ${wide ? css.wide : ''}`}
       aria-labelledby={titleId}
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
     >
       {open ? (
         <div className={css.body}>
-          <header className={css.header}>
-            <h2 id={titleId} className={css.title}>
+          <header className={hideTitle ? css.floatingHeader : css.header}>
+            <h2 id={titleId} className={hideTitle ? 'visually-hidden' : css.title}>
               {title}
             </h2>
             <button type="button" className={css.close} aria-label="Close" onClick={onClose}>

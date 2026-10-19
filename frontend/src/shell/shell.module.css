@@ -107,68 +107,6 @@
   margin: 10vh auto 0;
 }
 
-.board {
-  display: grid;
-  gap: 20px;
-}
-
-.boardTitle {
-  font-size: var(--text-xl);
-}
-
-.columns {
-  display: grid;
-  grid-auto-columns: minmax(272px, 300px);
-  grid-auto-flow: column;
-  gap: 16px;
-  align-items: start;
-  overflow-x: auto;
-  padding-bottom: 8px;
-}
-
-.column {
-  display: grid;
-  gap: 8px;
-  padding: 12px;
-  border-radius: var(--radius-panel);
-  background: var(--surface-sunken);
-}
-
-.columnTitle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 2px 4px 6px;
-  font-size: var(--text-sm);
-}
-
-.count {
-  color: var(--muted);
-  font-weight: 500;
-}
-
-.card {
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  background: var(--surface);
-  color: var(--text);
-}
-
-.skeleton {
-  height: 240px;
-  border-radius: var(--radius-panel);
-  background: linear-gradient(90deg, var(--surface-sunken), var(--border), var(--surface-sunken));
-  background-size: 200% 100%;
-  animation: shimmer 1.4s linear infinite;
-}
-
-@keyframes shimmer {
-  to {
-    background-position: -200% 0;
-  }
-}
-
 @media (max-width: 640px) {
   .newBoard span {
     display: none;

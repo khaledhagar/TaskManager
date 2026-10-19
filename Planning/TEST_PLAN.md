@@ -163,19 +163,19 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-201 API client shows a specific message for 429
 - [x] T-202 Auth form: validates email and password length; switches between sign in and sign up
 - [x] T-203 Theme toggle switches theme and saves the choice
-- [ ] T-204 Card shows title, priority badge, labels, due date, checklist progress
-- [ ] T-205 Due-date status: overdue, due within 2 days, later, completed (no warning)
-- [ ] T-206 Filter logic: text search, label, priority, completed, combined
-- [ ] T-207 Board progress percentage, including an empty board
-- [ ] T-208 Card modal saves title, description, priority, due date
-- [ ] T-209 Markdown preview renders headings and lists; raw HTML is shown as text; `javascript:` links removed (SEC-61)
-- [ ] T-210 Undo toast: delete is sent after 5 seconds; Undo cancels it
-- [ ] T-211 Keyboard shortcuts: N opens new card input, / focuses search, ? opens help, Esc closes; ignored while typing in an input
+- [x] T-204 Card shows title, priority badge, labels, due date, checklist progress
+- [x] T-205 Due-date status: overdue, due within 2 days, later, completed (no warning)
+- [x] T-206 Filter logic: text search, label, priority, completed, combined
+- [x] T-207 Board progress percentage, including an empty board
+- [x] T-208 Card modal saves title, description, priority, due date
+- [x] T-209 Markdown preview renders headings and lists; raw HTML is shown as text; `javascript:` links removed (SEC-61)
+- [x] T-210 Undo toast: delete is sent after 5 seconds; Undo cancels it
+- [x] T-211 Keyboard shortcuts: N opens new card input, / focuses search, ? opens help, Esc closes; ignored while typing in an input
 - [ ] T-212 AI checklist suggestions: user selects items; only selected items are added
 - [ ] T-213 Chat panel renders messages, loading state, and Confirm buttons for actions
 - [ ] T-214 Confirming a chat action calls the matching card endpoint
-- [ ] T-215 Optimistic move rolls back and shows an error when the API fails (NFR-31)
-- [ ] T-216 No `dangerouslySetInnerHTML` in the source (checked by a grep test) (SEC-60)
+- [x] T-215 Optimistic move rolls back and shows an error when the API fails (NFR-31)
+- [x] T-216 No `dangerouslySetInnerHTML` in the source (checked by a grep test) (SEC-60)
 - [x] T-217 Auth screen shows Continue with Google, sign in, sign up, guest and Forgot password
 - [x] T-218 Check-your-inbox screen offers Resend email with a cooldown
 - [x] T-219 Reset password page reads the token from the link and validates the new password

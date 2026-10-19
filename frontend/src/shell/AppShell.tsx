@@ -2,11 +2,11 @@ import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import type { User } from '../api/auth'
 import { boards, type BoardSummary } from '../api/boards'
+import { BoardView } from '../board/BoardView'
 import { navigate, useLocation } from '../lib/router'
 import { Logo } from '../ui/Logo'
 import ui from '../ui/ui.module.css'
 import { AccountMenu } from './AccountMenu'
-import { BoardPreview } from './BoardPreview'
 import { BoardSwitcher } from './BoardSwitcher'
 import { NewBoardDialog } from './NewBoardDialog'
 import css from './shell.module.css'
@@ -29,6 +29,16 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
 
   const selectedId = Number(params.get('board')) || list?.[0]?.id
   const select = (id: number) => navigate(`/?board=${id}`)
+
+  function renamed(id: number, title: string) {
+    setList((current) => current?.map((b) => (b.id === id ? { ...b, title } : b)) ?? null)
+  }
+
+  function deleted(id: number) {
+    const rest = (list ?? []).filter((b) => b.id !== id)
+    setList(rest)
+    navigate(rest.length ? `/?board=${rest[0].id}` : '/', { replace: true })
+  }
 
   async function create(title: string) {
     const board = await boards.create(title)
@@ -78,7 +88,12 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
             {error}
           </p>
         ) : selectedId ? (
-          <BoardPreview key={selectedId} boardId={selectedId} />
+          <BoardView
+            key={selectedId}
+            boardId={selectedId}
+            onRenamed={renamed}
+            onDeleted={deleted}
+          />
         ) : list?.length === 0 ? (
           <div className={css.empty}>
             <h1>No boards yet</h1>

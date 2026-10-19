@@ -18,7 +18,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 5 - AI Backend | 7 / 7 | Done |
 | Phase 6 - Account Security (backend) | 8 / 9 | Done (live Gmail/Google check moved to Phase 15) |
 | Phase 7 - Frontend Foundation | 6 / 6 | Done |
-| Phase 8 - Board UI | 0 / 11 | Not started |
+| Phase 8 - Board UI | 11 / 11 | Done |
 | Phase 9 - Files (attachments and board backgrounds) | 0 / 8 | Not started |
 | Phase 10 - Focus Timer (Pomodoro) | 0 / 5 | Not started |
 | Phase 11 - AI UI | 0 / 4 | Not started |
@@ -294,17 +294,17 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 
 ## Phase 8 - Board UI
 
-- [ ] Board view renders columns and cards
-- [ ] Inline column rename, add column, delete column, drag to reorder columns
-- [ ] Add card, delete card with confirm, completed checkbox with muted style
-- [ ] Card shows priority badge, labels, due date (red when overdue, yellow when due within 2 days), checklist progress
-- [ ] Board progress bar in the board header
-- [ ] Card detail modal: title, markdown description (edit and preview), priority, due date, labels, checklist
-- [ ] Drag and drop cards within and between columns, optimistic update, persisted
-- [ ] Search box and filters (label, priority, completed) above the board
-- [ ] Undo toast for card and column delete
-- [ ] Keyboard shortcuts N, /, Esc, ? with a help dialog
-- [ ] Vitest tests: card render, modal edits, filtering logic, due-date status, undo timer
+- [x] Board view renders columns and cards
+- [x] Inline column rename, add column, delete column, drag to reorder columns
+- [x] Add card, delete card with a 5-second Undo (instead of a confirm step), completed checkbox with muted style
+- [x] Card shows priority badge, labels, due date (red when overdue, yellow when due within 2 days), checklist progress
+- [x] Board progress bar in the board header
+- [x] Card detail modal: title, markdown description (edit and preview), priority, due date, labels, checklist
+- [x] Drag and drop cards within and between columns, optimistic update, persisted
+- [x] Search box and filters (label, priority, completed) above the board
+- [x] Undo toast for card and column delete
+- [x] Keyboard shortcuts N, /, Esc, ? with a help dialog
+- [x] Vitest tests: card render, modal edits, filtering logic, due-date status, undo timer
 
 ## Phase 9 - Files (attachments and board backgrounds)
 

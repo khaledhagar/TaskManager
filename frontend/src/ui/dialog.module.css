@@ -8,6 +8,16 @@
   box-shadow: var(--lift);
 }
 
+.wide {
+  width: min(860px, calc(100vw - 32px));
+}
+
+.floatingHeader {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: -12px;
+}
+
 .dialog::backdrop {
   background: rgb(3 33 71 / 45%);
 }
