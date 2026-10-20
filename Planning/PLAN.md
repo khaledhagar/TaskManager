@@ -406,11 +406,11 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 
 ## Phase 16 - Done
 
-- [ ] Live account checks from Phase 6: real Gmail verification email and real Google sign-in
 - [ ] Every test in `Planning/TEST_PLAN.md` ticked and passing
 - [ ] Every item in `Planning/SECURITY.md` ticked
 - [ ] README has run and test instructions
 - [ ] Server running locally with the built frontend, ready for the user
+- [ ] FINAL TASK before Deployment (remind the user): live account checks from Phase 6 - add the Gmail and Google keys to `.env`, send one real verification email through Gmail SMTP and do one real Google sign-in in the browser
 
 ## Phase 17 - Deployment (Vercel)
 
