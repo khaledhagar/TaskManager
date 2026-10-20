@@ -97,11 +97,12 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 13 - Polis
 
 ## Waiting on the user
 
-- **Reminder for the end of the project:** the live account checks are the FINAL task of Phase 16, right before Deployment. Remind the user then. (Phase 6 task marked done; the check itself runs in Phase 16): add to `.env` and test one real verification email and one real Google sign-in.
+- Live account checks (Phase 6 task marked done; the check itself runs in Phase 16): add to `.env` and test one real verification email and one real Google sign-in.
   - `EMAIL_MODE=smtp`, `SMTP_USER`, `SMTP_PASSWORD` (Gmail App Password; needs 2-step verification)
   - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (Google Cloud OAuth client; redirect `http://localhost:8000/api/auth/google/callback`)
 - Optional: 10 OpenRouter credits would raise the AI limit from 50 to 1,000 requests per day.
 - Delete the old local database before the next local run (see gotchas).
+- **Reminder for the end of the project:** the FINAL task of Phase 16, right before Deployment, is deleting `backend/taskmanager.db` and `backend/storage/`. Remind the user then.
 - The free AI quota is 50 requests per day for the whole account; Phase 12 used 1 for the live check.
 
 ## Next steps: Phase 13 - Polish
