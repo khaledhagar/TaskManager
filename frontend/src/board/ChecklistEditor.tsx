@@ -2,6 +2,7 @@ import { X } from 'lucide-react'
 import { useState } from 'react'
 import type { Card } from '../api/boards'
 import { useI18n } from '../i18n/context'
+import { ChecklistSuggest } from '../ai/ChecklistSuggest'
 import ui from '../ui/ui.module.css'
 import css from './board.module.css'
 import type { BoardActions } from './useBoard'
@@ -65,6 +66,7 @@ export function ChecklistEditor({ card, actions }: { card: Card; actions: BoardA
         onChange={(e) => setDraft(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && add()}
       />
+      <ChecklistSuggest cardId={card.id} onAdd={(text) => actions.addItem(card.id, text)} />
     </section>
   )
 }

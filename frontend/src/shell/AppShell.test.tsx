@@ -82,7 +82,7 @@ describe('app shell', () => {
     const dialog = screen.getByRole('dialog', { name: 'New board' })
     await userEvent.type(within(dialog).getByLabelText('Board name'), 'Q4 Roadmap')
     await userEvent.click(within(dialog).getByRole('button', { name: 'Create board' }))
-    expect(boards.create).toHaveBeenCalledWith('Q4 Roadmap')
+    expect(boards.create).toHaveBeenCalledWith('Q4 Roadmap', 'blank')
     expect(location.search).toBe('?board=3')
   })
 

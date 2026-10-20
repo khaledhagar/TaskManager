@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { boards } from '../api/boards'
+import { ChatPanel } from '../ai/ChatPanel'
 import { Backdrop } from '../files/Backdrop'
 import { BackgroundPicker } from '../files/BackgroundPicker'
 import { useI18n } from '../i18n/context'
@@ -31,6 +32,7 @@ export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
   const [composing, setComposing] = useState<number | null>(null)
   const [help, setHelp] = useState(false)
   const [picking, setPicking] = useState(false)
+  const [chatting, setChatting] = useState(false)
   const searchRef = useRef<HTMLInputElement>(null)
 
   useShortcuts({
@@ -68,6 +70,7 @@ export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
         }}
         onHelp={() => setHelp(true)}
         onBackground={() => setPicking(true)}
+        onChat={() => setChatting(true)}
       />
       <FilterBar
         filters={filters}
@@ -106,6 +109,7 @@ export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
         />
       ) : null}
       <ShortcutsHelp open={help} onClose={() => setHelp(false)} />
+      <ChatPanel open={chatting} board={board} actions={actions} onClose={() => setChatting(false)} />
       <BackgroundPicker
         open={picking}
         board={board}

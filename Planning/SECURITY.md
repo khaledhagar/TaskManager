@@ -87,7 +87,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 - [x] React escapes all text; no `dangerouslySetInnerHTML` anywhere (SEC-60)
 - [x] Markdown rendered with `react-markdown` without raw HTML; only `http`, `https` and `mailto` links allowed; links open with `rel="noopener noreferrer"` (SEC-61)
-- [ ] AI output is treated as untrusted text and rendered the same safe way (SEC-62)
+- [x] AI output is treated as untrusted text and rendered the same safe way (SEC-62)
 
 ## 8. AI-specific risks
 
@@ -97,7 +97,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [x] Chat history sent to the model is capped (last 20 messages) and `max_tokens` is set (cost control) (SEC-73)
 - [x] Model errors and timeouts return a friendly 502 without leaking provider details (SEC-74)
 - [x] System prompt tells the model it only assists with this app; board content is wrapped as data, not instructions (SEC-75)
-- [ ] UI states that AI features send card or board text to a third-party AI service; only the needed text is sent (SEC-76)
+- [x] UI states that AI features send card or board text to a third-party AI service; only the needed text is sent (SEC-76)
 
 ## 9. HTTP security headers
 

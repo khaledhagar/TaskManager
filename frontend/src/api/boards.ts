@@ -1,6 +1,7 @@
 import { api } from './client'
 
 export type Priority = 'low' | 'medium' | 'high' | 'urgent'
+export type Template = 'blank' | 'sprint' | 'bug_tracking' | 'personal'
 export type LabelColor = 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purple' | 'gray'
 
 export type BoardSummary = { id: number; title: string; created_at: string }
@@ -45,7 +46,8 @@ const patch = <T>(path: string, body: unknown) => api<T>(path, { method: 'PATCH'
 export const boards = {
   list: () => api<BoardSummary[]>('/boards'),
   get: (id: number) => api<Board>(`/boards/${id}`),
-  create: (title: string) => api<BoardSummary>('/boards', { body: { title } }),
+  create: (title: string, template: Template = 'blank') =>
+    api<BoardSummary>('/boards', { body: { title, template } }),
   rename: (id: number, title: string) => patch<BoardSummary>(`/boards/${id}`, { title }),
   remove: (id: number) => del(`/boards/${id}`),
 

@@ -1,6 +1,7 @@
-import { MoreHorizontal } from 'lucide-react'
+import { MoreHorizontal, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import type { Board } from '../api/boards'
+import aiCss from '../ai/ai.module.css'
 import { useI18n } from '../i18n/context'
 import { FocusTimer } from '../timer/FocusTimer'
 import { Dialog } from '../ui/Dialog'
@@ -17,10 +18,11 @@ type Props = {
   onDelete: () => Promise<void>
   onHelp: () => void
   onBackground: () => void
+  onChat: () => void
 }
 
 /** Board title (click to rename), completion progress and board options. */
-export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground }: Props) {
+export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, onChat }: Props) {
   const { t } = useI18n()
   const [confirming, setConfirming] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -61,6 +63,16 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground }:
         <span className={ui.hint}>{total ? t('board.progress', { done, total }) : t('board.noCards')}</span>
       </div>
       <FocusTimer />
+      <button
+        type="button"
+        className={`${ui.button} ${ui.secondary} ${aiCss.askButton}`}
+        aria-label={t('chat.open')}
+        title={t('chat.open')}
+        onClick={onChat}
+      >
+        <Sparkles size={16} aria-hidden="true" />
+        <span className={aiCss.askLabel}>{t('chat.open')}</span>
+      </button>
       <Menu
         label={t('board.options')}
         align="end"

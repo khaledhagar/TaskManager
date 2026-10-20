@@ -4,16 +4,16 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 
 ## Where the project stands (2026-10-20)
 
-- Phases 1-11 are done (`main`, https://github.com/khaledhagar/TaskManager).
-- Next: **Phase 12 - AI UI** (see "Next steps" below).
-- Tests: backend 219 passing (plus 1 live AI test, skipped by default); frontend 171 passing. Lint, format and type checks are clean.
-- Checklists: 148 tests ticked in `Planning/TEST_PLAN.md`, 55 items ticked in `Planning/SECURITY.md`.
+- Phases 1-12 are done (`main`, https://github.com/khaledhagar/TaskManager).
+- Next: **Phase 13 - Polish** (see "Next steps" below).
+- Tests: backend 219 passing (plus 1 live AI test, skipped by default); frontend 194 passing. Lint, format and type checks are clean.
+- Checklists: 152 tests ticked in `Planning/TEST_PLAN.md`, 57 items ticked in `Planning/SECURITY.md`.
 
 | Done | Phase |
 |------|-------|
-| Yes | 1 Scaffolding, 2 Database, 3 Auth, 4 Board API, 5 AI backend, 6 Account security, 7 Frontend foundation, 8 Board UI, 9 Files, 10 Focus timer, 11 Languages |
-| Next | 12 AI UI |
-| Later | 13 Polish (touch drag, responsive + theme pass), 14 Hardening, 15 Playwright tests, 16 Done, 17 Deployment (Vercel) |
+| Yes | 1 Scaffolding, 2 Database, 3 Auth, 4 Board API, 5 AI backend, 6 Account security, 7 Frontend foundation, 8 Board UI, 9 Files, 10 Focus timer, 11 Languages, 12 AI UI |
+| Next | 13 Polish (touch drag, responsive + theme pass) |
+| Later | 14 Hardening, 15 Playwright tests, 16 Done, 17 Deployment (Vercel) |
 
 ## How we work (the user's preferences)
 
@@ -43,7 +43,7 @@ Browser checks: Playwright drives the installed Microsoft Edge (`chromium.launch
 Tick a finished phase and rebuild the Progress table:
 
 ```bash
-PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 12 - AI UI" "T-212" "SEC-xx"
+PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 13 - Polish" "T-330" "NFR-24"
 ```
 
 ## Languages (Phase 11): how it works
@@ -54,6 +54,15 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 12 - AI UI
 - **Backend:** `app/i18n.py` reads `Accept-Language` per request (middleware + context variable). Wrap every user-facing message in `tr("English text", name=value)` and add the Arabic to `AR`. `tests/test_i18n.py` scans the source and fails on an `HTTPException` without `tr()` or a text without Arabic. Emails, demo board, templates (`app/templates_ar.py`) and AI prompts ("Answer in Arabic.") follow the request language.
 - **Saved choice:** browser `localStorage` (`language`) and `users.language` (`PATCH /api/auth/me`). On sign-in a choice saved in the browser wins and is copied to the account; a fresh browser takes the account's language.
 - Pydantic's 422 validation texts stay English (the frontend validates the same rules first, in the user's language).
+
+## AI UI (Phase 12): how it works
+
+- `frontend/src/api/ai.ts` calls the three AI endpoints; `ai/useAiRequest.ts` gives every AI action a busy flag, a friendly error and Cancel (AbortController, also on unmount).
+- **Suggest steps** (`ai/ChecklistSuggest.tsx`) in the card window: suggestions arrive checked; only the selected ones are added through the normal checklist action.
+- **New board dialog** (`shell/NewBoardDialog.tsx`): Blank, Sprint, Bug tracking, Personal (`POST /boards` with `template`), or "Describe it to AI" (`POST /ai/boards`).
+- **Chat panel** (`ai/ChatPanel.tsx`, opened with "Ask AI" in the board header): conversation kept in the panel while the board is open (a new board starts a new chat); the last 20 messages are sent. Proposed actions are described in words (`ai/chatActions.ts`) and change the board only on Confirm, through the normal optimistic board actions. Replies are plain text (SEC-62); every AI feature says the text goes to a third-party AI service (SEC-76).
+- Real check on 2026-10-20: an Arabic chat question was answered in Arabic in 6 seconds with a correct move proposal.
+- Browser review without spending the AI quota: mock the AI routes with `page.route('**/api/ai/chat', ...)`.
 
 ## Environment notes and gotchas
 
@@ -68,6 +77,8 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 12 - AI UI
 - **TypeScript 7** has no JavaScript compiler API; use `oxc-parser` to parse source in tests. Test files that use `node:fs` start with `/// <reference types="node" />`.
 - **dnd-kit in RTL:** its keyboard moves pick Left/Right targets by left edge, so in RTL a card could not leave its column. `board/keyboard.ts` (`boardKeyboardCoordinates`) fixes it; keep using it as the keyboard `coordinateGetter`.
 - **Grid layouts:** a grid column never shrinks below its content; the app shell uses `grid-template-columns: minmax(0, 1fr)` so the header can shrink on phones.
+- **Effects must return nothing or a cleanup function.** Edge 155 returns a Promise from `scrollIntoView`; an expression-bodied `useEffect(() => el.scrollIntoView())` crashed the whole page (jsdom has no `scrollIntoView`, so unit tests missed it). Always use a block body.
+- **Icon-only buttons need `aria-label`:** CSS that hides a button's text on phones also removes its accessible name (found on New board).
 - **Countdowns** (resend email, focus timer) are computed from a fixed end time, never by chaining one-second timers.
 - **Origin check middleware** blocks cross-site POST/PUT/PATCH/DELETE; the Vite dev server origins (`localhost:5173`) are allowed outside production.
 
@@ -86,22 +97,24 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 12 - AI UI
 
 ## Waiting on the user
 
-- Live account checks (moved to Phase 16 by the user): add to `.env` and test one real verification email and one real Google sign-in.
+- Live account checks (Phase 6 task marked done; the check itself runs in Phase 16): add to `.env` and test one real verification email and one real Google sign-in.
   - `EMAIL_MODE=smtp`, `SMTP_USER`, `SMTP_PASSWORD` (Gmail App Password; needs 2-step verification)
   - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (Google Cloud OAuth client; redirect `http://localhost:8000/api/auth/google/callback`)
 - Optional: 10 OpenRouter credits would raise the AI limit from 50 to 1,000 requests per day.
 - Delete the old local database before the next local run (see gotchas).
+- The free AI quota is 50 requests per day for the whole account; Phase 12 used 1 for the live check.
 
-## Next steps: Phase 12 - AI UI
+## Next steps: Phase 13 - Polish
 
-The backend endpoints exist (`/api/ai/cards/{id}/checklist`, `/api/ai/boards`, `/api/ai/chat`) and already answer in the request language. Test T-212 and the chat tests are in `TEST_PLAN.md`; the UI rules are in "AI Design" in `PLAN.md` (free-tier limits, confirm before any chat action).
+Tasks are in "Phase 13 - Polish" in `PLAN.md`; related checks are NFR-23 and NFR-24 in `SECURITY.md` and T-329, T-330 in `TEST_PLAN.md` (the Playwright versions run in Phase 15).
 
-Suggested order (test first at each step):
+Suggested order:
 
-1. **Suggest checklist** button in the card window: show suggestions with checkboxes; only the selected items are added (T-212).
-2. **New board dialog:** Blank, the four templates, or "Describe it to AI" (uses `/api/ai/boards`).
-3. **Chat side panel:** message history, loading state, clear button; proposed actions shown with Confirm buttons; nothing changes without Confirm.
-4. Every new string goes into `en.ts` and `ar.ts`; check RTL and phone width in the screenshot review.
-5. **Review:** screenshots in both languages at 360, 768 and 1440 px, light and dark; then tick, commit and push.
+1. **Touch drag and drop:** add dnd-kit's `TouchSensor` (or `PointerSensor` with a press-and-hold delay for touch) so cards can be picked up on phones while the page still scrolls normally; test on a phone-sized touch screen in Edge (Playwright `hasTouch: true`).
+2. **Phone header row:** keep the board "..." menu on the same line as the focus timer and the "Ask AI" button.
+3. **Drag overlay and drop animation**, consistent spacing, hover and focus states in both themes.
+4. **Empty states** (no cards, no boards, no search results) and Enter / Escape behaviour everywhere.
+5. **Responsive and theme pass:** every feature (including the chat panel and dialogs) at 360, 768, 1024 and 1440 px, light and dark, English and Arabic; no page-level sideways scroll; tap targets at least 40 px.
+6. Review the screenshots, then tick, commit and push.
 
-Known polish items already logged for Phase 13: on phones the board "..." menu wraps onto its own line next to the focus timer; touch drag needs a press-and-hold sensor; native date inputs follow the browser's locale, not the page language.
+Known items: native date inputs follow the browser's locale, not the page language; on wide screens the chat panel covers the right part of the board (it can be closed; consider leaving room for it).

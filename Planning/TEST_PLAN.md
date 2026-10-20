@@ -178,9 +178,9 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-209 Markdown preview renders headings and lists; raw HTML is shown as text; `javascript:` links removed (SEC-61)
 - [x] T-210 Undo toast: delete is sent after 5 seconds; Undo cancels it
 - [x] T-211 Keyboard shortcuts: N opens new card input, / focuses search, ? opens help, Esc closes; ignored while typing in an input
-- [ ] T-212 AI checklist suggestions: user selects items; only selected items are added
-- [ ] T-213 Chat panel renders messages, loading state, and Confirm buttons for actions
-- [ ] T-214 Confirming a chat action calls the matching card endpoint
+- [x] T-212 AI checklist suggestions: user selects items; only selected items are added
+- [x] T-213 Chat panel renders messages, loading state, and Confirm buttons for actions
+- [x] T-214 Confirming a chat action calls the matching card endpoint
 - [x] T-215 Optimistic move rolls back and shows an error when the API fails (NFR-31)
 - [x] T-216 No `dangerouslySetInnerHTML` in the source (checked by a grep test) (SEC-60)
 - [x] T-217 Auth screen shows Continue with Google, sign in, sign up, guest and Forgot password
@@ -204,6 +204,7 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-244 Sign-in screen offers the language button before sign-in; requests send `Accept-Language`
 - [x] T-245 No hard-coded user-facing English left in components (checked by a test over the source)
 - [x] T-246 Direction-dependent icons are mirrored in RTL
+- [x] T-247 New board dialog: Blank, a template, or Describe it to AI (sends the description, shows progress, can be cancelled)
 - [x] T-231 Timer is off by default (only the Focus timer button shows); turning it on shows the panel; turning it off stops it, clears it and hides it; the choice survives a reload
 
 ## C. End-to-end tests (Playwright, `frontend/e2e/`)

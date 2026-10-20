@@ -13,9 +13,6 @@ replace a plan line (each old text must appear exactly once).
 import sys
 from pathlib import Path
 
-PHASE_6_NOTE = "Done (live Gmail/Google check moved to Phase 16)"
-
-
 def progress_table(plan: str) -> str:
     rows, name, done, total = [], None, 0, 0
     for line in plan[plan.index("## Phase 1 -") :].splitlines():
@@ -30,8 +27,6 @@ def progress_table(plan: str) -> str:
     rows.append((name, done, total))
 
     def status(n: str, d: int, t: int) -> str:
-        if n.startswith("Phase 6"):
-            return PHASE_6_NOTE
         return "Done" if d == t else ("Not started" if d == 0 else "In progress")
 
     body = "\n".join(f"| {n} | {d} / {t} | {status(n, d, t)} |" for n, d, t in rows)

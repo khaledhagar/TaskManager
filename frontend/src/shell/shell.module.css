@@ -74,6 +74,36 @@
   background: var(--primary);
 }
 
+.choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.choices legend {
+  margin-block-end: 8px;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.choice:has(input:checked) {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
 .guestBar {
   display: flex;
   flex-wrap: wrap;

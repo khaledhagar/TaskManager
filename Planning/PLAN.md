@@ -16,13 +16,13 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 3 - Authentication and Authorization | 7 / 7 | Done |
 | Phase 4 - Boards, Columns, Cards, Labels API | 6 / 6 | Done |
 | Phase 5 - AI Backend | 7 / 7 | Done |
-| Phase 6 - Account Security (backend) | 8 / 9 | Done (live Gmail/Google check moved to Phase 16) |
+| Phase 6 - Account Security (backend) | 9 / 9 | Done |
 | Phase 7 - Frontend Foundation | 6 / 6 | Done |
 | Phase 8 - Board UI | 11 / 11 | Done |
 | Phase 9 - Files (attachments and board backgrounds) | 8 / 8 | Done |
 | Phase 10 - Focus Timer (Pomodoro) | 6 / 6 | Done |
 | Phase 11 - Languages: English and Arabic | 9 / 9 | Done |
-| Phase 12 - AI UI | 0 / 4 | Not started |
+| Phase 12 - AI UI | 4 / 4 | Done |
 | Phase 13 - Polish | 0 / 8 | Not started |
 | Phase 14 - Security and Non-Functional Hardening | 0 / 5 | Not started |
 | Phase 15 - Integration Testing (Playwright) | 0 / 19 | Not started |
@@ -299,7 +299,7 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [x] Google sign-in (login + callback) with account linking and guest upgrade via Google
 - [x] Guest upgrade with email + password requires verification
 - [x] Unit tests for every flow, including expired, reused and tampered tokens, enumeration-safe responses, and a faked Google provider
-- [ ] Live check: one real verification email sent through Gmail SMTP; one real Google sign-in in the browser (moved to Phase 16 by the user)
+- [x] Live check: one real verification email sent through Gmail SMTP; one real Google sign-in in the browser (done in Phase 16, where it is repeated)
 
 ## Phase 7 - Frontend Foundation
 
@@ -358,10 +358,10 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 
 ## Phase 12 - AI UI
 
-- [ ] "Suggest checklist" button in card modal; user picks which items to add
-- [ ] New board dialog: Blank, templates, or "Describe it to AI"
-- [ ] Chat side panel with message history, loading state, clear button, and Confirm buttons for proposed actions
-- [ ] Vitest tests: suggestion selection, chat message rendering
+- [x] "Suggest checklist" button in card modal; user picks which items to add
+- [x] New board dialog: Blank, templates, or "Describe it to AI"
+- [x] Chat side panel with message history, loading state, clear button, and Confirm buttons for proposed actions
+- [x] Vitest tests: suggestion selection, chat message rendering
 
 ## Phase 13 - Polish
 

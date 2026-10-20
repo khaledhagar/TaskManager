@@ -43,8 +43,7 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
     navigate(rest.length ? `/?board=${rest[0].id}` : '/', { replace: true })
   }
 
-  async function create(title: string) {
-    const board = await boards.create(title)
+  function created(board: BoardSummary) {
     setList((current) => [...(current ?? []), board])
     select(board.id)
   }
@@ -60,6 +59,7 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
         <button
           type="button"
           className={`${ui.button} ${ui.primary} ${css.newBoard}`}
+          aria-label={t('shell.newBoard')}
           onClick={() => setCreating(true)}
         >
           <Plus size={16} aria-hidden="true" />
@@ -111,7 +111,7 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
         ) : null}
       </main>
 
-      <NewBoardDialog open={creating} onClose={() => setCreating(false)} onCreate={create} />
+      <NewBoardDialog open={creating} onClose={() => setCreating(false)} onCreated={created} />
       <UpgradeDialog open={upgrading} onClose={() => setUpgrading(false)} />
     </div>
   )
