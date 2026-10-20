@@ -69,6 +69,12 @@ describe('card modal (T-208)', () => {
     expect(actions.updateCard).toHaveBeenCalledWith(7, { details: '# Goals' })
   })
 
+  test('Ctrl+Enter saves the description', async () => {
+    const dialog = open()
+    await userEvent.type(within(dialog).getByLabelText('Description'), 'Plan{Control>}{Enter}{/Control}')
+    expect(actions.updateCard).toHaveBeenCalledWith(7, { details: 'Plan' })
+  })
+
   test('existing description opens in preview', () => {
     const dialog = open({ details: '## Notes\n\n- point' })
     expect(within(dialog).getByRole('heading', { name: 'Notes' })).toBeInTheDocument()

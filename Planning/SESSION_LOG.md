@@ -4,16 +4,16 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 
 ## Where the project stands (2026-10-20)
 
-- Phases 1-12 are done (`main`, https://github.com/khaledhagar/TaskManager).
-- Next: **Phase 13 - Polish** (see "Next steps" below).
-- Tests: backend 219 passing (plus 1 live AI test, skipped by default); frontend 194 passing. Lint, format and type checks are clean.
-- Checklists: 152 tests ticked in `Planning/TEST_PLAN.md`, 57 items ticked in `Planning/SECURITY.md`.
+- Phases 1-13 are done (`main`, https://github.com/khaledhagar/TaskManager).
+- Next: **Phase 14 - Security and Non-Functional Hardening** (see "Next steps" below).
+- Tests: backend 219 passing (plus 1 live AI test, skipped by default); frontend 200 passing. Lint, format and type checks are clean.
+- Checklists: 152 tests ticked in `Planning/TEST_PLAN.md`, 59 items ticked in `Planning/SECURITY.md`.
 
 | Done | Phase |
 |------|-------|
-| Yes | 1 Scaffolding, 2 Database, 3 Auth, 4 Board API, 5 AI backend, 6 Account security, 7 Frontend foundation, 8 Board UI, 9 Files, 10 Focus timer, 11 Languages, 12 AI UI |
-| Next | 13 Polish (touch drag, responsive + theme pass) |
-| Later | 14 Hardening, 15 Playwright tests, 16 Done, 17 Deployment (Vercel) |
+| Yes | 1 Scaffolding, 2 Database, 3 Auth, 4 Board API, 5 AI backend, 6 Account security, 7 Frontend foundation, 8 Board UI, 9 Files, 10 Focus timer, 11 Languages, 12 AI UI, 13 Polish |
+| Next | 14 Hardening (security headers, rate limits, audits, coverage) |
+| Later | 15 Playwright tests, 16 Done, 17 Deployment (Vercel) |
 
 ## How we work (the user's preferences)
 
@@ -43,7 +43,7 @@ Browser checks: Playwright drives the installed Microsoft Edge (`chromium.launch
 Tick a finished phase and rebuild the Progress table:
 
 ```bash
-PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 13 - Polish" "T-330" "NFR-24"
+PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Security" "T-102" "SEC-50,SEC-51"
 ```
 
 ## Languages (Phase 11): how it works
@@ -64,6 +64,14 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 13 - Polis
 - Real check on 2026-10-20: an Arabic chat question was answered in Arabic in 6 seconds with a correct move proposal.
 - Browser review without spending the AI quota: mock the AI routes with `page.route('**/api/ai/chat', ...)`.
 
+## Polish (Phase 13): how it works
+
+- **Touch drag:** `MouseSensor` + `TouchSensor` (press and hold 250 ms, 8 px tolerance) in `board/BoardColumns.tsx`; a quick swipe scrolls the page. `board/touch.test.tsx` covers both; checked in Edge with real touch events (CDP `Input.dispatchTouchEvent`; `Input.synthesizeScrollGesture` does not scroll in this setup, so don't use it).
+- **Touch targets:** each CSS module ends with a `@media (pointer: coarse)` block raising controls to 40 px. Small visual controls (card check, color swatches) keep their look and get an invisible `::after` hit area. Playwright `hasTouch: true` turns on `(pointer: coarse)`.
+- **Phone layout (max 640 px):** board title, then progress, then the `boardActions` group (focus timer, Ask AI, menu) which always wraps as one unit; filters in one row of three; columns snap gently (`scroll-snap-type: x proximity`).
+- **Layout audit:** `cd frontend && node scripts/audit.cjs [--quick] [--shots]` (server on port 8000) checks every width, theme and language for sideways scroll, header rows and tap targets; screenshots in `frontend/test-results/audit`. Use it as the basis of T-329 in Phase 15.
+- Drag: lift animation, dashed placeholder where the card will land, 200 ms drop (none with reduced motion). Empty board shows "no columns yet". Ctrl/Cmd+Enter saves a description. The chat panel leaves room for itself on screens 1024 px and wider.
+
 ## Environment notes and gotchas
 
 - **Project lives in OneDrive with a deep path.** Installs were slow while OneDrive synced (sync is now paused by the user). Network to PyPI is slow (about 110 KB/s): use `UV_HTTP_TIMEOUT=300` for `uv add`.
@@ -78,6 +86,8 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 13 - Polis
 - **dnd-kit in RTL:** its keyboard moves pick Left/Right targets by left edge, so in RTL a card could not leave its column. `board/keyboard.ts` (`boardKeyboardCoordinates`) fixes it; keep using it as the keyboard `coordinateGetter`.
 - **Grid layouts:** a grid column never shrinks below its content; the app shell uses `grid-template-columns: minmax(0, 1fr)` so the header can shrink on phones.
 - **Effects must return nothing or a cleanup function.** Edge 155 returns a Promise from `scrollIntoView`; an expression-bodied `useEffect(() => el.scrollIntoView())` crashed the whole page (jsdom has no `scrollIntoView`, so unit tests missed it). Always use a block body.
+- **Mixed directions:** text like "25 / 5" splits and reverses inside Arabic; wrap number pairs in `dir="ltr"` (done for the timer lengths).
+- **Asymmetric shorthands** (`padding: 0 8px 0 10px`) do not mirror in RTL; use `padding-inline` / `margin-inline-start`.
 - **Icon-only buttons need `aria-label`:** CSS that hides a button's text on phones also removes its accessible name (found on New board).
 - **Countdowns** (resend email, focus timer) are computed from a fixed end time, never by chaining one-second timers.
 - **Origin check middleware** blocks cross-site POST/PUT/PATCH/DELETE; the Vite dev server origins (`localhost:5173`) are allowed outside production.
@@ -105,17 +115,16 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 13 - Polis
 - **Reminder for the end of the project:** the FINAL task of Phase 16, right before Deployment, is deleting `backend/taskmanager.db` and `backend/storage/`. Remind the user then.
 - The free AI quota is 50 requests per day for the whole account; Phase 12 used 1 for the live check.
 
-## Next steps: Phase 13 - Polish
+## Next steps: Phase 14 - Security and Non-Functional Hardening
 
-Tasks are in "Phase 13 - Polish" in `PLAN.md`; related checks are NFR-23 and NFR-24 in `SECURITY.md` and T-329, T-330 in `TEST_PLAN.md` (the Playwright versions run in Phase 15).
+Tasks are in "Phase 14" in `PLAN.md`; the open items are the unticked SEC-xx and NFR-xx lines in `SECURITY.md` (49 left, some belong to Phases 15-17), and T-102 in `TEST_PLAN.md`.
 
-Suggested order:
+Suggested order (test first at each step):
 
-1. **Touch drag and drop:** add dnd-kit's `TouchSensor` (or `PointerSensor` with a press-and-hold delay for touch) so cards can be picked up on phones while the page still scrolls normally; test on a phone-sized touch screen in Edge (Playwright `hasTouch: true`).
-2. **Phone header row:** keep the board "..." menu on the same line as the focus timer and the "Ask AI" button.
-3. **Drag overlay and drop animation**, consistent spacing, hover and focus states in both themes.
-4. **Empty states** (no cards, no boards, no search results) and Enter / Escape behaviour everywhere.
-5. **Responsive and theme pass:** every feature (including the chat panel and dialogs) at 360, 768, 1024 and 1440 px, light and dark, English and Arabic; no page-level sideways scroll; tap targets at least 40 px.
-6. Review the screenshots, then tick, commit and push.
+1. **Rate limits** behind one swappable store class (memory now, Redis at deployment): sign in / sign up 10 per minute per IP (SEC-50), guest 5 per hour per IP (SEC-51), AI 3 per minute and 10 per day per user (SEC-52, T-102), forgot / resend 3 per hour per email and 10 per hour per IP (SEC-121), uploads 20 per minute per user (SEC-138); 429 with a clear message (SEC-53).
+2. **Security headers** (CSP, nosniff, Referrer-Policy, Permissions-Policy, HSTS in production) (SEC-80 to SEC-83, SEC-122); TrustedHost (SEC-92); docs off in production (SEC-91); generic 500 without stack traces (SEC-93); 1 MB body limit (SEC-43); JSON-only bodies (SEC-31).
+3. Check the remaining items with a test each: string length limits (SEC-40), no string-built SQL (SEC-44), API key never sent to the browser (SEC-70), chat actions only on Confirm (SEC-71), logs without secrets (SEC-94), git-ignored secrets (SEC-90).
+4. **Audits and quality:** `uv run --with pip-audit pip-audit`, `npm audit --omit=dev`, locked versions (SEC-95 to SEC-97); coverage 90% or more; performance NFR-01 to NFR-03. The JS bundle is 509 kB minified / 157 kB gzipped: within NFR-02 (300 kB gzipped), but Vite warns above 500 kB raw; consider lazy-loading `react-markdown` or the AI panel.
+5. Review, tick, commit and push.
 
-Known items: native date inputs follow the browser's locale, not the page language; on wide screens the chat panel covers the right part of the board (it can be closed; consider leaving room for it).
+Known items: native date inputs follow the browser's locale, not the page language.

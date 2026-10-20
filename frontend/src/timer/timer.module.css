@@ -135,3 +135,14 @@
     width: auto;
   }
 }
+
+/* Touch screens: every control is at least 40 px to tap. */
+@media (pointer: coarse) {
+  .enable,
+  .chip,
+  .mode,
+  .controls button,
+  .off {
+    min-height: 40px;
+  }
+}

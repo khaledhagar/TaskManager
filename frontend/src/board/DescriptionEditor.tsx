@@ -38,6 +38,9 @@ export function DescriptionEditor({ details, onSave }: { details: string; onSave
           placeholder={t('description.placeholder')}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && dirty) onSave(draft)
+          }}
         />
       ) : draft.trim() ? (
         <Markdown text={draft} />

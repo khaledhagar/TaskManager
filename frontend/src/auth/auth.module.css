@@ -221,3 +221,12 @@
   font-size: var(--text-xs);
   font-weight: 500;
 }
+
+/* Touch screens: every control is at least 40 px to tap. */
+@media (pointer: coarse) {
+  .forgot {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
+}

@@ -140,11 +140,36 @@
 }
 
 @media (max-width: 640px) {
+  .header {
+    gap: 4px;
+  }
+
+  .logo {
+    margin-inline-end: 4px;
+  }
+
+  .avatar {
+    margin-inline-start: 0;
+  }
+
   .newBoard span {
     display: none;
   }
 
   .main {
     padding: 16px;
+  }
+}
+
+/* Touch screens: every control is at least 40 px to tap. */
+@media (pointer: coarse) {
+  .switcher,
+  .newBoard {
+    min-height: 40px;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
   }
 }

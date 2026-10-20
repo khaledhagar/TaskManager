@@ -58,6 +58,7 @@
 
 .iconButton {
   display: inline-grid;
+  flex: none;
   place-items: center;
   width: 36px;
   height: 36px;
@@ -131,4 +132,12 @@
   font-weight: 500;
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+/* Touch screens: every control is at least 40 px to tap. */
+@media (pointer: coarse) {
+  .iconButton {
+    width: 40px;
+    height: 40px;
+  }
 }

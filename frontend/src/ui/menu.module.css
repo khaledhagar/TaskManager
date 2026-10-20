@@ -77,3 +77,10 @@
   margin: 6px 4px;
   background: var(--border);
 }
+
+/* Touch screens: every control is at least 40 px to tap. */
+@media (pointer: coarse) {
+  .item {
+    min-height: 44px;
+  }
+}

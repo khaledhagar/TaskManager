@@ -150,6 +150,21 @@ describe('board view', () => {
   })
 })
 
+describe('empty states', () => {
+  test('a board without columns says how to start', async () => {
+    vi.mocked(boards.get).mockResolvedValue({ ...sample(), columns: [] })
+    renderBoard()
+    expect(await screen.findByText('This board has no columns yet. Add one to start.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Add column' })).toBeInTheDocument()
+  })
+
+  test('a column without cards says so', async () => {
+    vi.mocked(boards.get).mockResolvedValue({ ...sample(), columns: [{ id: 9, title: 'Empty', position: 0, cards: [] }] })
+    renderBoard()
+    expect(await screen.findByText('No cards here yet')).toBeInTheDocument()
+  })
+})
+
 describe('source safety (T-216)', () => {
   test('no component uses dangerouslySetInnerHTML', () => {
     const files = import.meta.glob(['/src/**/*.{ts,tsx}', '!/src/**/*.test.{ts,tsx}'], {

@@ -291,4 +291,5 @@ export const en = {
   'chat.dismiss': 'Dismiss: {action}',
   'chat.dismissShort': 'Dismiss',
   'chat.dismissed': 'Dismissed',
+  'board.noColumns': 'This board has no columns yet. Add one to start.',
 } satisfies Record<string, Message>

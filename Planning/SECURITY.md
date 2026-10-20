@@ -154,8 +154,8 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [ ] Works at 360 px, 768 px and 1440 px widths without horizontal page scroll (board scrolls inside its area) (NFR-20)
 - [ ] Every API action shows feedback: optimistic update, loading state, or error toast (NFR-21)
 - [ ] Works in current Chrome, Firefox, Safari and Edge (NFR-22)
-- [ ] Every feature works at 360, 768, 1024 and 1440 px, in light and dark themes, in English and Arabic (NFR-23)
-- [ ] Touch: cards and columns can be dragged on phones and tablets without blocking page scrolling; tap targets at least 40 px (NFR-24)
+- [x] Every feature works at 360, 768, 1024 and 1440 px, in light and dark themes, in English and Arabic (NFR-23)
+- [x] Touch: cards and columns can be dragged on phones and tablets without blocking page scrolling; tap targets at least 40 px (NFR-24)
 - [x] Arabic layout is fully right-to-left with no mixed-direction glitches; user-typed names display correctly in either direction (NFR-25)
 
 ## Reliability and operations

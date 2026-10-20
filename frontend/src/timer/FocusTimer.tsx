@@ -77,7 +77,7 @@ export function FocusTimer() {
                 aria-label={t(MODE_LABEL[m])}
                 onClick={() => timer.setMode(m)}
               >
-                {m.replace('/', ' / ')}
+                <span dir="ltr">{m.replace('/', ' / ')}</span>
               </button>
             ))}
           </div>
@@ -142,7 +142,7 @@ export function FocusTimer() {
 
           <button
             type="button"
-            className={ui.linkButton}
+            className={`${ui.linkButton} ${css.off}`}
             onClick={() => {
               timer.disable()
               setOpen(false)

@@ -312,4 +312,5 @@ export const ar: Dictionary = {
   'chat.dismiss': 'تجاهل: {action}',
   'chat.dismissShort': 'تجاهل',
   'chat.dismissed': 'تم التجاهل',
+  'board.noColumns': 'لا توجد أعمدة في هذه اللوحة بعد. أضف عمودا لتبدأ.',
 }

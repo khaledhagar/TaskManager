@@ -4,7 +4,8 @@ import {
   DndContext,
   DragOverlay,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type Announcements,
@@ -37,6 +38,11 @@ type Props = {
 
 type Drag = { type: 'card' | 'column'; id: number } | null
 
+/** Settle the dropped card quickly; no animation when the system asks for reduced motion. */
+const DROP = matchMedia('(prefers-reduced-motion: reduce)').matches
+  ? null
+  : { duration: 200, easing: 'cubic-bezier(0.2, 0, 0, 1)' }
+
 const parse = (key: string | number) => {
   const [type, id] = String(key).split('-')
   return { type: type as 'card' | 'column', id: Number(id) }
@@ -49,8 +55,10 @@ export function BoardColumns({ board, actions, filters, dragDisabled, composingC
   const [preview, setPreview] = useState<Board | null>(null)
   const shown = preview ?? board
 
+  // Touch: press and hold to pick up, so a quick swipe still scrolls the page.
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
     useSensor(KeyboardSensor, {
       coordinateGetter: boardKeyboardCoordinates,
       keyboardCodes: { start: ['Space'], cancel: ['Escape'], end: ['Space', 'Enter'] },
@@ -172,7 +180,7 @@ export function BoardColumns({ board, actions, filters, dragDisabled, composingC
         </SortableContext>
         {after}
       </div>
-      <DragOverlay>
+      <DragOverlay dropAnimation={DROP}>
         {activeCard ? (
           <div className={css.overlay}>
             <CardItem card={activeCard} labels={shown.labels} onOpen={() => {}} onToggle={() => {}} />

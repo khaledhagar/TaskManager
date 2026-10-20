@@ -70,6 +70,14 @@
   letter-spacing: inherit;
 }
 
+/* Focus timer, Ask AI and the board menu wrap together as one group. */
+.boardActions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+}
+
 .progress {
   display: flex;
   flex: 1;
@@ -108,7 +116,8 @@
   gap: 8px;
   width: min(320px, 100%);
   height: 36px;
-  padding: 0 8px 0 10px;
+  padding-block: 0;
+  padding-inline: 10px 8px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-control);
   background: var(--surface);
@@ -144,6 +153,8 @@
 }
 
 .filterSelect {
+  overflow: hidden;
+  text-overflow: ellipsis;
   height: 36px;
   padding: 0 8px;
   border: 1px solid var(--border-strong);
@@ -200,6 +211,13 @@
   cursor: grab;
 }
 
+.grip,
+.cardBody {
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+  user-select: none;
+}
+
 .grip:hover,
 .columnMenu:hover {
   background: var(--border);
@@ -232,8 +250,14 @@
   list-style: none;
 }
 
+/* The empty spot shows where the card will land. */
 .cardSlot[data-dragging] {
-  opacity: 0.35;
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-card);
+}
+
+.cardSlot[data-dragging] > * {
+  visibility: hidden;
 }
 
 .emptyColumn {
@@ -266,12 +290,14 @@
 }
 
 .check {
+  position: relative;
   display: grid;
   flex: none;
   place-items: center;
   width: 18px;
   height: 18px;
-  margin: 12px 0 0 10px;
+  margin-block-start: 12px;
+  margin-inline-start: 10px;
   border: 1.5px solid var(--border-strong);
   border-radius: 50%;
   background: var(--surface);
@@ -292,7 +318,8 @@
   flex: 1;
   gap: 6px;
   min-width: 0;
-  padding: 10px 12px 10px 8px;
+  padding-block: 10px;
+  padding-inline: 8px 12px;
   border: 0;
   border-radius: var(--radius-card);
   background: transparent;
@@ -404,8 +431,16 @@
 .overlay .card {
   border-color: var(--border-strong);
   box-shadow: var(--lift);
-  transform: rotate(2deg);
+  transform: rotate(2deg) scale(1.02);
   cursor: grabbing;
+  animation: lift 150ms var(--ease);
+}
+
+@keyframes lift {
+  from {
+    box-shadow: none;
+    transform: none;
+  }
 }
 
 .addCard {
@@ -706,6 +741,7 @@
 }
 
 .swatchPick {
+  position: relative;
   width: 22px;
   height: 22px;
   border: 2px solid var(--surface);
@@ -743,3 +779,100 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* The open chat panel covers the end of the screen; leave room for it on wide screens. */
+@media (min-width: 1024px) {
+  .board[data-chat] {
+    padding-inline-end: 400px;
+  }
+}
+
+/* Phones: title, then progress, then timer + AI + menu on one row; filters on one row;
+   columns scroll sideways and settle on a column edge. */
+@media (max-width: 640px) {
+  .boardHead {
+    gap: 8px;
+  }
+
+  .boardTitle,
+  .progress {
+    flex-basis: 100%;
+    max-width: none;
+  }
+
+  .filters {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .filters > :not(select) {
+    grid-column: 1 / -1;
+  }
+
+  .search {
+    width: 100%;
+  }
+
+  .filterSelect {
+    min-width: 0;
+  }
+
+  .columns {
+    scroll-snap-type: x proximity;
+  }
+
+  .column {
+    scroll-snap-align: start;
+  }
+}
+
+/* Touch screens: every control is at least 40 px to tap. */
+@media (pointer: coarse) {
+  .grip,
+  .columnMenu,
+  .itemDelete {
+    width: 40px;
+    height: 40px;
+  }
+
+  .columnHead {
+    min-height: 40px;
+  }
+
+  .boardTitleButton,
+  .columnTitleButton {
+    min-width: 40px;
+  }
+
+  .boardTitleButton,
+  .columnTitleButton,
+  .itemText,
+  .tab,
+  .titleInput {
+    min-height: 40px;
+  }
+
+  .addCard,
+  .search,
+  .filterSelect {
+    height: 40px;
+  }
+
+  /* Small visual controls keep their look; an invisible layer makes them 40 px to tap. */
+  .check::after {
+    position: absolute;
+    inset: -11px;
+    content: "";
+  }
+
+  .swatches {
+    gap: 12px;
+  }
+
+  .swatchPick::after {
+    position: absolute;
+    inset: -11px;
+    content: "";
+  }
+}
+

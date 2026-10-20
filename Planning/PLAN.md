@@ -23,10 +23,10 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 10 - Focus Timer (Pomodoro) | 6 / 6 | Done |
 | Phase 11 - Languages: English and Arabic | 9 / 9 | Done |
 | Phase 12 - AI UI | 4 / 4 | Done |
-| Phase 13 - Polish | 0 / 8 | Not started |
+| Phase 13 - Polish | 8 / 8 | Done |
 | Phase 14 - Security and Non-Functional Hardening | 0 / 5 | Not started |
 | Phase 15 - Integration Testing (Playwright) | 0 / 19 | Not started |
-| Phase 16 - Done | 0 / 5 | Not started |
+| Phase 16 - Done | 0 / 6 | Not started |
 | Phase 17 - Deployment (Vercel) | 0 / 12 | Not started |
 
 ## Stack
@@ -365,14 +365,14 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 
 ## Phase 13 - Polish
 
-- [ ] Consistent spacing, typography, shadows, hover and focus states in both themes
-- [ ] Smooth drag overlay and drop animation
-- [ ] Empty states (no cards, no boards, no search results)
-- [ ] Enter to save, Escape to cancel/close
-- [ ] Responsive layout: columns scroll horizontally on small screens
-- [ ] On phones, keep the board menu on the same line as the focus timer (it wraps today)
-- [ ] Touch drag and drop on phones and tablets (press and hold to pick up a card, page still scrolls normally)
-- [ ] Responsive and theme pass: every feature checked at 360, 768, 1024 and 1440 px, in light and dark themes, in English and Arabic; no page-level horizontal scroll; tap targets at least 40 px on touch screens
+- [x] Consistent spacing, typography, shadows, hover and focus states in both themes
+- [x] Smooth drag overlay and drop animation
+- [x] Empty states (no cards, no boards, no search results)
+- [x] Enter to save, Escape to cancel/close
+- [x] Responsive layout: columns scroll horizontally on small screens
+- [x] On phones, keep the board menu on the same line as the focus timer (it wraps today)
+- [x] Touch drag and drop on phones and tablets (press and hold to pick up a card, page still scrolls normally)
+- [x] Responsive and theme pass: every feature checked at 360, 768, 1024 and 1440 px, in light and dark themes, in English and Arabic; no page-level horizontal scroll; tap targets at least 40 px on touch screens
 
 ## Phase 14 - Security and Non-Functional Hardening
 

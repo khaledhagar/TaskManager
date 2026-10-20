@@ -55,7 +55,11 @@ export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
   const openCard = openCardId === null ? undefined : findCard(board, openCardId)?.card
 
   return (
-    <section className={css.board} data-backdrop={board.background.kind !== 'none' || undefined}>
+    <section
+      className={css.board}
+      data-backdrop={board.background.kind !== 'none' || undefined}
+      data-chat={chatting || undefined}
+    >
       <Backdrop boardId={board.id} background={board.background} />
       <div className={css.boardTop}>
       <BoardHeader
@@ -80,6 +84,7 @@ export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
         total={cards.length}
         searchRef={searchRef}
       />
+      {board.columns.length === 0 ? <p className={css.noResults}>{t('board.noColumns')}</p> : null}
       {filtering && shown === 0 ? (
         <p className={css.noResults}>
           {t('board.noMatches')}{' '}

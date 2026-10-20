@@ -62,29 +62,31 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, o
         </div>
         <span className={ui.hint}>{total ? t('board.progress', { done, total }) : t('board.noCards')}</span>
       </div>
-      <FocusTimer />
-      <button
-        type="button"
-        className={`${ui.button} ${ui.secondary} ${aiCss.askButton}`}
-        aria-label={t('chat.open')}
-        title={t('chat.open')}
-        onClick={onChat}
-      >
-        <Sparkles size={16} aria-hidden="true" />
-        <span className={aiCss.askLabel}>{t('chat.open')}</span>
-      </button>
-      <Menu
-        label={t('board.options')}
-        align="end"
-        triggerClassName={ui.iconButton}
-        trigger={<MoreHorizontal size={18} aria-hidden="true" />}
-        items={[
-          { kind: 'action', label: t('board.changeBackground'), onSelect: onBackground },
-          { kind: 'action', label: t('board.shortcuts'), onSelect: onHelp },
-          { kind: 'separator' },
-          { kind: 'action', label: t('board.delete'), danger: true, onSelect: () => setConfirming(true) },
-        ]}
-      />
+      <div className={css.boardActions}>
+        <FocusTimer />
+        <button
+          type="button"
+          className={`${ui.button} ${ui.secondary} ${aiCss.askButton}`}
+          aria-label={t('chat.open')}
+          title={t('chat.open')}
+          onClick={onChat}
+        >
+          <Sparkles size={16} aria-hidden="true" />
+          <span className={aiCss.askLabel}>{t('chat.open')}</span>
+        </button>
+        <Menu
+          label={t('board.options')}
+          align="end"
+          triggerClassName={ui.iconButton}
+          trigger={<MoreHorizontal size={18} aria-hidden="true" />}
+          items={[
+            { kind: 'action', label: t('board.changeBackground'), onSelect: onBackground },
+            { kind: 'action', label: t('board.shortcuts'), onSelect: onHelp },
+            { kind: 'separator' },
+            { kind: 'action', label: t('board.delete'), danger: true, onSelect: () => setConfirming(true) },
+          ]}
+        />
+      </div>
       <Dialog open={confirming} onClose={() => setConfirming(false)} title={t('board.deleteTitle')}>
         <p>{t('board.deleteBody', { title: board.title })}</p>
         {error ? (

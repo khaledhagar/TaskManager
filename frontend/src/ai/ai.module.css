@@ -100,10 +100,18 @@
   margin: 0;
 }
 
-.askButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+/* Same pill shape as the focus timer next to it. */
+button.askButton {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 16px;
+  font-weight: 500;
+}
+
+@media (pointer: coarse) {
+  button.askButton {
+    min-height: 40px;
+  }
 }
 
 @media (max-width: 640px) {

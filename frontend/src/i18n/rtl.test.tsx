@@ -34,6 +34,13 @@ describe('user-typed text keeps its own direction (NFR-25)', () => {
     expect(screen.getByText('Bug').closest('[dir]')).toHaveAttribute('dir', 'auto')
   })
 
+  test('timer lengths always read focus / break, left to right', async () => {
+    render(<FocusTimer />)
+    await userEvent.click(screen.getByRole('button', { name: 'Focus timer' }))
+    expect(screen.getByText('25 / 5')).toHaveAttribute('dir', 'ltr')
+    expect(screen.getByText('50 / 10')).toHaveAttribute('dir', 'ltr')
+  })
+
   test('inline titles use dir=auto while shown and while edited', async () => {
     render(<InlineText value="Q4 roadmap" label="Rename" onSave={vi.fn()} />)
     const button = screen.getByRole('button', { name: 'Q4 roadmap' })
