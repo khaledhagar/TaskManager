@@ -4,13 +4,14 @@ from datetime import date, timedelta
 
 from sqlmodel import Session
 
+from app.i18n import current_language
 from app.models import Board, BoardColumn, Card, ChecklistItem, Label
 from app.templates import TEMPLATES
 
 
 def build_board(session: Session, owner_id: int, template: str, title: str | None = None) -> Board:
-    """Create a board from a named template."""
-    return build_from_data(session, owner_id, TEMPLATES[template], title)
+    """Create a board from a named template, in the request language."""
+    return build_from_data(session, owner_id, TEMPLATES[current_language()][template], title)
 
 
 def build_from_data(session: Session, owner_id: int, data: dict, title: str | None = None) -> Board:

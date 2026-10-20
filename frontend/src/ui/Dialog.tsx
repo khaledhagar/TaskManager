@@ -1,5 +1,6 @@
 import { X } from 'lucide-react'
 import { useEffect, useId, useRef, type ReactNode } from 'react'
+import { useI18n } from '../i18n/context'
 import css from './dialog.module.css'
 
 type Props = {
@@ -15,6 +16,7 @@ type Props = {
 export function Dialog({ open, onClose, title, children, hideTitle = false, wide = false }: Props) {
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
+  const { t } = useI18n()
 
   useEffect(() => {
     const dialog = ref.current
@@ -37,7 +39,7 @@ export function Dialog({ open, onClose, title, children, hideTitle = false, wide
             <h2 id={titleId} className={hideTitle ? 'visually-hidden' : css.title}>
               {title}
             </h2>
-            <button type="button" className={css.close} aria-label="Close" onClick={onClose}>
+            <button type="button" className={css.close} aria-label={t('ui.close')} onClick={onClose}>
               <X size={18} aria-hidden="true" />
             </button>
           </header>

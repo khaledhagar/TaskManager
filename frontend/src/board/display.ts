@@ -1,13 +1,9 @@
 import type { LabelColor, Priority } from '../api/boards'
+import { t } from '../i18n/language'
 
 export const PRIORITIES: Priority[] = ['urgent', 'high', 'medium', 'low']
 
-export const PRIORITY_LABEL: Record<Priority, string> = {
-  urgent: 'Urgent',
-  high: 'High',
-  medium: 'Medium',
-  low: 'Low',
-}
+export const priorityLabel = (priority: Priority) => t(`priority.${priority}`)
 
 /** Swatch colors for label dots (never used for text). */
 export const LABEL_SWATCH: Record<LabelColor, string> = {

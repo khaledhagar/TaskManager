@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { auth, type User } from '../api/auth'
+import { useI18n } from '../i18n/context'
 import { useLocation } from '../lib/router'
 import { Field } from '../ui/Field'
 import { Link } from '../ui/Link'
@@ -14,6 +15,7 @@ const message = (error: unknown) => (error instanceof Error ? error.message : St
 /** After sign up: tells the user where the link went and lets them resend it. */
 export function CheckInbox() {
   const email = useLocation().params.get('email') ?? ''
+  const { t, rich } = useI18n()
   const [until, setUntil] = useState(0)
   const [wait, setWait] = useState(0)
   const [status, setStatus] = useState<string | null>(null)
@@ -31,7 +33,7 @@ export function CheckInbox() {
     setError(null)
     try {
       await auth.resend(email)
-      setStatus('We sent a new link. It can take a minute to arrive.')
+      setStatus(t('inbox.resent'))
       setUntil(Date.now() + COOLDOWN * 1000)
     } catch (e) {
       setError(message(e))
@@ -40,13 +42,8 @@ export function CheckInbox() {
 
   return (
     <AuthLayout
-      title="Check your inbox"
-      intro={
-        <>
-          We sent a link to <strong>{email}</strong>. Open it to confirm your email and sign in.
-          The link works for 24 hours.
-        </>
-      }
+      title={t('inbox.title')}
+      intro={rich('inbox.sentTo', { email: <strong>{email}</strong> })}
     >
       {status ? (
         <p className={ui.notice} role="status">
@@ -64,10 +61,13 @@ export function CheckInbox() {
         onClick={resend}
         disabled={wait > 0 || !email}
       >
-        {wait > 0 ? `Resend in ${wait}s` : 'Resend email'}
+        {wait > 0 ? t('inbox.resendIn', { seconds: wait }) : t('inbox.resend')}
       </button>
       <p className={css.switch}>
-        Wrong address? <Link to="/signup">Sign up again</Link> or <Link to="/signin">sign in</Link>
+        {rich('inbox.wrongAddress', {
+          signup: <Link to="/signup">{t('inbox.signUpAgain')}</Link>,
+          signin: <Link to="/signin">{t('inbox.signInLower')}</Link>,
+        })}
       </p>
     </AuthLayout>
   )
@@ -75,6 +75,7 @@ export function CheckInbox() {
 
 /** Request a password reset link. The answer is the same whether or not the account exists. */
 export function ForgotPassword() {
+  const { t, rich } = useI18n()
   const [email, setEmail] = useState('')
   const [fieldError, setFieldError] = useState<string | null>(null)
   const [status, setStatus] = useState<string | null>(null)
@@ -98,7 +99,7 @@ export function ForgotPassword() {
   }
 
   return (
-    <AuthLayout title="Reset your password" intro="We'll email you a link to choose a new one.">
+    <AuthLayout title={t('forgot.title')} intro={t('forgot.intro')}>
       <form className={css.stack} onSubmit={submit} noValidate>
         {status ? (
           <p className={ui.notice} role="status">
@@ -111,7 +112,7 @@ export function ForgotPassword() {
           </p>
         ) : null}
         <Field
-          label="Email"
+          label={t('auth.email')}
           type="email"
           autoComplete="email"
           value={email}
@@ -119,11 +120,11 @@ export function ForgotPassword() {
           error={fieldError}
         />
         <button className={`${ui.button} ${ui.primary} ${ui.full}`} disabled={busy}>
-          Send reset link
+          {t('forgot.send')}
         </button>
       </form>
       <p className={css.switch}>
-        Remembered it? <Link to="/signin">Sign in</Link>
+        {rich('forgot.remembered', { link: <Link to="/signin">{t('auth.signIn')}</Link> })}
       </p>
     </AuthLayout>
   )
@@ -132,6 +133,7 @@ export function ForgotPassword() {
 /** Opened from the reset email: choose a new password, then sign in. */
 export function ResetPassword({ onSignedIn }: { onSignedIn: (user: User) => void }) {
   const token = useLocation().params.get('token') ?? ''
+  const { t } = useI18n()
   const [password, setPassword] = useState('')
   const [repeat, setRepeat] = useState('')
   const [errors, setErrors] = useState<{ password?: string | null; repeat?: string | null }>({})
@@ -142,7 +144,7 @@ export function ResetPassword({ onSignedIn }: { onSignedIn: (user: User) => void
     event.preventDefault()
     const next = {
       password: passwordError(password),
-      repeat: password === repeat ? null : "Passwords don't match.",
+      repeat: password === repeat ? null : t('reset.mismatch'),
     }
     setErrors(next)
     if (next.password || next.repeat) return
@@ -157,24 +159,24 @@ export function ResetPassword({ onSignedIn }: { onSignedIn: (user: User) => void
   }
 
   return (
-    <AuthLayout title="Choose a new password" intro="Other devices will be signed out.">
+    <AuthLayout title={t('reset.title')} intro={t('reset.intro')}>
       <form className={css.stack} onSubmit={submit} noValidate>
         {error ? (
           <div className={ui.alert} role="alert">
-            {error} <Link to="/forgot-password">Request a new link</Link>
+            {error} <Link to="/forgot-password">{t('reset.requestLink')}</Link>
           </div>
         ) : null}
         <Field
-          label="New password"
+          label={t('reset.newPassword')}
           type="password"
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
-          hint="At least 8 characters."
+          hint={t('auth.passwordHint')}
         />
         <Field
-          label="Repeat new password"
+          label={t('reset.repeat')}
           type="password"
           autoComplete="new-password"
           value={repeat}
@@ -182,7 +184,7 @@ export function ResetPassword({ onSignedIn }: { onSignedIn: (user: User) => void
           error={errors.repeat}
         />
         <button className={`${ui.button} ${ui.primary} ${ui.full}`} disabled={busy}>
-          Save new password
+          {t('reset.save')}
         </button>
       </form>
     </AuthLayout>
@@ -192,6 +194,7 @@ export function ResetPassword({ onSignedIn }: { onSignedIn: (user: User) => void
 /** Opened from the verification email: confirms the address and signs in. */
 export function VerifyEmail({ onSignedIn }: { onSignedIn: (user: User) => void }) {
   const token = useLocation().params.get('token') ?? ''
+  const { t, rich } = useI18n()
   const [error, setError] = useState<string | null>(null)
   const started = useRef(false)
 
@@ -202,19 +205,19 @@ export function VerifyEmail({ onSignedIn }: { onSignedIn: (user: User) => void }
   }, [token, onSignedIn])
 
   return (
-    <AuthLayout title={error ? "We couldn't confirm your email" : 'Confirming your email'}>
+    <AuthLayout title={t(error ? 'verify.failed' : 'verify.confirming')}>
       {error ? (
         <>
           <p className={ui.alert} role="alert">
             {error}
           </p>
           <p className={css.switch}>
-            <Link to="/signin">Sign in</Link> to request a new link.
+            {rich('verify.signInAgain', { link: <Link to="/signin">{t('auth.signIn')}</Link> })}
           </p>
         </>
       ) : (
         <p className={ui.hint} role="status">
-          One moment...
+          {t('verify.wait')}
         </p>
       )}
     </AuthLayout>

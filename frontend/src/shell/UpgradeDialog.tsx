@@ -3,20 +3,23 @@ import { auth, GOOGLE_LOGIN_URL } from '../api/auth'
 import authCss from '../auth/auth.module.css'
 import { GoogleButton } from '../auth/GoogleButton'
 import { emailError, passwordError } from '../auth/validation'
+import { useI18n } from '../i18n/context'
 import { Dialog } from '../ui/Dialog'
 import { Field } from '../ui/Field'
 import ui from '../ui/ui.module.css'
 
 /** Turn a guest into a real account (Google or email), keeping the guest's boards. */
 export function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useI18n()
   return (
-    <Dialog open={open} onClose={onClose} title="Save your boards">
+    <Dialog open={open} onClose={onClose} title={t('shell.saveBoards')}>
       <UpgradeForm />
     </Dialog>
   )
 }
 
 function UpgradeForm() {
+  const { t } = useI18n()
   const [google, setGoogle] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -44,17 +47,17 @@ function UpgradeForm() {
   if (sentTo)
     return (
       <p className={ui.notice} role="status">
-        Check {sentTo} for a link to finish. Your boards stay right here.
+        {t('upgrade.sentTo', { email: sentTo })}
       </p>
     )
 
   return (
     <div className={authCss.stack}>
-      <p>Create an account to keep your boards after 7 days.</p>
+      <p>{t('upgrade.intro')}</p>
       {google ? (
         <>
           <GoogleButton href={GOOGLE_LOGIN_URL} />
-          <div className={authCss.divider}>or use your email</div>
+          <div className={authCss.divider}>{t('auth.orEmail')}</div>
         </>
       ) : null}
       <form className={authCss.stack} onSubmit={submit} noValidate>
@@ -64,7 +67,7 @@ function UpgradeForm() {
           </p>
         ) : null}
         <Field
-          label="Email"
+          label={t('auth.email')}
           type="email"
           autoComplete="email"
           value={email}
@@ -72,15 +75,15 @@ function UpgradeForm() {
           error={errors.email}
         />
         <Field
-          label="Password"
+          label={t('auth.password')}
           type="password"
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
-          hint="At least 8 characters."
+          hint={t('auth.passwordHint')}
         />
-        <button className={`${ui.button} ${ui.primary} ${ui.full}`}>Create account</button>
+        <button className={`${ui.button} ${ui.primary} ${ui.full}`}>{t('auth.createAccount')}</button>
       </form>
     </div>
   )

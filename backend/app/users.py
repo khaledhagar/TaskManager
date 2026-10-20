@@ -4,6 +4,7 @@ from datetime import UTC, datetime, timedelta
 
 from sqlmodel import Session, select
 
+from app.i18n import current_language
 from app.models import User
 from app.seed import build_board
 
@@ -33,6 +34,7 @@ def create_user(
         is_guest=email is None,
         email_verified=verified,
         google_id=google_id,
+        language=current_language(),
     )
     session.add(user)
     session.commit()

@@ -3,6 +3,7 @@ import { useRef, useState } from 'react'
 import { boards } from '../api/boards'
 import { Backdrop } from '../files/Backdrop'
 import { BackgroundPicker } from '../files/BackgroundPicker'
+import { useI18n } from '../i18n/context'
 import { InlineText } from '../ui/InlineText'
 import ui from '../ui/ui.module.css'
 import css from './board.module.css'
@@ -24,6 +25,7 @@ type Props = {
 /** The interactive board: header, filters, columns with drag and drop, card details. */
 export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
   const { board, loadError, actions } = useBoard(boardId)
+  const { t } = useI18n()
   const [filters, setFilters] = useState(EMPTY_FILTERS)
   const [openCardId, setOpenCardId] = useState<number | null>(null)
   const [composing, setComposing] = useState<number | null>(null)
@@ -43,7 +45,7 @@ export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
         {loadError}
       </p>
     )
-  if (!board) return <div className={css.skeleton} role="status" aria-label="Loading board" />
+  if (!board) return <div className={css.skeleton} role="status" aria-label={t('board.loading')} />
 
   const cards = board.columns.flatMap((c) => c.cards)
   const shown = cards.filter((c) => matchesFilters(c, filters)).length
@@ -77,9 +79,9 @@ export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
       />
       {filtering && shown === 0 ? (
         <p className={css.noResults}>
-          No cards match these filters.{' '}
+          {t('board.noMatches')}{' '}
           <button type="button" className={ui.linkButton} onClick={() => setFilters(EMPTY_FILTERS)}>
-            Clear filters
+            {t('board.clearFilters')}
           </button>
         </p>
       ) : null}
@@ -115,17 +117,18 @@ export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
 }
 
 function AddColumn({ onAdd }: { onAdd: (title: string) => void }) {
+  const { t } = useI18n()
   return (
     <div className={css.addColumn}>
       <InlineText
         value=""
-        label="Add column"
+        label={t('board.addColumn')}
         className={css.addColumnButton}
         inputClassName={`${ui.input} ${css.addColumnInput}`}
         onSave={onAdd}
       >
         <Plus size={16} aria-hidden="true" />
-        Add column
+        {t('board.addColumn')}
       </InlineText>
     </div>
   )

@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { auth, type User } from '../api/auth'
 import { passwordError } from '../auth/validation'
+import { useI18n } from '../i18n/context'
 import { Dialog } from '../ui/Dialog'
 import dialog from '../ui/dialog.module.css'
 import { Field } from '../ui/Field'
@@ -15,7 +16,8 @@ type Props = {
 
 /** Change the password, or set a first one for accounts that sign in with Google. */
 export function PasswordDialog({ open, onClose, hasPassword, onSaved }: Props) {
-  const title = hasPassword ? 'Change password' : 'Set password'
+  const { t } = useI18n()
+  const title = t(hasPassword ? 'account.changePassword' : 'account.setPassword')
   return (
     <Dialog open={open} onClose={onClose} title={title}>
       <PasswordForm hasPassword={hasPassword} onSaved={onSaved} onClose={onClose} />
@@ -24,6 +26,7 @@ export function PasswordDialog({ open, onClose, hasPassword, onSaved }: Props) {
 }
 
 function PasswordForm({ hasPassword, onSaved, onClose }: Omit<Props, 'open'>) {
+  const { t } = useI18n()
   const [current, setCurrent] = useState('')
   const [next, setNext] = useState('')
   const [fieldError, setFieldError] = useState<string | null>(null)
@@ -48,11 +51,11 @@ function PasswordForm({ hasPassword, onSaved, onClose }: Omit<Props, 'open'>) {
     return (
       <>
         <p className={ui.notice} role="status">
-          Password saved. Other devices were signed out.
+          {t('password.saved')}
         </p>
         <div className={dialog.actions}>
           <button type="button" className={`${ui.button} ${ui.primary}`} onClick={onClose}>
-            Done
+            {t('ui.done')}
           </button>
         </div>
       </>
@@ -61,7 +64,7 @@ function PasswordForm({ hasPassword, onSaved, onClose }: Omit<Props, 'open'>) {
   return (
     <form onSubmit={submit} noValidate style={{ display: 'grid', gap: 14 }}>
       {hasPassword ? null : (
-        <p>Add a password so you can also sign in with your email address.</p>
+        <p>{t('password.addIntro')}</p>
       )}
       {error ? (
         <p className={ui.alert} role="alert">
@@ -70,7 +73,7 @@ function PasswordForm({ hasPassword, onSaved, onClose }: Omit<Props, 'open'>) {
       ) : null}
       {hasPassword ? (
         <Field
-          label="Current password"
+          label={t('password.current')}
           type="password"
           autoComplete="current-password"
           value={current}
@@ -78,19 +81,19 @@ function PasswordForm({ hasPassword, onSaved, onClose }: Omit<Props, 'open'>) {
         />
       ) : null}
       <Field
-        label="New password"
+        label={t('reset.newPassword')}
         type="password"
         autoComplete="new-password"
         value={next}
         onChange={(e) => setNext(e.target.value)}
         error={fieldError}
-        hint="At least 8 characters. Other devices will be signed out."
+        hint={t('password.hint')}
       />
       <div className={dialog.actions}>
         <button type="button" className={`${ui.button} ${ui.secondary}`} onClick={onClose}>
-          Cancel
+          {t('ui.cancel')}
         </button>
-        <button className={`${ui.button} ${ui.primary}`}>Save password</button>
+        <button className={`${ui.button} ${ui.primary}`}>{t('password.save')}</button>
       </div>
     </form>
   )

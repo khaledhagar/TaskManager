@@ -27,6 +27,7 @@ const member: User = {
   email_verified: true,
   has_password: true,
   google_linked: false,
+  language: 'en',
 }
 const LIST = [
   { id: 1, title: 'Website Launch', created_at: '2026-10-20T00:00:00' },

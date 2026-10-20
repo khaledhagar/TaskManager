@@ -1,4 +1,4 @@
-/* Sign-in screens: navy brand wall on the left, form on the right. */
+/* Sign-in screens: navy brand wall at the start side, form at the end side. */
 .layout {
   display: grid;
   grid-template-columns: minmax(420px, 44%) 1fr;
@@ -36,9 +36,16 @@
 }
 
 .panel {
+  position: relative;
   display: grid;
   place-items: center;
   padding: 48px 24px;
+}
+
+.language {
+  position: absolute;
+  inset-block-start: 16px;
+  inset-inline-end: 16px;
 }
 
 .form {
@@ -161,12 +168,17 @@
 .traveller {
   position: absolute;
   top: 0;
-  left: 10px;
+  inset-inline-start: 10px;
   width: calc((100% - 20px) / 3 - 20px);
   background: var(--brand-yellow);
   color: var(--brand-navy);
   font-weight: 600;
   animation: travel 1.6s var(--ease) 0.9s both;
+  --travel-dir: 1;
+}
+
+:global([dir='rtl']) .traveller {
+  --travel-dir: -1;
 }
 
 @keyframes travel {
@@ -180,12 +192,12 @@
   }
 
   85% {
-    transform: translate(calc(200% + 60px), 86px) rotate(2deg) scale(1.04);
+    transform: translate(calc((200% + 60px) * var(--travel-dir)), 86px) rotate(2deg) scale(1.04);
     box-shadow: 0 12px 24px rgb(0 0 0 / 35%);
   }
 
   100% {
-    transform: translate(calc(200% + 60px), 90px);
+    transform: translate(calc((200% + 60px) * var(--travel-dir)), 90px);
   }
 }
 

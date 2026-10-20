@@ -3,12 +3,13 @@
 from fastapi import HTTPException, status
 from sqlmodel import Session, select
 
+from app.i18n import tr
 from app.models import Board, BoardColumn, Card, ChecklistItem, Label, User
 
 
 def _found[T](obj: T | None) -> T:
     if obj is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Not found")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, tr("Not found"))
     return obj
 
 
@@ -58,7 +59,7 @@ def board_labels(session: Session, board_id: int, label_ids: list[int]) -> list[
     stmt = select(Label).where(Label.board_id == board_id, Label.id.in_(ids))
     labels = session.exec(stmt).all()
     if len(labels) != len(ids):
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Not found")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, tr("Not found"))
     return list(labels)
 
 

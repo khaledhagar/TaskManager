@@ -1,7 +1,9 @@
+import { useI18n } from '../i18n/context'
 import css from './auth.module.css'
 
 /** Google-branded sign-in link (full page navigation to the OAuth redirect). */
 export function GoogleButton({ href }: { href: string }) {
+  const { t } = useI18n()
   return (
     <a className={css.google} href={href}>
       <svg viewBox="0 0 48 48" aria-hidden="true">
@@ -22,7 +24,7 @@ export function GoogleButton({ href }: { href: string }) {
           d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
         />
       </svg>
-      Continue with Google
+      {t('auth.google')}
     </a>
   )
 }

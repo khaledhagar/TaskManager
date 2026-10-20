@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { auth, type User } from '../api/auth'
+import { useI18n } from '../i18n/context'
 import { Dialog } from '../ui/Dialog'
 import dialog from '../ui/dialog.module.css'
 import { Menu, type MenuItem } from '../ui/Menu'
@@ -16,6 +17,7 @@ type Props = {
 
 /** Avatar button with account actions: password, guest upgrade, sign out, delete. */
 export function AccountMenu({ user, onUserChange, onSignedOut, onUpgrade }: Props) {
+  const { t } = useI18n()
   const [password, setPassword] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -35,23 +37,23 @@ export function AccountMenu({ user, onUserChange, onSignedOut, onUpgrade }: Prop
   }
 
   const items: MenuItem[] = [
-    { kind: 'note', label: user.email ?? 'Guest account' },
+    { kind: 'note', label: user.email ?? t('account.guest') },
     user.is_guest
-      ? { kind: 'action', label: 'Save your boards', onSelect: onUpgrade }
+      ? { kind: 'action', label: t('shell.saveBoards'), onSelect: onUpgrade }
       : {
           kind: 'action',
-          label: user.has_password ? 'Change password' : 'Set password',
+          label: t(user.has_password ? 'account.changePassword' : 'account.setPassword'),
           onSelect: () => setPassword(true),
         },
     { kind: 'separator' },
-    { kind: 'action', label: 'Sign out', onSelect: signOut },
-    { kind: 'action', label: 'Delete account', danger: true, onSelect: () => setConfirmDelete(true) },
+    { kind: 'action', label: t('account.signOut'), onSelect: signOut },
+    { kind: 'action', label: t('account.delete'), danger: true, onSelect: () => setConfirmDelete(true) },
   ]
 
   return (
     <>
       <Menu
-        label="Account"
+        label={t('account.menu')}
         align="end"
         triggerClassName={css.avatar}
         trigger={<span aria-hidden="true">{(user.email ?? 'G').charAt(0).toUpperCase()}</span>}
@@ -66,9 +68,9 @@ export function AccountMenu({ user, onUserChange, onSignedOut, onUpgrade }: Prop
       <Dialog
         open={confirmDelete}
         onClose={() => setConfirmDelete(false)}
-        title="Delete your account?"
+        title={t('account.deleteTitle')}
       >
-        <p>This permanently deletes your account and all your boards. You can't undo this.</p>
+        <p>{t('account.deleteBody')}</p>
         {error ? (
           <p className={ui.alert} role="alert">
             {error}
@@ -80,10 +82,10 @@ export function AccountMenu({ user, onUserChange, onSignedOut, onUpgrade }: Prop
             className={`${ui.button} ${ui.secondary}`}
             onClick={() => setConfirmDelete(false)}
           >
-            Cancel
+            {t('ui.cancel')}
           </button>
           <button type="button" className={`${ui.button} ${ui.danger}`} onClick={deleteAccount}>
-            Delete account
+            {t('account.delete')}
           </button>
         </div>
       </Dialog>

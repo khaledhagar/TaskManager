@@ -7,6 +7,7 @@ from app import limits
 from app.access import owned_board, owned_column, owned_label, renumber
 from app.auth import CurrentUser
 from app.db import SessionDep
+from app.i18n import tr
 from app.models import Board, BoardColumn, Label
 from app.schemas import (
     BoardCreate,
@@ -34,7 +35,7 @@ def list_boards(user: CurrentUser, session: SessionDep) -> list[BoardSummary]:
 @router.post("/boards", status_code=201)
 def create_board(body: BoardCreate, user: CurrentUser, session: SessionDep) -> BoardSummary:
     count = session.exec(select(func.count()).where(Board.owner_id == user.id)).one()
-    limits.check(count, limits.BOARDS_PER_USER, "boards")
+    limits.check(count, limits.BOARDS_PER_USER, "Limit reached: at most {cap} boards")
     board = build_board(session, user.id, body.template, body.title)
     return BoardSummary.model_validate(board)
 
@@ -65,7 +66,11 @@ def add_column(
     board_id: int, body: TitleUpdate, user: CurrentUser, session: SessionDep
 ) -> ColumnOut:
     board = owned_board(session, user, board_id)
-    limits.check(len(board.columns), limits.COLUMNS_PER_BOARD, "columns per board")
+    limits.check(
+        len(board.columns),
+        limits.COLUMNS_PER_BOARD,
+        "Limit reached: at most {cap} columns per board",
+    )
     column = BoardColumn(title=body.title, position=len(board.columns))
     board.columns.append(column)
     session.commit()
@@ -79,7 +84,7 @@ def reorder_columns(
     board = owned_board(session, user, board_id)
     by_id = {c.id: c for c in board.columns}
     if len(body.column_ids) != len(by_id) or set(body.column_ids) != set(by_id):
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Order must list every column once")
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, tr("Order must list every column once"))
     renumber([by_id[i] for i in body.column_ids])
     session.commit()
 
@@ -108,7 +113,9 @@ def delete_column(column_id: int, user: CurrentUser, session: SessionDep) -> Non
 @router.post("/boards/{board_id}/labels", status_code=201)
 def add_label(board_id: int, body: LabelCreate, user: CurrentUser, session: SessionDep) -> LabelOut:
     board = owned_board(session, user, board_id)
-    limits.check(len(board.labels), limits.LABELS_PER_BOARD, "labels per board")
+    limits.check(
+        len(board.labels), limits.LABELS_PER_BOARD, "Limit reached: at most {cap} labels per board"
+    )
     label = Label(name=body.name, color=body.color)
     board.labels.append(label)
     session.commit()

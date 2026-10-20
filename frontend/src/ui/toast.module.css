@@ -33,7 +33,7 @@
 }
 
 .error {
-  border-left: 4px solid #ff8a73;
+  border-inline-start: 4px solid #ff8a73;
 }
 
 .action {

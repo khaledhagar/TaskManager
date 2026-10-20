@@ -1,4 +1,5 @@
 import type { Attachment, Background } from './boards'
+import { currentLanguage, t } from '../i18n/language'
 import { api, ApiError, messageFrom } from './client'
 
 type UploadOptions = { method?: string; onProgress?: (fraction: number) => void }
@@ -8,13 +9,14 @@ export function upload<T>(path: string, file: Blob, filename: string, options: U
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest()
     xhr.open(options.method ?? 'POST', `/api${path}`)
+    xhr.setRequestHeader('Accept-Language', currentLanguage())
     xhr.responseType = 'json'
     xhr.upload.onprogress = (e) => e.lengthComputable && options.onProgress?.(e.loaded / e.total)
     xhr.onload = () =>
       xhr.status >= 200 && xhr.status < 300
         ? resolve(xhr.response as T)
         : reject(new ApiError(xhr.status, messageFrom(xhr.status, xhr.response)))
-    xhr.onerror = () => reject(new ApiError(0, "Can't reach the server. Check your connection and try again."))
+    xhr.onerror = () => reject(new ApiError(0, t('error.offline')))
     const form = new FormData()
     form.append('file', file, filename)
     xhr.send(form)

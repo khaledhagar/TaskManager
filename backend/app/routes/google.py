@@ -10,6 +10,7 @@ from sqlmodel import Session
 from app import google
 from app.auth import OptionalUser, start_session
 from app.db import SessionDep
+from app.i18n import tr
 from app.models import User
 from app.users import create_user, find_by_email, find_by_google_id
 
@@ -29,7 +30,7 @@ def auth_config(request: Request) -> dict:
 @router.get("/google/login")
 async def google_login(request: Request):
     if not request.app.state.settings.google_enabled:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Google sign-in is not configured")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, tr("Google sign-in is not configured"))
     return await google.login_redirect(request)
 
 

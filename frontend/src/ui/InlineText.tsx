@@ -12,6 +12,7 @@ type Props = {
 
 /**
  * Text that turns into an input on click: Enter or leaving saves, Escape cancels.
+ * `dir="auto"` keeps user text in its own direction inside either page direction.
  * The button is named by its visible text; `label` is its tooltip and the input's name.
  */
 export function InlineText({ value, onSave, label, className, inputClassName, maxLength = 200, children }: Props) {
@@ -28,6 +29,7 @@ export function InlineText({ value, onSave, label, className, inputClassName, ma
     return (
       <button
         type="button"
+        dir="auto"
         className={className}
         title={label}
         onClick={() => {
@@ -42,6 +44,7 @@ export function InlineText({ value, onSave, label, className, inputClassName, ma
   return (
     <input
       aria-label={label}
+      dir="auto"
       className={inputClassName}
       value={draft}
       maxLength={maxLength}

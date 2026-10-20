@@ -99,7 +99,7 @@ describe('card modal (T-208)', () => {
     await userEvent.click(within(dialog).getByRole('checkbox', { name: 'Design' }))
     expect(actions.setCardLabels).toHaveBeenCalledWith(7, [])
     await userEvent.type(within(dialog).getByLabelText('New label name'), 'Urgent fix')
-    await userEvent.click(within(dialog).getByRole('radio', { name: 'orange' }))
+    await userEvent.click(within(dialog).getByRole('radio', { name: 'Orange' }))
     await userEvent.click(within(dialog).getByRole('button', { name: 'Add label' }))
     expect(actions.addLabel).toHaveBeenCalledWith('Urgent fix', 'orange')
     expect(actions.setCardLabels).toHaveBeenLastCalledWith(7, [1, 3])

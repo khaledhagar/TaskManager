@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { useI18n } from '../i18n/context'
 import ui from '../ui/ui.module.css'
 import css from './board.module.css'
 import { Markdown } from './Markdown'
 
 /** Markdown description with Write and Preview modes; saved explicitly. */
 export function DescriptionEditor({ details, onSave }: { details: string; onSave: (text: string) => void }) {
+  const { t } = useI18n()
   const [mode, setMode] = useState<'write' | 'preview'>(details ? 'preview' : 'write')
   const [draft, setDraft] = useState(details)
   const dirty = draft !== details
@@ -12,7 +14,7 @@ export function DescriptionEditor({ details, onSave }: { details: string; onSave
   return (
     <section className={css.section}>
       <div className={css.sectionHead}>
-        <h3 className={css.sectionTitle}>Description</h3>
+        <h3 className={css.sectionTitle}>{t('description.title')}</h3>
         <div className={css.tabs}>
           {(['write', 'preview'] as const).map((m) => (
             <button
@@ -22,24 +24,25 @@ export function DescriptionEditor({ details, onSave }: { details: string; onSave
               aria-pressed={mode === m}
               onClick={() => setMode(m)}
             >
-              {m === 'write' ? 'Write' : 'Preview'}
+              {t(m === 'write' ? 'description.write' : 'description.preview')}
             </button>
           ))}
         </div>
       </div>
       {mode === 'write' ? (
         <textarea
-          aria-label="Description"
+          aria-label={t('description.title')}
+          dir="auto"
           className={`${ui.input} ${css.description}`}
           maxLength={10000}
-          placeholder="Add details. Markdown works: **bold**, - lists, # headings, [links](https://...)"
+          placeholder={t('description.placeholder')}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
         />
       ) : draft.trim() ? (
         <Markdown text={draft} />
       ) : (
-        <p className={ui.hint}>Nothing written yet.</p>
+        <p className={ui.hint}>{t('description.empty')}</p>
       )}
       {dirty ? (
         <div className={css.inline}>
@@ -48,10 +51,10 @@ export function DescriptionEditor({ details, onSave }: { details: string; onSave
             className={`${ui.button} ${ui.primary}`}
             onClick={() => onSave(draft)}
           >
-            Save description
+            {t('description.save')}
           </button>
           <button type="button" className={`${ui.button} ${ui.ghost}`} onClick={() => setDraft(details)}>
-            Cancel
+            {t('ui.cancel')}
           </button>
         </div>
       ) : null}

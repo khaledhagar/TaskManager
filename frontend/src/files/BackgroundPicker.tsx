@@ -2,12 +2,11 @@ import { ImageUp } from 'lucide-react'
 import { useId, useState } from 'react'
 import type { Background, Board } from '../api/boards'
 import { files } from '../api/files'
+import { useI18n } from '../i18n/context'
 import { Dialog } from '../ui/Dialog'
 import ui from '../ui/ui.module.css'
 import css from './files.module.css'
 import { BACKGROUND_ACCEPT, backgroundError, PRESETS, shrinkImage } from './uploads'
-
-const title = (preset: string) => preset.charAt(0).toUpperCase() + preset.slice(1)
 
 type Props = {
   open: boolean
@@ -19,6 +18,7 @@ type Props = {
 /** Choose a preset gradient, upload a photo (shrunk in the browser first), or remove the background. */
 export function BackgroundPicker({ open, board, onClose, onChange }: Props) {
   const inputId = useId()
+  const { t } = useI18n()
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const current = board.background
@@ -39,11 +39,11 @@ export function BackgroundPicker({ open, board, onClose, onChange }: Props) {
     if (!file) return
     const problem = backgroundError(file)
     if (problem) return setError(problem)
-    run('Uploading photo...', async () => files.uploadBackground(board.id, await shrinkImage(file), () => {}))
+    run(t('background.uploading'), async () => files.uploadBackground(board.id, await shrinkImage(file), () => {}))
   }
 
   return (
-    <Dialog open={open} onClose={onClose} title="Board background">
+    <Dialog open={open} onClose={onClose} title={t('background.title')}>
       <div className={css.presets}>
         {PRESETS.map((p) => (
           <button
@@ -52,16 +52,16 @@ export function BackgroundPicker({ open, board, onClose, onChange }: Props) {
             className={css.preset}
             data-preset={p}
             aria-pressed={current.kind === 'preset' && current.preset === p}
-            onClick={() => run('Saving...', () => files.setPreset(board.id, p))}
+            onClick={() => run(t('background.saving'), () => files.setPreset(board.id, p))}
           >
-            <span>{title(p)}</span>
+            <span>{t(`preset.${p}`)}</span>
           </button>
         ))}
       </div>
       <div className={css.photoRow}>
         <label htmlFor={inputId} className={`${ui.button} ${ui.secondary}`}>
           <ImageUp size={16} aria-hidden="true" />
-          Upload a photo
+          {t('background.upload')}
         </label>
         <input
           id={inputId}
@@ -73,7 +73,7 @@ export function BackgroundPicker({ open, board, onClose, onChange }: Props) {
             e.target.value = ''
           }}
         />
-        <span className={ui.hint}>JPG, PNG or WebP, up to 10 MB. Large photos are resized.</span>
+        <span className={ui.hint}>{t('background.hint')}</span>
       </div>
       {busy ? (
         <p className={ui.hint} role="status">
@@ -90,13 +90,13 @@ export function BackgroundPicker({ open, board, onClose, onChange }: Props) {
           type="button"
           className={`${ui.button} ${ui.ghost}`}
           onClick={() =>
-            run('Removing...', async () => {
+            run(t('background.removing'), async () => {
               await files.removeBackground(board.id)
               return { kind: 'none', preset: null, version: current.version + 1 }
             })
           }
         >
-          Remove background
+          {t('background.remove')}
         </button>
       ) : null}
     </Dialog>

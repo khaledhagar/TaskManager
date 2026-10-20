@@ -1,5 +1,6 @@
 import { X } from 'lucide-react'
 import { useCallback, useRef, useState, type ReactNode } from 'react'
+import { useI18n } from '../i18n/context'
 import { ToastContext, type Show, type ToastInput } from './toastContext'
 
 import css from './toast.module.css'
@@ -10,6 +11,7 @@ type Toast = ToastInput & { id: number }
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
   const nextId = useRef(1)
+  const i18n = useI18n()
 
   const dismiss = useCallback((id: number) => setToasts((all) => all.filter((t) => t.id !== id)), [])
 
@@ -48,7 +50,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <button
               type="button"
               className={css.close}
-              aria-label="Dismiss"
+              aria-label={i18n.t('ui.dismiss')}
               onClick={() => dismiss(t.id)}
             >
               <X size={14} aria-hidden="true" />

@@ -7,7 +7,9 @@ from pydantic import BaseModel, EmailStr, Field
 
 from app.account import send_verification
 from app.db import SessionDep
+from app.i18n import Language, tr
 from app.models import User
+from app.schemas import Strict
 from app.security import COOKIE, TOKEN_TTL, create_token, hash_password, read_token, verify_password
 from app.users import create_user, find_by_email
 
@@ -28,6 +30,11 @@ class UserOut(BaseModel):
     email_verified: bool
     has_password: bool
     google_linked: bool
+    language: Language
+
+
+class Preferences(Strict):
+    language: Language
 
 
 class PendingVerification(BaseModel):
@@ -43,6 +50,7 @@ def user_out(user: User) -> UserOut:
         email_verified=user.email_verified,
         has_password=user.password_hash is not None,
         google_linked=user.google_id is not None,
+        language=user.language,
     )
 
 
@@ -58,7 +66,7 @@ def optional_user(request: Request, session: SessionDep) -> User | None:
 
 def current_user(user: Annotated[User | None, Depends(optional_user)]) -> User:
     if user is None:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not signed in")
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, tr("Not signed in"))
     return user
 
 
@@ -85,7 +93,7 @@ def new_email(session: SessionDep, email: str) -> str:
     """Lower-case the email and make sure no account uses it yet."""
     email = email.lower()
     if find_by_email(session, email):
-        raise HTTPException(status.HTTP_409_CONFLICT, "Email already registered")
+        raise HTTPException(status.HTTP_409_CONFLICT, tr("Email already registered"))
     return email
 
 
@@ -102,10 +110,11 @@ def signin(
 ) -> UserOut:
     user = find_by_email(session, creds.email.lower())
     if not verify_password(creds.password, user.password_hash if user else None):
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, tr("Invalid email or password"))
     if not user.email_verified:
         raise HTTPException(
-            status.HTTP_403_FORBIDDEN, "Please verify your email first. We can send a new link."
+            status.HTTP_403_FORBIDDEN,
+            tr("Please verify your email first. We can send a new link."),
         )
     return start_session(request, response, user)
 
@@ -121,7 +130,7 @@ def upgrade(
 ) -> PendingVerification:
     """Attach email and password to a guest; it stays a guest until the email is verified."""
     if not user.is_guest:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Account is not a guest account")
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, tr("Account is not a guest account"))
     user.email = new_email(session, creds.email)
     user.password_hash = hash_password(creds.password)
     session.commit()
@@ -136,6 +145,14 @@ def signout(response: Response) -> None:
 
 @router.get("/me")
 def me(user: CurrentUser) -> UserOut:
+    return user_out(user)
+
+
+@router.patch("/me")
+def update_me(body: Preferences, user: CurrentUser, session: SessionDep) -> UserOut:
+    """Save account preferences (the interface language)."""
+    user.language = body.language
+    session.commit()
     return user_out(user)
 
 

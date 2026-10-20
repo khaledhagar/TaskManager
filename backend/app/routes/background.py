@@ -9,6 +9,7 @@ from app.access import owned_board
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.file_cleanup import discard
+from app.i18n import tr
 from app.models import Board
 from app.routes.files import check_quota, read_upload
 from app.schemas import BackgroundOut, Strict, background_out
@@ -73,7 +74,7 @@ def get_background(
     board = owned_board(session, user, board_id)
     data = request.app.state.storage.get(board.background_key) if board.background_key else None
     if data is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Not found")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, tr("Not found"))
     return Response(
         data,
         media_type="image/webp",

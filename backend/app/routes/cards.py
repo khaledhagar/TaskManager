@@ -28,7 +28,7 @@ def add_card(column_id: int, body: CardCreate, user: CurrentUser, session: Sessi
     column = owned_column(session, user, column_id)
     stmt = select(func.count()).select_from(Card).join(BoardColumn)
     count = session.exec(stmt.where(BoardColumn.board_id == column.board_id)).one()
-    limits.check(count, limits.CARDS_PER_BOARD, "cards per board")
+    limits.check(count, limits.CARDS_PER_BOARD, "Limit reached: at most {cap} cards per board")
     card = Card(**body.model_dump(), position=len(column.cards))
     column.cards.append(card)
     session.commit()
@@ -85,7 +85,11 @@ def set_card_labels(
 @router.post("/cards/{card_id}/checklist", status_code=201)
 def add_item(card_id: int, body: ItemCreate, user: CurrentUser, session: SessionDep) -> ItemOut:
     card = owned_card(session, user, card_id)
-    limits.check(len(card.checklist), limits.ITEMS_PER_CARD, "checklist items per card")
+    limits.check(
+        len(card.checklist),
+        limits.ITEMS_PER_CARD,
+        "Limit reached: at most {cap} checklist items per card",
+    )
     item = ChecklistItem(text=body.text, position=len(card.checklist))
     card.checklist.append(item)
     session.commit()

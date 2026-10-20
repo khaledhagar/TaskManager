@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { useI18n } from '../i18n/context'
 import ui from '../ui/ui.module.css'
 import css from './board.module.css'
 
 /** Add cards one after another: Enter adds and keeps the field open, Escape closes. */
 export function CardComposer({ onAdd, onClose }: { onAdd: (title: string) => void; onClose: () => void }) {
+  const { t } = useI18n()
   const [title, setTitle] = useState('')
 
   function add() {
@@ -16,9 +18,10 @@ export function CardComposer({ onAdd, onClose }: { onAdd: (title: string) => voi
   return (
     <div className={css.composer}>
       <textarea
-        aria-label="New card title"
+        aria-label={t('composer.label')}
+        dir="auto"
         className={`${ui.input} ${css.composerInput}`}
-        placeholder="What needs doing?"
+        placeholder={t('composer.placeholder')}
         rows={2}
         maxLength={200}
         autoFocus
@@ -34,10 +37,10 @@ export function CardComposer({ onAdd, onClose }: { onAdd: (title: string) => voi
       />
       <div className={css.inline}>
         <button type="button" className={`${ui.button} ${ui.primary}`} onClick={add}>
-          Add card
+          {t('column.addCard')}
         </button>
         <button type="button" className={`${ui.button} ${ui.ghost}`} onClick={onClose}>
-          Cancel
+          {t('ui.cancel')}
         </button>
       </div>
     </div>

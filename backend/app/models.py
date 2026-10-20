@@ -37,6 +37,7 @@ class User(SQLModel, table=True):
     email_verified: bool = False
     google_id: str | None = Field(default=None, unique=True, index=True)
     token_version: int = 0
+    language: str = "en"
     created_at: datetime = Field(default_factory=utcnow)
 
     boards: list["Board"] = Relationship(back_populates="owner", cascade_delete=True)

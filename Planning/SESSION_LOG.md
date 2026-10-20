@@ -4,16 +4,16 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 
 ## Where the project stands (2026-10-20)
 
-- Phases 1-10 are done and pushed to GitHub (`main`, https://github.com/khaledhagar/TaskManager).
-- Next: **Phase 11 - Languages: English and Arabic** (see "Next steps" below).
-- Tests: backend 192 passing (plus 1 live AI test, skipped by default); frontend 146 passing. Lint, format and type checks are clean.
-- Checklists: 136 tests ticked in `Planning/TEST_PLAN.md`, 52 items ticked in `Planning/SECURITY.md`.
+- Phases 1-11 are done (`main`, https://github.com/khaledhagar/TaskManager).
+- Next: **Phase 12 - AI UI** (see "Next steps" below).
+- Tests: backend 219 passing (plus 1 live AI test, skipped by default); frontend 171 passing. Lint, format and type checks are clean.
+- Checklists: 148 tests ticked in `Planning/TEST_PLAN.md`, 55 items ticked in `Planning/SECURITY.md`.
 
 | Done | Phase |
 |------|-------|
-| Yes | 1 Scaffolding, 2 Database, 3 Auth, 4 Board API, 5 AI backend, 6 Account security, 7 Frontend foundation, 8 Board UI, 9 Files, 10 Focus timer |
-| Next | 11 Languages (Arabic / English, RTL) |
-| Later | 12 AI UI, 13 Polish (touch drag, responsive + theme pass), 14 Hardening, 15 Playwright tests, 16 Done, 17 Deployment (Vercel) |
+| Yes | 1 Scaffolding, 2 Database, 3 Auth, 4 Board API, 5 AI backend, 6 Account security, 7 Frontend foundation, 8 Board UI, 9 Files, 10 Focus timer, 11 Languages |
+| Next | 12 AI UI |
+| Later | 13 Polish (touch drag, responsive + theme pass), 14 Hardening, 15 Playwright tests, 16 Done, 17 Deployment (Vercel) |
 
 ## How we work (the user's preferences)
 
@@ -38,24 +38,36 @@ cd backend && uv run ruff check . && uv run ruff format --check .
 cd frontend && npx vitest run && npx tsc -b --noEmit && npm run lint
 ```
 
-Browser checks: Playwright drives the installed Microsoft Edge (`chromium.launch({ channel: 'msedge' })`), so no browser download is needed. `page.clock.install()` controls time (used for the focus timer).
+Browser checks: Playwright drives the installed Microsoft Edge (`chromium.launch({ channel: 'msedge' })`), so no browser download is needed. `page.clock.install()` controls time (used for the focus timer). For a review on a clean database without touching the local one, start the server with `DATABASE_URL=sqlite:///<scratch>/review.db STORAGE_DIR=<scratch>/storage`.
 
 Tick a finished phase and rebuild the Progress table:
 
 ```bash
-PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 11 - Languages" "T-190,T-191" "SEC-143"
+PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 12 - AI UI" "T-212" "SEC-xx"
 ```
+
+## Languages (Phase 11): how it works
+
+- **Frontend:** messages live in `frontend/src/i18n/en.ts` (source of truth) and `ar.ts` (typed against it, so a missing key is a type error). In components use `const { t, rich } = useI18n()` from `i18n/context`; outside React use `t()` from `i18n/language`. Plurals: a message object `{ one, other, ... }` picked by `{count}`. `rich(key, { link: <Link/> })` puts React nodes into `{placeholders}`.
+- **No hard-coded English:** `i18n/hardcoded.test.ts` parses every component (with `oxc-parser`) and fails on English text. Add new strings to both dictionaries. Technical strings go on its allow-list.
+- **RTL:** CSS uses logical properties only (`margin-inline-start`, `inset-inline-end`, `text-align: start`). Direction icons get `className="flip-rtl"`. User-typed text gets `dir="auto"`.
+- **Backend:** `app/i18n.py` reads `Accept-Language` per request (middleware + context variable). Wrap every user-facing message in `tr("English text", name=value)` and add the Arabic to `AR`. `tests/test_i18n.py` scans the source and fails on an `HTTPException` without `tr()` or a text without Arabic. Emails, demo board, templates (`app/templates_ar.py`) and AI prompts ("Answer in Arabic.") follow the request language.
+- **Saved choice:** browser `localStorage` (`language`) and `users.language` (`PATCH /api/auth/me`). On sign-in a choice saved in the browser wins and is copied to the account; a fresh browser takes the account's language.
+- Pydantic's 422 validation texts stay English (the frontend validates the same rules first, in the user's language).
 
 ## Environment notes and gotchas
 
 - **Project lives in OneDrive with a deep path.** Installs were slow while OneDrive synced (sync is now paused by the user). Network to PyPI is slow (about 110 KB/s): use `UV_HTTP_TIMEOUT=300` for `uv add`.
 - **Windows 260-character path limit:** LiteLLM's tokenizer cache path is too long. Fixed with `CUSTOM_TIKTOKEN_CACHE_DIR=C:/Users/khale/.cache/tiktoken` in `.env` (already set).
 - **Write files containing Arabic as UTF-8.** Python on Windows defaults to cp1252: always pass `encoding="utf-8"` or run with `PYTHONUTF8=1`. A failed write once emptied `PLAN.md` (restored from git).
-- **Local database:** `backend/taskmanager.db` is recreated on start but new columns are not added to an existing file. After a model change, delete it (only test data lives there). Alembic migrations come in Phase 17.
+- **Local database:** `backend/taskmanager.db` is recreated on start but new columns are not added to an existing file. After a model change, delete it (only test data lives there). Alembic migrations come in Phase 17. **Phase 11 added `users.language`: delete `backend/taskmanager.db` and `backend/storage/` before the next local run** (Claude's delete was blocked by the permission check, so it was left in place).
 - **Local uploads:** `backend/storage/` (git-ignored). Delete it together with the database.
 - **FastAPI 0.149** keeps included routers as `_IncludedRouter` entries; to list endpoints use `app.openapi()["paths"]`, not `app.routes`.
 - **Vitest fake timers:** use `vi.useFakeTimers({ shouldAdvanceTime: true })` with `userEvent.setup({ advanceTimers: vi.advanceTimersByTime })`; fully frozen timers make clicks hang.
 - **jsdom** lacks `HTMLDialogElement.showModal` and `matchMedia`; small stand-ins live in `frontend/src/test/setup.ts`.
+- **TypeScript 7** has no JavaScript compiler API; use `oxc-parser` to parse source in tests. Test files that use `node:fs` start with `/// <reference types="node" />`.
+- **dnd-kit in RTL:** its keyboard moves pick Left/Right targets by left edge, so in RTL a card could not leave its column. `board/keyboard.ts` (`boardKeyboardCoordinates`) fixes it; keep using it as the keyboard `coordinateGetter`.
+- **Grid layouts:** a grid column never shrinks below its content; the app shell uses `grid-template-columns: minmax(0, 1fr)` so the header can shrink on phones.
 - **Countdowns** (resend email, focus timer) are computed from a fixed end time, never by chaining one-second timers.
 - **Origin check middleware** blocks cross-site POST/PUT/PATCH/DELETE; the Vite dev server origins (`localhost:5173`) are allowed outside production.
 
@@ -69,6 +81,8 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 11 - Langu
 - **Focus timer:** opt-in (off by default), 25/5 or 50/10, frontend only.
 - **Delete card / column:** 5-second Undo instead of a confirm dialog. Deleting labels, attachments, boards and accounts asks first.
 - **Digits in Arabic:** Western 0-9 by default (`ar-u-nu-latn`); the user may switch to Arabic-Indic later.
+- **Language button:** shows the other language in that language ("العربية" / "English"); on phones it shortens to "ع" / "EN". The "Task Manager" wordmark in the logo stays in English (brand); the page title is translated.
+- **Server language:** taken from each request's `Accept-Language` (the browser always sends the chosen language), so emails go out in the language the person is using at that moment.
 
 ## Waiting on the user
 
@@ -76,19 +90,18 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 11 - Langu
   - `EMAIL_MODE=smtp`, `SMTP_USER`, `SMTP_PASSWORD` (Gmail App Password; needs 2-step verification)
   - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (Google Cloud OAuth client; redirect `http://localhost:8000/api/auth/google/callback`)
 - Optional: 10 OpenRouter credits would raise the AI limit from 50 to 1,000 requests per day.
+- Delete the old local database before the next local run (see gotchas).
 
-## Next steps: Phase 11 - Languages
+## Next steps: Phase 12 - AI UI
 
-Design is in `PLAN.md` ("Languages Design"); tests are T-190 to T-194, T-240 to T-246; security item SEC-143; quality items NFR-17, NFR-23 to NFR-25.
+The backend endpoints exist (`/api/ai/cards/{id}/checklist`, `/api/ai/boards`, `/api/ai/chat`) and already answer in the request language. Test T-212 and the chat tests are in `TEST_PLAN.md`; the UI rules are in "AI Design" in `PLAN.md` (free-tier limits, confirm before any chat action).
 
 Suggested order (test first at each step):
 
-1. **i18n core** in `frontend/src/i18n/`: `en.ts` (source of truth), `ar.ts` typed against it, `t(key, params)`, plural messages with `Intl.PluralRules('ar')`, date/number helpers. Tests T-240 to T-242.
-2. **Language switch**: provider + `useI18n()`, saved in `localStorage`, sets `<html lang dir>`, button in the app header and on the sign-in layout; `api()` and the upload helper send `Accept-Language`. Tests T-243, T-244.
-3. **Replace every hard-coded string** in components with `t()` (auth, shell, board, card window, files, timer, toasts, shortcuts). Add the source-scan test T-245 (allow-list technical strings).
-4. **RTL**: convert CSS to logical properties (`left/right` -> `inset-inline-*`, `margin-left` -> `margin-inline-start`, `text-align: left` -> `start`); mirror direction icons (T-246); check dnd-kit drag and keyboard moves in RTL; the sign-in wall animation must travel right-to-left.
-5. **Arabic font**: `npm install @fontsource-variable/ibm-plex-sans-arabic` (check the exact package name first), add to `--font` after Instrument Sans.
-6. **Backend**: `users.language` (`en`/`ar`), `PATCH /auth/me`, read `Accept-Language`, translate user-facing `HTTPException` messages, Arabic email texts, Arabic demo board and templates (`app/templates.py`), language line in AI prompts (`app/assistant.py`). Tests T-190 to T-194. Delete the local database after adding the column.
-7. **Review**: screenshots in Arabic at 360, 768 and 1440 px, light and dark; fix layout issues; then tick, commit and push.
+1. **Suggest checklist** button in the card window: show suggestions with checkboxes; only the selected items are added (T-212).
+2. **New board dialog:** Blank, the four templates, or "Describe it to AI" (uses `/api/ai/boards`).
+3. **Chat side panel:** message history, loading state, clear button; proposed actions shown with Confirm buttons; nothing changes without Confirm.
+4. Every new string goes into `en.ts` and `ar.ts`; check RTL and phone width in the screenshot review.
+5. **Review:** screenshots in both languages at 360, 768 and 1440 px, light and dark; then tick, commit and push.
 
-Known polish items already logged for Phase 13: on phones the board "..." menu wraps onto its own line next to the focus timer; touch drag needs a press-and-hold sensor.
+Known polish items already logged for Phase 13: on phones the board "..." menu wraps onto its own line next to the focus timer; touch drag needs a press-and-hold sensor; native date inputs follow the browser's locale, not the page language.

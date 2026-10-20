@@ -1,6 +1,7 @@
 import { MoreHorizontal } from 'lucide-react'
 import { useState } from 'react'
 import type { Board } from '../api/boards'
+import { useI18n } from '../i18n/context'
 import { FocusTimer } from '../timer/FocusTimer'
 import { Dialog } from '../ui/Dialog'
 import dialog from '../ui/dialog.module.css'
@@ -20,6 +21,7 @@ type Props = {
 
 /** Board title (click to rename), completion progress and board options. */
 export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground }: Props) {
+  const { t } = useI18n()
   const [confirming, setConfirming] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { done, total, percent } = progress(board)
@@ -37,7 +39,7 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground }:
       <h1 className={css.boardTitle}>
         <InlineText
           value={board.title}
-          label={`Rename board ${board.title}`}
+          label={t('board.rename', { title: board.title })}
           className={css.boardTitleButton}
           inputClassName={css.boardTitleInput}
           onSave={onRename}
@@ -49,32 +51,30 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground }:
         <div
           className={css.bar}
           role="progressbar"
-          aria-label="Cards completed"
+          aria-label={t('board.completed')}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={percent}
         >
           <span style={{ width: `${percent}%` }} />
         </div>
-        <span className={ui.hint}>{total ? `${done} of ${total} done` : 'No cards yet'}</span>
+        <span className={ui.hint}>{total ? t('board.progress', { done, total }) : t('board.noCards')}</span>
       </div>
       <FocusTimer />
       <Menu
-        label="Board options"
+        label={t('board.options')}
         align="end"
         triggerClassName={ui.iconButton}
         trigger={<MoreHorizontal size={18} aria-hidden="true" />}
         items={[
-          { kind: 'action', label: 'Change background', onSelect: onBackground },
-          { kind: 'action', label: 'Keyboard shortcuts', onSelect: onHelp },
+          { kind: 'action', label: t('board.changeBackground'), onSelect: onBackground },
+          { kind: 'action', label: t('board.shortcuts'), onSelect: onHelp },
           { kind: 'separator' },
-          { kind: 'action', label: 'Delete board', danger: true, onSelect: () => setConfirming(true) },
+          { kind: 'action', label: t('board.delete'), danger: true, onSelect: () => setConfirming(true) },
         ]}
       />
-      <Dialog open={confirming} onClose={() => setConfirming(false)} title="Delete this board?">
-        <p>
-          "{board.title}" and all its columns and cards will be deleted permanently. You can't undo this.
-        </p>
+      <Dialog open={confirming} onClose={() => setConfirming(false)} title={t('board.deleteTitle')}>
+        <p>{t('board.deleteBody', { title: board.title })}</p>
         {error ? (
           <p className={ui.alert} role="alert">
             {error}
@@ -82,10 +82,10 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground }:
         ) : null}
         <div className={dialog.actions}>
           <button type="button" className={`${ui.button} ${ui.secondary}`} onClick={() => setConfirming(false)}>
-            Cancel
+            {t('ui.cancel')}
           </button>
           <button type="button" className={`${ui.button} ${ui.danger}`} onClick={remove}>
-            Delete board
+            {t('board.delete')}
           </button>
         </div>
       </Dialog>

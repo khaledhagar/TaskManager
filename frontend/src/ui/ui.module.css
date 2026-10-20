@@ -117,7 +117,7 @@
 
 .notice {
   padding: 10px 12px;
-  border-left: 3px solid var(--accent);
+  border-inline-start: 3px solid var(--accent);
   border-radius: 0 var(--radius-control) var(--radius-control) 0;
   background: var(--surface-sunken);
   color: var(--text);

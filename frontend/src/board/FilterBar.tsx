@@ -1,9 +1,10 @@
 import { Search } from 'lucide-react'
 import type { Ref } from 'react'
 import type { Label, Priority } from '../api/boards'
+import { useI18n } from '../i18n/context'
 import ui from '../ui/ui.module.css'
 import css from './board.module.css'
-import { PRIORITIES, PRIORITY_LABEL } from './display'
+import { PRIORITIES, priorityLabel } from './display'
 import { EMPTY_FILTERS, filtersActive, type Filters } from './logic'
 
 type Props = {
@@ -17,6 +18,7 @@ type Props = {
 
 /** Search and filters; the count tells how many cards are visible. */
 export function FilterBar({ filters, onChange, labels, shown, total, searchRef }: Props) {
+  const { t } = useI18n()
   const set = (changes: Partial<Filters>) => onChange({ ...filters, ...changes })
   const active = filtersActive(filters)
 
@@ -27,8 +29,9 @@ export function FilterBar({ filters, onChange, labels, shown, total, searchRef }
         <input
           ref={searchRef}
           type="search"
-          aria-label="Search cards"
-          placeholder="Search cards"
+          dir="auto"
+          aria-label={t('filter.search')}
+          placeholder={t('filter.search')}
           value={filters.text}
           onChange={(e) => set({ text: e.target.value })}
           onKeyDown={(e) => e.key === 'Escape' && set({ text: '' })}
@@ -38,12 +41,12 @@ export function FilterBar({ filters, onChange, labels, shown, total, searchRef }
         </kbd>
       </label>
       <select
-        aria-label="Filter by label"
+        aria-label={t('filter.byLabel')}
         className={css.filterSelect}
         value={filters.labelId ?? ''}
         onChange={(e) => set({ labelId: e.target.value ? Number(e.target.value) : null })}
       >
-        <option value="">All labels</option>
+        <option value="">{t('filter.allLabels')}</option>
         {labels.map((l) => (
           <option key={l.id} value={l.id}>
             {l.name}
@@ -51,35 +54,35 @@ export function FilterBar({ filters, onChange, labels, shown, total, searchRef }
         ))}
       </select>
       <select
-        aria-label="Filter by priority"
+        aria-label={t('filter.byPriority')}
         className={css.filterSelect}
         value={filters.priority ?? ''}
         onChange={(e) => set({ priority: (e.target.value || null) as Priority | null })}
       >
-        <option value="">Any priority</option>
+        <option value="">{t('filter.anyPriority')}</option>
         {PRIORITIES.map((p) => (
           <option key={p} value={p}>
-            {PRIORITY_LABEL[p]}
+            {priorityLabel(p)}
           </option>
         ))}
       </select>
       <select
-        aria-label="Filter by status"
+        aria-label={t('filter.byStatus')}
         className={css.filterSelect}
         value={filters.status}
         onChange={(e) => set({ status: e.target.value as Filters['status'] })}
       >
-        <option value="all">All cards</option>
-        <option value="open">Open</option>
-        <option value="done">Completed</option>
+        <option value="all">{t('filter.allCards')}</option>
+        <option value="open">{t('filter.open')}</option>
+        <option value="done">{t('filter.completed')}</option>
       </select>
       {active ? (
         <>
           <span className={ui.hint} role="status">
-            Showing {shown} of {total} cards. Drag and drop is paused while filtering.
+            {t('filter.showing', { shown, total })}
           </span>
           <button type="button" className={ui.linkButton} onClick={() => onChange(EMPTY_FILTERS)}>
-            Clear filters
+            {t('board.clearFilters')}
           </button>
         </>
       ) : null}

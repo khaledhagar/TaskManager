@@ -1,12 +1,14 @@
 import { X } from 'lucide-react'
 import { useState } from 'react'
 import type { Card } from '../api/boards'
+import { useI18n } from '../i18n/context'
 import ui from '../ui/ui.module.css'
 import css from './board.module.css'
 import type { BoardActions } from './useBoard'
 
 /** Checklist with progress; items can be ticked, renamed in place, deleted and added. */
 export function ChecklistEditor({ card, actions }: { card: Card; actions: BoardActions }) {
+  const { t } = useI18n()
   const [draft, setDraft] = useState('')
   const done = card.checklist.filter((i) => i.done).length
   const total = card.checklist.length
@@ -21,8 +23,8 @@ export function ChecklistEditor({ card, actions }: { card: Card; actions: BoardA
   return (
     <section className={css.section}>
       <div className={css.sectionHead}>
-        <h3 className={css.sectionTitle}>Checklist</h3>
-        {total ? <span className={ui.hint}>{`${done} of ${total} done`}</span> : null}
+        <h3 className={css.sectionTitle}>{t('card.checklist')}</h3>
+        {total ? <span className={ui.hint}>{t('board.progress', { done, total })}</span> : null}
       </div>
       {total ? (
         <div className={css.bar} aria-hidden="true">
@@ -45,7 +47,7 @@ export function ChecklistEditor({ card, actions }: { card: Card; actions: BoardA
             <button
               type="button"
               className={css.itemDelete}
-              aria-label={`Delete item: ${item.text}`}
+              aria-label={t('checklist.deleteItem', { text: item.text })}
               onClick={() => actions.deleteItem(card.id, item.id)}
             >
               <X size={14} aria-hidden="true" />
@@ -54,9 +56,10 @@ export function ChecklistEditor({ card, actions }: { card: Card; actions: BoardA
         ))}
       </ul>
       <input
-        aria-label="Add an item"
+        aria-label={t('checklist.add')}
+        dir="auto"
         className={ui.input}
-        placeholder="Add an item and press Enter"
+        placeholder={t('checklist.addPlaceholder')}
         maxLength={300}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
@@ -67,10 +70,12 @@ export function ChecklistEditor({ card, actions }: { card: Card; actions: BoardA
 }
 
 function ItemText({ text, onSave }: { text: string; onSave: (text: string) => void }) {
+  const { t } = useI18n()
   const [value, setValue] = useState(text)
   return (
     <input
-      aria-label={`Edit item: ${text}`}
+      aria-label={t('checklist.editItem', { text })}
+      dir="auto"
       className={css.itemText}
       maxLength={300}
       value={value}

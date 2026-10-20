@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { auth, type User } from './api/auth'
 import { CheckInbox, ForgotPassword, ResetPassword, VerifyEmail } from './auth/AccountPages'
 import { AuthScreen } from './auth/AuthScreen'
+import { useI18n } from './i18n/context'
+import { hasSavedLanguage } from './i18n/language'
 import { navigate, useLocation } from './lib/router'
 import { AppShell } from './shell/AppShell'
 
@@ -10,6 +12,7 @@ const SIGNED_OUT_ONLY = ['/signin', '/signup']
 /** Loads the session, then shows the account page for the URL or the signed-in app. */
 export default function App() {
   const { path } = useLocation()
+  const { t, lang, setLanguage } = useI18n()
   const [user, setUser] = useState<User | null | undefined>(undefined)
 
   useEffect(() => {
@@ -17,6 +20,15 @@ export default function App() {
     const settle = (value: User | null) => setUser((current) => (current === undefined ? value : current))
     auth.me().then(settle, () => settle(null))
   }, [])
+
+  // On sign-in: a choice saved in this browser wins; otherwise use the account's language.
+  const userId = user?.id
+  useEffect(() => {
+    if (!user) return
+    if (!hasSavedLanguage()) setLanguage(user.language)
+    else if (user.language !== lang) auth.setLanguage(lang).then(setUser)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only when a different user signs in
+  }, [userId])
 
   const signedIn = useCallback((next: User) => {
     setUser(next)
@@ -31,7 +43,7 @@ export default function App() {
   if (path === '/reset-password') return <ResetPassword onSignedIn={signedIn} />
   if (path === '/check-inbox') return <CheckInbox />
   if (path === '/forgot-password') return <ForgotPassword />
-  if (user === undefined) return <div role="status" aria-label="Loading" />
+  if (user === undefined) return <div role="status" aria-label={t('app.loading')} />
   if (user === null) return <AuthScreen onSignedIn={signedIn} />
   return (
     <AppShell

@@ -27,7 +27,7 @@ def test_demo_board_seed(session, user):
     board = build_board(session, user.id, "demo")
     assert [c.title for c in board.columns] == ["To Do", "In Progress", "Done"]
     cards = [card for col in board.columns for card in col.cards]
-    assert len(cards) == sum(len(c["cards"]) for c in TEMPLATES["demo"]["columns"])
+    assert len(cards) == sum(len(c["cards"]) for c in TEMPLATES["en"]["demo"]["columns"])
     assert len(board.labels) >= 3
     assert any(card.checklist for card in cards)
     assert any(card.labels for card in cards)
@@ -45,9 +45,9 @@ def test_positions_are_contiguous(session, user):
 @pytest.mark.parametrize("name", ["blank", "sprint", "bug_tracking", "personal"])
 def test_templates_build_expected_columns(session, user, name):
     board = build_board(session, user.id, name)
-    expected = [c["title"] for c in TEMPLATES[name]["columns"]]
+    expected = [c["title"] for c in TEMPLATES["en"][name]["columns"]]
     assert [c.title for c in board.columns] == expected
-    assert board.title == TEMPLATES[name]["title"]
+    assert board.title == TEMPLATES["en"][name]["title"]
 
 
 def test_blank_template_has_three_empty_columns(session, user):

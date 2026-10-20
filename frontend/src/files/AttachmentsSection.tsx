@@ -4,6 +4,7 @@ import type { Card } from '../api/boards'
 import { files } from '../api/files'
 import boardCss from '../board/board.module.css'
 import type { BoardActions } from '../board/useBoard'
+import { useI18n } from '../i18n/context'
 import ui from '../ui/ui.module.css'
 import css from './files.module.css'
 import { ATTACHMENT_ACCEPT, attachmentError, formatSize, MAX_PER_CARD } from './uploads'
@@ -13,6 +14,7 @@ type Upload = { key: number; name: string; progress: number }
 /** Card attachments: drop or choose files, see progress, preview images, download, delete. */
 export function AttachmentsSection({ card, actions }: { card: Card; actions: BoardActions }) {
   const inputId = useId()
+  const { t, rich } = useI18n()
   const [uploads, setUploads] = useState<Upload[]>([])
   const [errors, setErrors] = useState<string[]>([])
   const [usage, setUsage] = useState<{ used: number; limit: number } | null>(null)
@@ -27,7 +29,7 @@ export function AttachmentsSection({ card, actions }: { card: Card; actions: Boa
     const problems: string[] = []
     let room = MAX_PER_CARD - card.attachments.length - uploads.length
     for (const file of list) {
-      const problem = attachmentError(file) ?? (room <= 0 ? `A card can hold up to ${MAX_PER_CARD} files.` : null)
+      const problem = attachmentError(file) ?? (room <= 0 ? t('files.perCard', { count: MAX_PER_CARD }) : null)
       if (problem) {
         problems.push(`${file.name}: ${problem}`)
         continue
@@ -59,9 +61,9 @@ export function AttachmentsSection({ card, actions }: { card: Card; actions: Boa
   return (
     <section className={boardCss.section}>
       <div className={boardCss.sectionHead}>
-        <h3 className={boardCss.sectionTitle}>Attachments</h3>
+        <h3 className={boardCss.sectionTitle}>{t('card.attachments')}</h3>
         {usage ? (
-          <span className={ui.hint}>{`${formatSize(usage.used)} of ${formatSize(usage.limit)} used`}</span>
+          <span className={ui.hint}>{t('files.usage', { used: formatSize(usage.used), limit: formatSize(usage.limit) })}</span>
         ) : null}
       </div>
 
@@ -77,7 +79,7 @@ export function AttachmentsSection({ card, actions }: { card: Card; actions: Boa
                 </span>
               )}
               <span className={css.name}>
-                <a href={files.url(a.id)} download={a.filename}>
+                <a href={files.url(a.id)} download={a.filename} dir="auto">
                   {a.filename}
                 </a>
                 <span className={ui.hint}>{formatSize(a.size)}</span>
@@ -92,17 +94,17 @@ export function AttachmentsSection({ card, actions }: { card: Card; actions: Boa
                       actions.deleteAttachment(card.id, a.id)
                     }}
                   >
-                    Delete file
+                    {t('files.deleteFile')}
                   </button>
                   <button type="button" className={`${ui.button} ${ui.ghost}`} onClick={() => setConfirmId(null)}>
-                    Keep
+                    {t('ui.keep')}
                   </button>
                 </span>
               ) : (
                 <button
                   type="button"
                   className={boardCss.itemDelete}
-                  aria-label={`Delete ${a.filename}`}
+                  aria-label={t('files.delete', { name: a.filename })}
                   onClick={() => setConfirmId(a.id)}
                 >
                   <X size={14} aria-hidden="true" />
@@ -119,7 +121,7 @@ export function AttachmentsSection({ card, actions }: { card: Card; actions: Boa
           <div
             className={boardCss.bar}
             role="progressbar"
-            aria-label={`Uploading ${u.name}`}
+            aria-label={t('files.uploading', { name: u.name })}
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={Math.round(u.progress * 100)}
@@ -149,10 +151,13 @@ export function AttachmentsSection({ card, actions }: { card: Card; actions: Boa
       >
         <Paperclip size={16} aria-hidden="true" />
         <span>
-          Drop files here or{' '}
-          <label htmlFor={inputId} className={css.choose}>
-            Choose files
-          </label>
+          {rich('files.drop', {
+            choose: (
+              <label htmlFor={inputId} className={css.choose}>
+                {t('files.choose')}
+              </label>
+            ),
+          })}
         </span>
         <input
           id={inputId}
@@ -165,7 +170,7 @@ export function AttachmentsSection({ card, actions }: { card: Card; actions: Boa
             e.target.value = ''
           }}
         />
-        <span className={ui.hint}>Images, PDF, text, CSV or Office files, up to 4 MB each.</span>
+        <span className={ui.hint}>{t('files.hint')}</span>
       </div>
     </section>
   )

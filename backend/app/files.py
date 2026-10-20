@@ -8,6 +8,8 @@ from dataclasses import dataclass
 from fastapi import HTTPException, Request, status
 from PIL import Image, ImageOps, UnidentifiedImageError
 
+from app.i18n import tr
+
 MB = 1024 * 1024
 MAX_ATTACHMENT = 4 * MB
 MAX_PER_CARD = 10
@@ -37,22 +39,23 @@ class Checked:
     is_image: bool
 
 
-def _bad(message: str) -> HTTPException:
-    return HTTPException(status.HTTP_400_BAD_REQUEST, message)
+def _bad(message: str, **params: object) -> HTTPException:
+    return HTTPException(status.HTTP_400_BAD_REQUEST, tr(message, **params))
 
 
 def require_length(request: Request, limit: int) -> None:
     """Reject uploads without a Content-Length or larger than the limit, before reading them."""
     length = request.headers.get("content-length")
     if length is None:
-        raise HTTPException(status.HTTP_411_LENGTH_REQUIRED, "Upload size is required")
+        raise HTTPException(status.HTTP_411_LENGTH_REQUIRED, tr("Upload size is required"))
     if int(length) > limit + FORM_OVERHEAD:
         raise too_large(limit)
 
 
 def too_large(limit: int) -> HTTPException:
     return HTTPException(
-        status.HTTP_413_CONTENT_TOO_LARGE, f"File is too large. The limit is {limit // MB or 1} MB."
+        status.HTTP_413_CONTENT_TOO_LARGE,
+        tr("File is too large. The limit is {mb} MB.", mb=limit // MB or 1),
     )
 
 
@@ -83,9 +86,9 @@ def check_attachment(name: str, data: bytes) -> Checked:
     if ext in OFFICE:
         prefix, content_type = OFFICE[ext]
         if not _zip_has(data, prefix):
-            raise _bad(f"This file is not a valid {ext.upper()} document.")
+            raise _bad("This file is not a valid {kind} document.", kind=ext.upper())
         return Checked(data, content_type, False)
-    raise _bad(f"This file type isn't allowed. Allowed types: {ALLOWED}.")
+    raise _bad("This file type isn't allowed. Allowed types: {types}.", types=ALLOWED)
 
 
 def _zip_has(data: bytes, prefix: str) -> bool:

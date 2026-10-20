@@ -74,7 +74,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [x] Request size checked before reading the whole body (no memory exhaustion) (SEC-140)
 - [x] Storage credentials only in `.env` / Vercel settings; local storage folder git-ignored (SEC-141)
 - [x] Focus timer stores only timer state in the browser; no personal data (SEC-142)
-- [ ] Translations are plain text (no HTML); the language value is checked against `en` / `ar` on the server and the browser (SEC-143)
+- [x] Translations are plain text (no HTML); the language value is checked against `en` / `ar` on the server and the browser (SEC-143)
 
 ## 6. Rate limiting
 
@@ -147,7 +147,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [ ] Icon buttons have `aria-label`; live region announces drag results and toasts (NFR-14)
 - [ ] Animations respect `prefers-reduced-motion` (NFR-15)
 - [ ] No violations from `@axe-core/playwright` on auth, board and card modal screens (NFR-16)
-- [ ] `<html lang>` and `dir` always match the chosen language, so screen readers use the right voice and reading order (NFR-17)
+- [x] `<html lang>` and `dir` always match the chosen language, so screen readers use the right voice and reading order (NFR-17)
 
 ## Usability and responsiveness
 
@@ -156,7 +156,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [ ] Works in current Chrome, Firefox, Safari and Edge (NFR-22)
 - [ ] Every feature works at 360, 768, 1024 and 1440 px, in light and dark themes, in English and Arabic (NFR-23)
 - [ ] Touch: cards and columns can be dragged on phones and tablets without blocking page scrolling; tap targets at least 40 px (NFR-24)
-- [ ] Arabic layout is fully right-to-left with no mixed-direction glitches; user-typed names display correctly in either direction (NFR-25)
+- [x] Arabic layout is fully right-to-left with no mixed-direction glitches; user-typed names display correctly in either direction (NFR-25)
 
 ## Reliability and operations
 

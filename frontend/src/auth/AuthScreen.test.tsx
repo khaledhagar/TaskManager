@@ -25,6 +25,7 @@ const user: User = {
   email_verified: true,
   has_password: true,
   google_linked: false,
+  language: 'en',
 }
 
 function go(path: string) {

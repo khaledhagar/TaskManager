@@ -158,11 +158,11 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-183 Local storage put / get / delete and missing-key behaviour
 
 ### A15. Languages (Phase 11)
-- [ ] T-190 `Accept-Language: ar` returns Arabic server messages (sign-in failure, limits, not found); unknown languages fall back to English
-- [ ] T-191 `PATCH /auth/me` saves `language` (`en` or `ar` only, else 422) and `GET /auth/me` returns it (SEC-143)
-- [ ] T-192 Verification and reset emails are sent in the user's language
-- [ ] T-193 New users and guests get the demo board in their language; templates are created in the requested language
-- [ ] T-194 AI prompts ask for answers in the user's language (checklist, board starter, chat)
+- [x] T-190 `Accept-Language: ar` returns Arabic server messages (sign-in failure, limits, not found); unknown languages fall back to English
+- [x] T-191 `PATCH /auth/me` saves `language` (`en` or `ar` only, else 422) and `GET /auth/me` returns it (SEC-143)
+- [x] T-192 Verification and reset emails are sent in the user's language
+- [x] T-193 New users and guests get the demo board in their language; templates are created in the requested language
+- [x] T-194 AI prompts ask for answers in the user's language (checklist, board starter, chat)
 
 ## B. Frontend unit tests (`frontend/src/**/*.test.tsx`)
 
@@ -197,13 +197,13 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-228 Timer: 25/5 and 50/10 modes; switching mode resets cleanly
 - [x] T-229 Timer: pause keeps the remaining time; skip moves to the other phase
 - [x] T-230 Timer: tab title shows time left; phase change announced once; mute stops the chime
-- [ ] T-240 Dictionaries: Arabic has every English key and the same placeholders; no value contains HTML (SEC-143)
-- [ ] T-241 `t()` fills placeholders; plurals follow Arabic rules for 0, 1, 2, 3, 11 and 100 items
-- [ ] T-242 Dates and numbers format per language (Arabic month names; Western digits by default)
-- [ ] T-243 Language button switches all visible text, sets `<html lang dir>`, saves the choice in the browser and on the account, and is restored on reload (NFR-17)
-- [ ] T-244 Sign-in screen offers the language button before sign-in; requests send `Accept-Language`
-- [ ] T-245 No hard-coded user-facing English left in components (checked by a test over the source)
-- [ ] T-246 Direction-dependent icons are mirrored in RTL
+- [x] T-240 Dictionaries: Arabic has every English key and the same placeholders; no value contains HTML (SEC-143)
+- [x] T-241 `t()` fills placeholders; plurals follow Arabic rules for 0, 1, 2, 3, 11 and 100 items
+- [x] T-242 Dates and numbers format per language (Arabic month names; Western digits by default)
+- [x] T-243 Language button switches all visible text, sets `<html lang dir>`, saves the choice in the browser and on the account, and is restored on reload (NFR-17)
+- [x] T-244 Sign-in screen offers the language button before sign-in; requests send `Accept-Language`
+- [x] T-245 No hard-coded user-facing English left in components (checked by a test over the source)
+- [x] T-246 Direction-dependent icons are mirrored in RTL
 - [x] T-231 Timer is off by default (only the Focus timer button shows); turning it on shows the panel; turning it off stops it, clears it and hides it; the choice survives a reload
 
 ## C. End-to-end tests (Playwright, `frontend/e2e/`)

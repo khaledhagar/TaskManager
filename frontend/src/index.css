@@ -1,4 +1,7 @@
 @import "@fontsource-variable/instrument-sans";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-400.css";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-500.css";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-600.css";
 @import "./styles/tokens.css";
 
 *,
@@ -57,6 +60,11 @@ button {
 :focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
+}
+
+/* Icons that point a direction (skip, text lines) face the other way in right-to-left. */
+[dir='rtl'] .flip-rtl {
+  transform: scaleX(-1);
 }
 
 .visually-hidden {

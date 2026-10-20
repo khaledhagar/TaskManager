@@ -9,6 +9,7 @@ from app import files
 from app.access import owned_card
 from app.auth import CurrentUser
 from app.db import SessionDep
+from app.i18n import tr
 from app.models import Attachment, Board, BoardColumn, Card, User
 from app.schemas import AttachmentOut
 from app.storage import new_key
@@ -34,7 +35,8 @@ def check_quota(session: Session, user: User, extra: int) -> None:
     if used_bytes(session, user) + extra > quota_for(user):
         limit = quota_for(user) // files.MB
         raise HTTPException(
-            status.HTTP_400_BAD_REQUEST, f"Not enough storage left. Your limit is {limit} MB."
+            status.HTTP_400_BAD_REQUEST,
+            tr("Not enough storage left. Your limit is {mb} MB.", mb=limit),
         )
 
 
@@ -57,7 +59,7 @@ def owned_attachment(session: Session, user: User, attachment_id: int) -> Attach
     )
     attachment = session.exec(stmt).first()
     if attachment is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Not found")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, tr("Not found"))
     return attachment
 
 
@@ -70,7 +72,7 @@ async def upload_attachment(
     if len(card.attachments) >= files.MAX_PER_CARD:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            f"Limit reached: at most {files.MAX_PER_CARD} files per card",
+            tr("Limit reached: at most {cap} files per card", cap=files.MAX_PER_CARD),
         )
     name = files.safe_filename(file.filename or "file")
     checked = files.check_attachment(name, data)
@@ -102,7 +104,7 @@ def download_attachment(
     attachment = owned_attachment(session, user, attachment_id)
     data = request.app.state.storage.get(attachment.storage_key)
     if data is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Not found")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, tr("Not found"))
     disposition = "inline" if inline and attachment.is_image else "attachment"
     return Response(
         data,

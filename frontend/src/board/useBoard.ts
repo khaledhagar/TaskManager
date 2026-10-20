@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { boards, type Attachment, type Background, type Board, type Card, type CardPatch, type LabelColor } from '../api/boards'
 import { files } from '../api/files'
+import { t } from '../i18n/language'
 import { useToast } from '../ui/toastContext'
 import * as logic from './logic'
 
@@ -83,7 +84,7 @@ export function useBoard(boardId: number) {
       message: label,
       duration: UNDO_MS,
       action: {
-        label: 'Undo',
+        label: t('board.undo'),
         onClick: () => {
           clearTimeout(timer)
           pending.current.delete(key)
@@ -119,7 +120,7 @@ export function useBoard(boardId: number) {
       commit(logic.removeColumn(b, columnId))
       deleteLater(
         `column-${columnId}`,
-        `Column "${column.title}" deleted`,
+        t('board.columnDeleted', { title: column.title }),
         () => boards.removeColumn(columnId),
         () => commit(logic.insertColumn(ref.current!, index, column)),
       )
@@ -142,7 +143,7 @@ export function useBoard(boardId: number) {
       commit(logic.removeCard(ref.current!, cardId))
       deleteLater(
         `card-${cardId}`,
-        'Card deleted',
+        t('board.cardDeleted'),
         () => boards.removeCard(cardId),
         () => commit(logic.insertCard(ref.current!, found.column.id, found.index, found.card)),
       )

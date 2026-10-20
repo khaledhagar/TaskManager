@@ -8,6 +8,7 @@ from app import auth, google
 from app.config import Settings
 from app.db import SessionDep, make_engine
 from app.frontend import mount_frontend
+from app.i18n import add_language
 from app.mailer import Mailer
 from app.middleware import add_origin_check
 from app.routes import account, ai, background, boards, cards
@@ -35,6 +36,7 @@ def create_app(settings: Settings) -> FastAPI:
         https_only=settings.production,
     )
     add_origin_check(app, settings)
+    add_language(app)
     with Session(app.state.engine, info={"storage": app.state.storage}) as session:
         cleanup_guests(session)
 

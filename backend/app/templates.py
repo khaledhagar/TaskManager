@@ -1,12 +1,14 @@
-"""Board templates as plain data. `due` is a day offset from today."""
+"""Board templates as plain data, per language. `due` is a day offset from today."""
 
-DEFAULT_COLUMNS = [{"title": t, "cards": []} for t in ("To Do", "In Progress", "Done")]
+from app.templates_ar import AR_COLUMNS, AR_TEMPLATES
 
-TEMPLATES: dict[str, dict] = {
+EN_COLUMNS = ("To Do", "In Progress", "Done")
+
+EN_TEMPLATES: dict[str, dict] = {
     "blank": {
         "title": "Untitled board",
         "labels": [],
-        "columns": DEFAULT_COLUMNS,
+        "columns": [{"title": t, "cards": []} for t in EN_COLUMNS],
     },
     "demo": {
         "title": "Website Launch",
@@ -160,3 +162,6 @@ TEMPLATES: dict[str, dict] = {
 }
 
 USER_TEMPLATES = ("blank", "sprint", "bug_tracking", "personal")
+
+TEMPLATES = {"en": EN_TEMPLATES, "ar": AR_TEMPLATES}
+DEFAULT_COLUMNS = {"en": EN_COLUMNS, "ar": AR_COLUMNS}

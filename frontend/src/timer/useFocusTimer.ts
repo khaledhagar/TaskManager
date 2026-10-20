@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '../i18n/context'
+import { t } from '../i18n/language'
 import * as logic from './logic'
 import { playChime } from './sound'
 
 const KEY = 'focusTimer'
-const APP_TITLE = 'Task Manager'
 
 function read(): logic.TimerState {
   try {
@@ -16,8 +17,8 @@ function read(): logic.TimerState {
 function message(event: logic.TimerEvent, state: logic.TimerState): string {
   const minutes = logic.MODES[state.mode].break / 60_000
   return event === 'focus-ended'
-    ? `Focus time is over. Take a ${minutes}-minute break.`
-    : "Break is over. Start your next focus when you're ready."
+    ? t('timer.focusOver', { minutes })
+    : t('timer.breakOver')
 }
 
 /** Focus timer state saved per browser, with chime, notification, tab title and announcements. */
@@ -41,16 +42,16 @@ export function useFocusTimer() {
   useEffect(() => {
     if (state.status !== 'running') return
     function step() {
-      const t = Date.now()
-      setNow(t)
-      const { state: next, event } = logic.tick(latest.current, t)
+      const at = Date.now()
+      setNow(at)
+      const { state: next, event } = logic.tick(latest.current, at)
       if (!event) return
       update(next)
       const text = message(event, next)
       setAnnouncement(text)
       if (!next.muted) playChime()
       if (next.notify && 'Notification' in window && Notification.permission === 'granted') {
-        new Notification(APP_TITLE, { body: text })
+        new Notification(t('app.title'), { body: text })
       }
     }
     step()
@@ -61,13 +62,13 @@ export function useFocusTimer() {
   const left = logic.remaining(state, now)
   const showing = state.enabled && (state.status === 'running' || state.status === 'paused')
 
+  const { lang } = useI18n()
   useEffect(() => {
-    document.title = showing
-      ? `${logic.format(left)} ${state.phase === 'focus' ? 'Focus' : 'Break'} - ${APP_TITLE}`
-      : APP_TITLE
-  }, [showing, left, state.phase])
+    const phase = t(state.phase === 'focus' ? 'timer.focus' : 'timer.break')
+    document.title = showing ? `${logic.format(left)} ${phase} - ${t('app.title')}` : t('app.title')
+  }, [showing, left, state.phase, lang])
 
-  useEffect(() => () => void (document.title = APP_TITLE), [])
+  useEffect(() => () => void (document.title = t('app.title')), [])
 
   const act = (fn: (s: logic.TimerState, t: number) => logic.TimerState) => () => {
     const t = Date.now()

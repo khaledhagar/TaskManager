@@ -7,7 +7,7 @@ import css from './board.module.css'
  */
 export function Markdown({ text }: { text: string }) {
   return (
-    <div className={css.markdown}>
+    <div className={css.markdown} dir="auto">
       <ReactMarkdown
         components={{
           a: ({ href, children }) => (

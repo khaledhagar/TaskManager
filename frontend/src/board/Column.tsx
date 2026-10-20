@@ -2,6 +2,7 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, MoreHorizontal, Plus } from 'lucide-react'
 import type { Card, Column as ColumnType, Label } from '../api/boards'
+import { useI18n } from '../i18n/context'
 import { InlineText } from '../ui/InlineText'
 import { Menu } from '../ui/Menu'
 import css from './board.module.css'
@@ -29,6 +30,7 @@ export function Column({ column, cards, labels, actions, dragDisabled, filtering
     data: { type: 'column', columnId: column.id },
     disabled: dragDisabled,
   })
+  const { t } = useI18n()
 
   return (
     <section
@@ -44,7 +46,7 @@ export function Column({ column, cards, labels, actions, dragDisabled, filtering
             type="button"
             ref={setActivatorNodeRef}
             className={css.grip}
-            aria-label={`Move column ${column.title}`}
+            aria-label={t('column.move', { title: column.title })}
             {...attributes}
             {...listeners}
           >
@@ -54,23 +56,23 @@ export function Column({ column, cards, labels, actions, dragDisabled, filtering
         <h2 className={css.columnTitle}>
           <InlineText
             value={column.title}
-            label={`Rename column ${column.title}`}
+            label={t('column.rename', { title: column.title })}
             className={css.columnTitleButton}
             inputClassName={css.columnTitleInput}
             onSave={(title) => actions.renameColumn(column.id, title)}
           />
         </h2>
-        <span className={css.count} aria-label={`${cards.length} cards`}>
+        <span className={css.count} aria-label={t('column.cardCount', { count: cards.length })}>
           {cards.length}
         </span>
         <Menu
-          label={`Column options: ${column.title}`}
+          label={t('column.options', { title: column.title })}
           align="end"
           triggerClassName={css.columnMenu}
           trigger={<MoreHorizontal size={16} aria-hidden="true" />}
           items={[
-            { kind: 'action', label: 'Add card', onSelect: () => onCompose(true) },
-            { kind: 'action', label: 'Delete column', danger: true, onSelect: () => actions.deleteColumn(column.id) },
+            { kind: 'action', label: t('column.addCard'), onSelect: () => onCompose(true) },
+            { kind: 'action', label: t('column.delete'), danger: true, onSelect: () => actions.deleteColumn(column.id) },
           ]}
         />
       </header>
@@ -88,7 +90,7 @@ export function Column({ column, cards, labels, actions, dragDisabled, filtering
               onToggle={() => actions.updateCard(card.id, { completed: !card.completed })}
             />
           ))}
-          {cards.length === 0 && !composing ? <li className={css.emptyColumn}>{filtering ? 'No matching cards' : 'No cards here yet'}</li> : null}
+          {cards.length === 0 && !composing ? <li className={css.emptyColumn}>{t(filtering ? 'column.noMatches' : 'column.empty')}</li> : null}
         </ul>
       </SortableContext>
 
@@ -97,7 +99,7 @@ export function Column({ column, cards, labels, actions, dragDisabled, filtering
       ) : (
         <button type="button" className={css.addCard} onClick={() => onCompose(true)}>
           <Plus size={16} aria-hidden="true" />
-          Add card
+          {t('column.addCard')}
         </button>
       )}
     </section>

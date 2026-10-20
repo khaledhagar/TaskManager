@@ -8,6 +8,7 @@ from fastapi import HTTPException, status
 from pydantic import BaseModel
 
 from app.ai import BAD_ANSWER_MESSAGE
+from app.i18n import current_language, tr
 from app.models import Board, Card, Priority
 from app.templates import DEFAULT_COLUMNS
 
@@ -89,13 +90,18 @@ def _clip(text: str, limit: int) -> str:
 
 
 def _bad_answer() -> HTTPException:
-    return HTTPException(status.HTTP_502_BAD_GATEWAY, BAD_ANSWER_MESSAGE)
+    return HTTPException(status.HTTP_502_BAD_GATEWAY, tr(BAD_ANSWER_MESSAGE))
+
+
+def _answer_language() -> str:
+    """Prompt line asking for answers in the request language."""
+    return "Answer in Arabic." if current_language() == "ar" else "Answer in English."
 
 
 def checklist_messages(card: Card) -> list[dict]:
     data = json.dumps({"title": card.title, "details": card.details[:2000]})
     return [
-        {"role": "system", "content": CHECKLIST_PROMPT},
+        {"role": "system", "content": f"{CHECKLIST_PROMPT}\n{_answer_language()}"},
         {"role": "user", "content": f"<card>{data}</card>"},
     ]
 
@@ -109,7 +115,7 @@ def clean_checklist(draft: ChecklistDraft) -> list[str]:
 
 def board_messages(description: str) -> list[dict]:
     return [
-        {"role": "system", "content": BOARD_PROMPT},
+        {"role": "system", "content": f"{BOARD_PROMPT}\n{_answer_language()}"},
         {"role": "user", "content": f"<description>{description}</description>"},
     ]
 
@@ -136,12 +142,12 @@ def clean_board(draft: BoardDraft) -> dict:
     if not columns:
         raise _bad_answer()
     titles = {c["title"].lower() for c in columns}
-    for default in DEFAULT_COLUMNS:
+    for default in DEFAULT_COLUMNS[current_language()]:
         if len(columns) >= 3:
             break
-        if default["title"].lower() not in titles:
-            columns.append({"title": default["title"], "cards": []})
-    return {"title": _clip(draft.title, 200) or "AI board", "columns": columns}
+        if default.lower() not in titles:
+            columns.append({"title": default, "cards": []})
+    return {"title": _clip(draft.title, 200) or tr("AI board"), "columns": columns}
 
 
 def board_context(board: Board) -> dict:
@@ -175,6 +181,7 @@ def chat_messages(board: Board, history: list[dict]) -> list[dict]:
     system = CHAT_PROMPT.format(
         today=date.today().isoformat(), board=json.dumps(board_context(board))
     )
+    system = f"{system}\n{_answer_language()}"
     return [{"role": "system", "content": system}, *history[-HISTORY:]]
 
 

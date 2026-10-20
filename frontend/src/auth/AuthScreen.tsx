@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { auth, GOOGLE_LOGIN_URL, type User } from '../api/auth'
 import { ApiError } from '../api/client'
+import { useI18n } from '../i18n/context'
 import { navigate, useLocation } from '../lib/router'
 import { Field } from '../ui/Field'
 import { Link } from '../ui/Link'
@@ -15,15 +16,14 @@ type Errors = { email?: string | null; password?: string | null }
 /** Sign in at /signin, sign up at /signup; Google and guest are offered on both. */
 export function AuthScreen({ onSignedIn }: { onSignedIn: (user: User) => void }) {
   const { path, params } = useLocation()
+  const { t, rich } = useI18n()
   const signup = path === '/signup'
   const [google, setGoogle] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<Errors>({})
   const [formError, setFormError] = useState<string | null>(
-    params.get('error') === 'google'
-      ? "Google sign-in didn't complete. Try again, or use your email."
-      : null,
+    params.get('error') === 'google' ? t('auth.googleFailed') : null,
   )
   const [unverified, setUnverified] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -68,13 +68,13 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: (user: User) => void })
 
   return (
     <AuthLayout
-      title={signup ? 'Create your account' : 'Sign in to Task Manager'}
-      intro={signup ? 'Free to use. Your boards are visible only to you.' : undefined}
+      title={t(signup ? 'auth.signUpTitle' : 'auth.signInTitle')}
+      intro={signup ? t('auth.signUpIntro') : undefined}
     >
       {google ? (
         <>
           <GoogleButton href={GOOGLE_LOGIN_URL} />
-          <div className={css.divider}>or use your email</div>
+          <div className={css.divider}>{t('auth.orEmail')}</div>
         </>
       ) : null}
 
@@ -86,18 +86,18 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: (user: User) => void })
         ) : null}
         {unverified ? (
           <p className={ui.notice} role="status">
-            Verify your email to sign in.{' '}
+            {t('auth.verifyToSignIn')}{' '}
             <button
               type="button"
               className={ui.linkButton}
               onClick={() => navigate(`/check-inbox?${new URLSearchParams({ email: email.trim() })}`)}
             >
-              Send a new link
+              {t('auth.sendNewLink')}
             </button>
           </p>
         ) : null}
         <Field
-          label="Email"
+          label={t('auth.email')}
           type="email"
           autoComplete="email"
           value={email}
@@ -105,21 +105,21 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: (user: User) => void })
           error={errors.email}
         />
         <Field
-          label="Password"
+          label={t('auth.password')}
           type="password"
           autoComplete={signup ? 'new-password' : 'current-password'}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
-          hint={signup ? 'At least 8 characters.' : undefined}
+          hint={signup ? t('auth.passwordHint') : undefined}
         />
         {signup ? null : (
           <Link to="/forgot-password" className={css.forgot}>
-            Forgot password?
+            {t('auth.forgot')}
           </Link>
         )}
         <button className={`${ui.button} ${ui.primary} ${ui.full}`} disabled={busy}>
-          {signup ? 'Create account' : 'Sign in'}
+          {t(signup ? 'auth.createAccount' : 'auth.signIn')}
         </button>
       </form>
 
@@ -130,14 +130,19 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: (user: User) => void })
           onClick={continueAsGuest}
           disabled={busy}
         >
-          Continue as guest
+          {t('auth.guest')}
         </button>
-        <p className={ui.hint}>Try it without an account. Guest boards are removed after 7 days.</p>
+        <p className={ui.hint}>{t('auth.guestHint')}</p>
       </div>
 
       <p className={css.switch}>
-        {signup ? 'Already have an account? ' : 'New here? '}
-        <Link to={signup ? '/signin' : '/signup'}>{signup ? 'Sign in' : 'Create an account'}</Link>
+        {rich(signup ? 'auth.haveAccount' : 'auth.newHere', {
+          link: (
+            <Link to={signup ? '/signin' : '/signup'}>
+              {t(signup ? 'auth.signIn' : 'auth.createAnAccount')}
+            </Link>
+          ),
+        })}
       </p>
     </AuthLayout>
   )

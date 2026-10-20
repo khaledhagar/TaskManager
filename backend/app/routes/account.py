@@ -7,6 +7,7 @@ from app import email_tokens
 from app.account import send_reset, send_verification
 from app.auth import CurrentUser, Password, UserOut, start_session
 from app.db import SessionDep
+from app.i18n import tr
 from app.models import TokenPurpose, User
 from app.schemas import Strict
 from app.security import hash_password, verify_password
@@ -46,7 +47,7 @@ class Answer(BaseModel):
 def _consume(session: SessionDep, token: str, purpose: TokenPurpose) -> User:
     user = email_tokens.consume(session, token, purpose)
     if user is None:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, INVALID_LINK)
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, tr(INVALID_LINK))
     return user
 
 
@@ -68,7 +69,7 @@ def resend_verification(body: EmailIn, request: Request, session: SessionDep) ->
     user = find_by_email(session, body.email.lower())
     if user and not user.email_verified and user.password_hash:
         send_verification(request, session, user)
-    return Answer(detail=RESEND_ANSWER)
+    return Answer(detail=tr(RESEND_ANSWER))
 
 
 @router.post("/forgot-password", status_code=202)
@@ -76,7 +77,7 @@ def forgot_password(body: EmailIn, request: Request, session: SessionDep) -> Ans
     user = find_by_email(session, body.email.lower())
     if user:
         send_reset(request, session, user)
-    return Answer(detail=RESET_ANSWER)
+    return Answer(detail=tr(RESET_ANSWER))
 
 
 @router.post("/reset-password")
@@ -98,7 +99,7 @@ def change_password(
 ) -> UserOut:
     """Change (or, for Google-only accounts, set) the password; other sessions end."""
     if user.password_hash and not verify_password(body.current_password or "", user.password_hash):
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Current password is incorrect")
+        raise HTTPException(status.HTTP_403_FORBIDDEN, tr("Current password is incorrect"))
     user.password_hash = hash_password(body.new_password)
     user.token_version += 1
     session.commit()

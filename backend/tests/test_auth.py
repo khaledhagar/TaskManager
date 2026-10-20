@@ -99,6 +99,7 @@ def test_me_shows_account_details(client):
         "email_verified": True,
         "has_password": True,
         "google_linked": False,
+        "language": "en",
     }
 
 

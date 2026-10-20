@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { useI18n } from '../i18n/context'
 import { Dialog } from '../ui/Dialog'
 import dialog from '../ui/dialog.module.css'
 import { Field } from '../ui/Field'
@@ -8,14 +9,16 @@ type Props = { open: boolean; onClose: () => void; onCreate: (title: string) => 
 
 /** Name a new board; it starts with To Do, In Progress and Done. */
 export function NewBoardDialog({ open, onClose, onCreate }: Props) {
+  const { t } = useI18n()
   return (
-    <Dialog open={open} onClose={onClose} title="New board">
+    <Dialog open={open} onClose={onClose} title={t('shell.newBoard')}>
       <NewBoardForm onClose={onClose} onCreate={onCreate} />
     </Dialog>
   )
 }
 
 function NewBoardForm({ onClose, onCreate }: Omit<Props, 'open'>) {
+  const { t } = useI18n()
   const [title, setTitle] = useState('')
   const [fieldError, setFieldError] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -23,7 +26,7 @@ function NewBoardForm({ onClose, onCreate }: Omit<Props, 'open'>) {
 
   async function submit(event: FormEvent) {
     event.preventDefault()
-    if (!title.trim()) return setFieldError('Give the board a name.')
+    if (!title.trim()) return setFieldError(t('newBoard.nameMissing'))
     setBusy(true)
     try {
       await onCreate(title.trim())
@@ -42,21 +45,21 @@ function NewBoardForm({ onClose, onCreate }: Omit<Props, 'open'>) {
         </p>
       ) : null}
       <Field
-        label="Board name"
+        label={t('newBoard.name')}
         value={title}
         maxLength={200}
         autoFocus
-        placeholder="Q4 roadmap"
+        placeholder={t('newBoard.placeholder')}
         onChange={(e) => setTitle(e.target.value)}
         error={fieldError}
-        hint="Starts with To Do, In Progress and Done. You can rename or add columns later."
+        hint={t('newBoard.hint')}
       />
       <div className={dialog.actions}>
         <button type="button" className={`${ui.button} ${ui.secondary}`} onClick={onClose}>
-          Cancel
+          {t('ui.cancel')}
         </button>
         <button className={`${ui.button} ${ui.primary}`} disabled={busy}>
-          Create board
+          {t('newBoard.create')}
         </button>
       </div>
     </form>

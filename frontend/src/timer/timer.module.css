@@ -44,7 +44,7 @@
   position: absolute;
   z-index: 30;
   top: calc(100% + 8px);
-  right: 0;
+  inset-inline-end: 0;
   display: grid;
   gap: 12px;
   width: 300px;
@@ -129,9 +129,9 @@
   .panel {
     position: fixed;
     top: auto;
-    right: 16px;
+    inset-inline-end: 16px;
     bottom: 16px;
-    left: 16px;
+    inset-inline-start: 16px;
     width: auto;
   }
 }

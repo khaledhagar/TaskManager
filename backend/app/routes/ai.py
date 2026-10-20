@@ -58,7 +58,7 @@ def board_starter(
     body: BoardPrompt, request: Request, user: CurrentUser, session: SessionDep
 ) -> BoardSummary:
     count = session.exec(select(func.count()).where(Board.owner_id == user.id)).one()
-    limits.check(count, limits.BOARDS_PER_USER, "boards")
+    limits.check(count, limits.BOARDS_PER_USER, "Limit reached: at most {cap} boards")
     messages = assistant.board_messages(body.description)
     draft = ai.complete(messages, assistant.BoardDraft, _key(request))
     board = build_from_data(session, user.id, assistant.clean_board(draft))

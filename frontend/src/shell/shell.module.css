@@ -1,5 +1,6 @@
 .shell {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto 1fr;
   min-height: 100%;
 }
@@ -19,7 +20,7 @@
 
 .logo {
   display: inline-flex;
-  margin-right: 8px;
+  margin-inline-end: 8px;
 }
 
 .spacer {
@@ -30,7 +31,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  max-width: 320px;
+  max-width: min(320px, 100%);
   height: 36px;
   padding: 0 10px;
   border: 1px solid var(--border);
@@ -45,6 +46,7 @@
 }
 
 .switcherName {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -60,7 +62,7 @@
   place-items: center;
   width: 32px;
   height: 32px;
-  margin-left: 4px;
+  margin-inline-start: 4px;
   border: 0;
   border-radius: 50%;
   background: var(--brand-navy);
@@ -88,7 +90,7 @@
   display: inline-block;
   width: 8px;
   height: 8px;
-  margin-right: 8px;
+  margin-inline-end: 8px;
   border-radius: 50%;
   background: var(--accent);
   content: "";

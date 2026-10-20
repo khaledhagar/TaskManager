@@ -1,10 +1,12 @@
+import { t } from '../i18n/language'
+
 /** Client-side upload rules, mirroring the server so users learn about problems before uploading. */
 const MB = 1024 * 1024
 export const MAX_ATTACHMENT = 4 * MB
 export const MAX_PER_CARD = 10
 export const MAX_BACKGROUND_UPLOAD = 10 * MB
 export const BACKGROUND_EDGE = 2560
-export const PRESETS = ['navy', 'dusk', 'sky', 'meadow', 'sunrise', 'graphite']
+export const PRESETS = ['navy', 'dusk', 'sky', 'meadow', 'sunrise', 'graphite'] as const
 
 const ATTACHMENT_TYPES = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'pdf', 'txt', 'csv', 'docx', 'xlsx', 'pptx']
 const BACKGROUND_TYPES = ['jpg', 'jpeg', 'png', 'webp']
@@ -14,22 +16,22 @@ export const BACKGROUND_ACCEPT = 'image/jpeg,image/png,image/webp'
 const extension = (name: string) => (name.includes('.') ? name.split('.').pop()!.toLowerCase() : '')
 
 export function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < MB) return `${Math.round(bytes / 1024)} KB`
-  return `${(bytes / MB).toFixed(1)} MB`
+  if (bytes < 1024) return t('size.bytes', { size: bytes })
+  if (bytes < MB) return t('size.kb', { size: Math.round(bytes / 1024) })
+  return t('size.mb', { size: (bytes / MB).toFixed(1) })
 }
 
 /** Why this file cannot be attached, or null when it is fine. */
 export function attachmentError(file: File): string | null {
   if (!ATTACHMENT_TYPES.includes(extension(file.name)))
-    return 'This file type isn\'t allowed. Use images, PDF, text, CSV or Office files.'
-  if (file.size > MAX_ATTACHMENT) return `This file is ${formatSize(file.size)}. The limit is 4 MB.`
+    return t('upload.typeNotAllowed')
+  if (file.size > MAX_ATTACHMENT) return t('upload.fileTooBig', { size: formatSize(file.size) })
   return null
 }
 
 export function backgroundError(file: File): string | null {
-  if (!BACKGROUND_TYPES.includes(extension(file.name))) return 'Choose a JPG, PNG or WebP photo.'
-  if (file.size > MAX_BACKGROUND_UPLOAD) return `This photo is ${formatSize(file.size)}. The limit is 10 MB.`
+  if (!BACKGROUND_TYPES.includes(extension(file.name))) return t('upload.photoType')
+  if (file.size > MAX_BACKGROUND_UPLOAD) return t('upload.photoTooBig', { size: formatSize(file.size) })
   return null
 }
 
@@ -50,7 +52,7 @@ export async function shrinkImage(file: File): Promise<Blob> {
   bitmap.close()
   return new Promise((resolve, reject) =>
     canvas.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error("This photo couldn't be read."))),
+      (blob) => (blob ? resolve(blob) : reject(new Error(t('upload.photoUnreadable')))),
       'image/webp',
       0.85,
     ),

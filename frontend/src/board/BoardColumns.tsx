@@ -13,12 +13,14 @@ import {
   type DragOverEvent,
   type DragStartEvent,
 } from '@dnd-kit/core'
-import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
+import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable'
 import { useState, type ReactNode } from 'react'
 import type { Board } from '../api/boards'
+import { useI18n } from '../i18n/context'
 import css from './board.module.css'
 import { CardItem } from './CardItem'
 import { Column } from './Column'
+import { boardKeyboardCoordinates } from './keyboard'
 import { columnKey, findCard, matchesFilters, moveCard, type Filters } from './logic'
 import type { BoardActions } from './useBoard'
 
@@ -42,6 +44,7 @@ const parse = (key: string | number) => {
 
 /** Columns and cards with drag and drop (pointer and keyboard), saved when dropped. */
 export function BoardColumns({ board, actions, filters, dragDisabled, composingColumn, onCompose, onOpenCard, after }: Props) {
+  const { t } = useI18n()
   const [drag, setDrag] = useState<Drag>(null)
   const [preview, setPreview] = useState<Board | null>(null)
   const shown = preview ?? board
@@ -49,7 +52,7 @@ export function BoardColumns({ board, actions, filters, dragDisabled, composingC
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
+      coordinateGetter: boardKeyboardCoordinates,
       keyboardCodes: { start: ['Space'], cancel: ['Escape'], end: ['Space', 'Enter'] },
     }),
   )
@@ -115,18 +118,24 @@ export function BoardColumns({ board, actions, filters, dragDisabled, composingC
 
   const titleOf = (key: string | number) => {
     const { type, id } = parse(key)
-    if (type === 'column') return `column ${shown.columns.find((c) => c.id === id)?.title ?? ''}`
-    return `card ${findCard(shown, id)?.card.title ?? ''}`
+    if (type === 'column') return t('dnd.column', { title: shown.columns.find((c) => c.id === id)?.title ?? '' })
+    return t('dnd.card', { title: findCard(shown, id)?.card.title ?? '' })
   }
-  const where = (key: string | number) => {
-    const col = shown.columns.find((c) => c.id === columnOf(shown, key))
-    return col ? ` in column ${col.title}` : ''
-  }
+  const columnTitle = (key: string | number) => shown.columns.find((c) => c.id === columnOf(shown, key))?.title
   const announcements: Announcements = {
-    onDragStart: ({ active }) => `Picked up ${titleOf(active.id)}.`,
-    onDragOver: ({ active, over }) => (over ? `${titleOf(active.id)} is over ${titleOf(over.id)}${where(over.id)}.` : ''),
-    onDragEnd: ({ active, over }) => (over ? `Dropped ${titleOf(active.id)}${where(over.id)}.` : `Dropped ${titleOf(active.id)}.`),
-    onDragCancel: ({ active }) => `Cancelled. ${titleOf(active.id)} was not moved.`,
+    onDragStart: ({ active }) => t('dnd.pickedUp', { item: titleOf(active.id) }),
+    onDragOver: ({ active, over }) => {
+      if (!over) return ''
+      const column = columnTitle(over.id)
+      const params = { item: titleOf(active.id), target: titleOf(over.id) }
+      return column ? t('dnd.overIn', { ...params, column }) : t('dnd.over', params)
+    },
+    onDragEnd: ({ active, over }) => {
+      const column = over ? columnTitle(over.id) : undefined
+      const item = titleOf(active.id)
+      return column ? t('dnd.droppedIn', { item, column }) : t('dnd.dropped', { item })
+    },
+    onDragCancel: ({ active }) => t('dnd.cancelled', { item: titleOf(active.id) }),
   }
 
   const activeCard = drag?.type === 'card' ? findCard(shown, drag.id)?.card : undefined
@@ -135,7 +144,7 @@ export function BoardColumns({ board, actions, filters, dragDisabled, composingC
     <DndContext
       sensors={sensors}
       collisionDetection={collision}
-      accessibility={{ announcements }}
+      accessibility={{ announcements, screenReaderInstructions: { draggable: t('dnd.instructions') } }}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDragEnd={onDragEnd}

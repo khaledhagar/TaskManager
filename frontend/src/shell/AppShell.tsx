@@ -1,8 +1,10 @@
 import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import type { User } from '../api/auth'
+import { auth, type User } from '../api/auth'
 import { boards, type BoardSummary } from '../api/boards'
 import { BoardView } from '../board/BoardView'
+import { useI18n } from '../i18n/context'
+import { LanguageButton } from '../i18n/I18n'
 import { navigate, useLocation } from '../lib/router'
 import { Logo } from '../ui/Logo'
 import ui from '../ui/ui.module.css'
@@ -18,6 +20,7 @@ type Props = { user: User; onUserChange: (user: User) => void; onSignedOut: () =
 /** Signed-in frame: header with board switcher and account controls, then the board. */
 export function AppShell({ user, onUserChange, onSignedOut }: Props) {
   const { params } = useLocation()
+  const { t } = useI18n()
   const [list, setList] = useState<BoardSummary[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
@@ -60,8 +63,9 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
           onClick={() => setCreating(true)}
         >
           <Plus size={16} aria-hidden="true" />
-          <span>New board</span>
+          <span>{t('shell.newBoard')}</span>
         </button>
+        <LanguageButton onChange={(lang) => auth.setLanguage(lang).then(onUserChange)} />
         <ThemeToggle />
         <AccountMenu
           user={user}
@@ -73,11 +77,9 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
 
       {user.is_guest ? (
         <div className={css.guestBar}>
-          <span className={css.guestText}>
-            You're using a guest account. Guest boards are removed after 7 days.
-          </span>
+          <span className={css.guestText}>{t('shell.guestBar')}</span>
           <button type="button" className={ui.linkButton} onClick={() => setUpgrading(true)}>
-            Save your boards
+            {t('shell.saveBoards')}
           </button>
         </div>
       ) : null}
@@ -96,14 +98,14 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
           />
         ) : list?.length === 0 ? (
           <div className={css.empty}>
-            <h1>No boards yet</h1>
-            <p>Create a board to start planning.</p>
+            <h1>{t('shell.noBoards')}</h1>
+            <p>{t('shell.noBoardsHint')}</p>
             <button
               type="button"
               className={`${ui.button} ${ui.primary}`}
               onClick={() => setCreating(true)}
             >
-              New board
+              {t('shell.newBoard')}
             </button>
           </div>
         ) : null}

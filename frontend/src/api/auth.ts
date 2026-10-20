@@ -1,3 +1,4 @@
+import type { Language } from '../i18n/messages'
 import { api } from './client'
 
 export type User = {
@@ -7,6 +8,7 @@ export type User = {
   email_verified: boolean
   has_password: boolean
   google_linked: boolean
+  language: Language
 }
 
 export type Pending = { email: string; verification_required: true }
@@ -21,6 +23,7 @@ export const auth = {
   guest: () => api<User>('/auth/guest', { method: 'POST' }),
   upgrade: (body: Credentials) => api<Pending>('/auth/upgrade', { body }),
   signOut: () => api<void>('/auth/signout', { method: 'POST' }),
+  setLanguage: (language: Language) => api<User>('/auth/me', { method: 'PATCH', body: { language } }),
   deleteAccount: () => api<void>('/auth/me', { method: 'DELETE' }),
   verify: (token: string) => api<User>('/auth/verify', { body: { token } }),
   resend: (email: string) => api<Answer>('/auth/resend-verification', { body: { email } }),

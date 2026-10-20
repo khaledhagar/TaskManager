@@ -1,6 +1,7 @@
 import { X } from 'lucide-react'
 import { useState } from 'react'
 import type { Card, Label, LabelColor } from '../api/boards'
+import { useI18n } from '../i18n/context'
 import ui from '../ui/ui.module.css'
 import css from './board.module.css'
 import { LABEL_COLORS, LABEL_SWATCH } from './display'
@@ -10,6 +11,7 @@ type Props = { card: Card; labels: Label[]; actions: BoardActions }
 
 /** Toggle the board's labels on a card, create new ones, or delete them from the board. */
 export function LabelPicker({ card, labels, actions }: Props) {
+  const { t } = useI18n()
   const [name, setName] = useState('')
   const [color, setColor] = useState<LabelColor>('blue')
   const [confirmId, setConfirmId] = useState<number | null>(null)
@@ -31,12 +33,12 @@ export function LabelPicker({ card, labels, actions }: Props) {
 
   return (
     <fieldset className={css.labelBox}>
-      <legend className={ui.label}>Labels</legend>
+      <legend className={ui.label}>{t('labels.title')}</legend>
       <ul className={css.labelList}>
         {labels.map((l) =>
           confirmId === l.id ? (
             <li key={l.id} className={css.labelConfirm} role="alert">
-              <span>Remove "{l.name}" from all cards on this board?</span>
+              <span>{t('labels.removeConfirm', { name: l.name })}</span>
               <span className={css.inline}>
                 <button
                   type="button"
@@ -46,10 +48,10 @@ export function LabelPicker({ card, labels, actions }: Props) {
                     actions.deleteLabel(l.id)
                   }}
                 >
-                  Remove label
+                  {t('labels.remove')}
                 </button>
                 <button type="button" className={`${ui.button} ${ui.ghost}`} onClick={() => setConfirmId(null)}>
-                  Keep
+                  {t('ui.keep')}
                 </button>
               </span>
             </li>
@@ -58,12 +60,12 @@ export function LabelPicker({ card, labels, actions }: Props) {
             <label className={css.labelToggle}>
               <input type="checkbox" checked={card.label_ids.includes(l.id)} onChange={() => toggle(l.id)} />
               <span className={css.swatch} style={{ background: LABEL_SWATCH[l.color] }} />
-              {l.name}
+              <span dir="auto">{l.name}</span>
             </label>
             <button
               type="button"
               className={css.itemDelete}
-              aria-label={`Delete label ${l.name} from this board`}
+              aria-label={t('labels.delete', { name: l.name })}
               onClick={() => setConfirmId(l.id)}
             >
               <X size={14} aria-hidden="true" />
@@ -73,22 +75,23 @@ export function LabelPicker({ card, labels, actions }: Props) {
         )}
       </ul>
       <input
-        aria-label="New label name"
+        aria-label={t('labels.newName')}
+        dir="auto"
         className={ui.input}
-        placeholder="New label"
+        placeholder={t('labels.newPlaceholder')}
         maxLength={40}
         value={name}
         onChange={(e) => setName(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && create()}
       />
-      <div className={css.swatches} role="radiogroup" aria-label="Label color">
+      <div className={css.swatches} role="radiogroup" aria-label={t('labels.color')}>
         {LABEL_COLORS.map((c) => (
           <button
             key={c}
             type="button"
             role="radio"
             aria-checked={color === c}
-            aria-label={c}
+            aria-label={t(`color.${c}`)}
             className={css.swatchPick}
             style={{ background: LABEL_SWATCH[c] }}
             onClick={() => setColor(c)}
@@ -96,7 +99,7 @@ export function LabelPicker({ card, labels, actions }: Props) {
         ))}
       </div>
       <button type="button" className={`${ui.button} ${ui.secondary}`} onClick={create} disabled={!name.trim()}>
-        Add label
+        {t('labels.add')}
       </button>
     </fieldset>
   )

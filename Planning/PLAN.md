@@ -21,7 +21,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 8 - Board UI | 11 / 11 | Done |
 | Phase 9 - Files (attachments and board backgrounds) | 8 / 8 | Done |
 | Phase 10 - Focus Timer (Pomodoro) | 6 / 6 | Done |
-| Phase 11 - Languages: English and Arabic | 0 / 9 | Not started |
+| Phase 11 - Languages: English and Arabic | 9 / 9 | Done |
 | Phase 12 - AI UI | 0 / 4 | Not started |
 | Phase 13 - Polish | 0 / 8 | Not started |
 | Phase 14 - Security and Non-Functional Hardening | 0 / 5 | Not started |
@@ -346,15 +346,15 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 
 ## Phase 11 - Languages: English and Arabic
 
-- [ ] i18n core: `en` and `ar` dictionaries (typed, same keys and placeholders), `t()`, `useI18n()`, plural rules, date and number formatting
-- [ ] Language button ("العربية" / "English") in the app header and on the sign-in screens; choice saved in the browser and on the account; `<html lang dir>` updated
-- [ ] Every existing screen uses `t()`: sign-in and account pages, shell, board, card window, attachments, background picker, focus timer, toasts, shortcuts help
-- [ ] Right-to-left layout: CSS converted to logical properties; direction icons mirrored; drag and drop and keyboard moves work in RTL
-- [ ] Arabic font (IBM Plex Sans Arabic) self-hosted
-- [ ] Backend: `users.language`, `Accept-Language` handling, translated server messages, Arabic verification and reset emails, Arabic demo board and templates
-- [ ] AI prompts ask for answers in the user's language (used by Phase 12)
-- [ ] Unit tests for every rule above (frontend and backend)
-- [ ] Screenshots reviewed in Arabic at 360, 768 and 1440 px in light and dark themes
+- [x] i18n core: `en` and `ar` dictionaries (typed, same keys and placeholders), `t()`, `useI18n()`, plural rules, date and number formatting
+- [x] Language button ("العربية" / "English") in the app header and on the sign-in screens; choice saved in the browser and on the account; `<html lang dir>` updated
+- [x] Every existing screen uses `t()`: sign-in and account pages, shell, board, card window, attachments, background picker, focus timer, toasts, shortcuts help
+- [x] Right-to-left layout: CSS converted to logical properties; direction icons mirrored; drag and drop and keyboard moves work in RTL
+- [x] Arabic font (IBM Plex Sans Arabic) self-hosted
+- [x] Backend: `users.language`, `Accept-Language` handling, translated server messages, Arabic verification and reset emails, Arabic demo board and templates
+- [x] AI prompts ask for answers in the user's language (used by Phase 12)
+- [x] Unit tests for every rule above (frontend and backend)
+- [x] Screenshots reviewed in Arabic at 360, 768 and 1440 px in light and dark themes
 
 ## Phase 12 - AI UI
 

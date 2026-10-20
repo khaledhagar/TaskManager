@@ -1,5 +1,7 @@
 /** Pure board helpers: due dates, filters, progress, and immutable board edits. */
 import type { Board, Card, Column, Priority } from '../api/boards'
+import { formatDate } from '../i18n/core'
+import { currentLanguage, t } from '../i18n/language'
 
 export type DueStatus = 'none' | 'overdue' | 'soon' | 'later'
 export type Filters = {
@@ -31,16 +33,16 @@ export function dueStatus(due: string | null, completed: boolean, today = new Da
 
 export function dueLabel(due: string, today = new Date()): string {
   const days = daysFrom(today, due)
-  if (days === 0) return 'Today'
-  if (days === 1) return 'Tomorrow'
-  if (days === -1) return 'Yesterday'
+  if (days === 0) return t('due.today')
+  if (days === 1) return t('due.tomorrow')
+  if (days === -1) return t('due.yesterday')
   const [y, m, d] = due.split('-').map(Number)
   const sameYear = y === today.getFullYear()
-  return new Intl.DateTimeFormat('en', {
+  return formatDate(currentLanguage(), new Date(y, m - 1, d), {
     month: 'short',
     day: 'numeric',
     year: sameYear ? undefined : 'numeric',
-  }).format(new Date(y, m - 1, d))
+  })
 }
 
 export function filtersActive(f: Filters): boolean {

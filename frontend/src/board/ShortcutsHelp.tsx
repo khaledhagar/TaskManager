@@ -1,26 +1,30 @@
+import { useI18n } from '../i18n/context'
+import type { Key } from '../i18n/messages'
 import { Dialog } from '../ui/Dialog'
 import css from './board.module.css'
 
-const SHORTCUTS = [
-  ['N', 'Add a card to the first column'],
-  ['/', 'Search cards'],
-  ['?', 'Show these shortcuts'],
-  ['Esc', 'Close a window or cancel editing'],
-  ['Space', 'Pick up or drop a focused card or column'],
-  ['Arrow keys', 'Move a picked-up card or column'],
-  ['Enter', 'Open the focused card'],
+/** Each shortcut: the key (plain text or a message) and what it does. */
+const SHORTCUTS: [string | Key, Key][] = [
+  ['N', 'shortcuts.newCard'],
+  ['/', 'shortcuts.search'],
+  ['?', 'shortcuts.help'],
+  ['Esc', 'shortcuts.close'],
+  ['shortcuts.space', 'shortcuts.pickUp'],
+  ['shortcuts.arrows', 'shortcuts.move'],
+  ['shortcuts.enter', 'shortcuts.open'],
 ]
 
 export function ShortcutsHelp({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useI18n()
   return (
-    <Dialog open={open} onClose={onClose} title="Keyboard shortcuts">
+    <Dialog open={open} onClose={onClose} title={t('board.shortcuts')}>
       <dl className={css.shortcuts}>
         {SHORTCUTS.map(([key, text]) => (
           <div key={key} className={css.shortcut}>
             <dt>
-              <kbd className={css.kbd}>{key}</kbd>
+              <kbd className={css.kbd}>{key.startsWith('shortcuts.') ? t(key as Key) : key}</kbd>
             </dt>
-            <dd>{text}</dd>
+            <dd>{t(text)}</dd>
           </div>
         ))}
       </dl>
