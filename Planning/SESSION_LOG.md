@@ -5,15 +5,15 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 ## Where the project stands (2026-10-21)
 
 - Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
-- Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Phases 21-24 (voice; comments, activity, Alembic; notifications and reminders; organize) are done and pushed; Phase 21 waits only for the user's real-microphone check. Next: Phase 25 (list view and export), then Phase 26 (projects, start screen, AI column suggestions, full regression).** The user asked (2026-10-21) to build through Phase 26 without asking: finish each, test everything, push, update this log, then start the next. Stop before Phase 27 (Deployment). Phase 28 is Documentation (Word files). Deferred features are listed under "Deferred" in PLAN.md.
-- Tests at the end of Phase 24: backend 476 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 327 passing; Playwright 97 passing (Edge full suite, Firefox and WebKit smoke). Lint, format and type checks are clean.
-- Checklists: open tests are T-700 to T-714 (Phases 25-26), T-720 to T-737 (Phase 26), T-620 to T-627 (Phase 28).
+- Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Phases 21-25 (voice; comments, activity, Alembic; notifications and reminders; organize; list view and export) are done and pushed; Phase 21 waits only for the user's real-microphone check. Next: Phase 26 (projects, start screen, AI column suggestions, full regression).** The user asked (2026-10-21) to build through Phase 26 without asking: finish each, test everything, push, update this log, then start the next. Stop before Phase 27 (Deployment). Phase 28 is Documentation (Word files). Deferred features are listed under "Deferred" in PLAN.md.
+- Tests at the end of Phase 25: backend 488 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 336 passing; Playwright 101 passing (Edge full suite, Firefox and WebKit smoke). Lint, format and type checks are clean.
+- Checklists: open tests are T-714 and T-720 to T-737 (Phase 26), T-620 to T-627 (Phase 28).
 
 | Done | Phase |
 |------|-------|
 | Yes | 1 Scaffolding to 20 Public boards / assignment / meeting link |
-| Yes | 21 Voice (waits for the mic check), 22 Collaboration, 23 Notifications, 24 Organize |
-| Next | 25 List view and export, then 26 Projects and start screen (approved, building back to back) |
+| Yes | 21 Voice (waits for the mic check), 22 Collaboration, 23 Notifications, 24 Organize, 25 List view and export |
+| Next | 26 Projects, start screen and full regression (approved, building without asking) |
 | Later | 27 Deployment (Vercel), 28 Documentation (Word files) |
 
 ## How we work (the user's preferences)
@@ -116,6 +116,7 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 - **Voice input (Phase 21): built; waiting only for the user's real-microphone check in Edge or Chrome.** Design in "Voice Input Design" in PLAN.md, tests T-600 to T-614, security SEC-180 to SEC-183. Key point: the server's `Permissions-Policy` currently blocks the microphone (`microphone=()`); the phase changes it to `microphone=(self)`. Do not start until the user approves the plan.
 - **Documentation (Phase 28, after Deployment): planned.** Eight Word files in `Documentation/` (overview with short and long description, full documentation with features and target audience, test plan and test files, project plan, security, user flows, pages with screenshots, phases as build prompts). Design in "Documentation Design" in PLAN.md; tests T-620 to T-627; SEC-190. My calls (tell the user): made after Deployment so they describe the live app; English only; the test document lists every test file and its tests rather than printing all test code. Use the `anthropic-skills:docx` skill when building.
 - **Projects and start screen (Phase 26): requested 2026-10-21.** Design in "Projects and Start Screen Design" in PLAN.md; tests T-720 to T-737; SEC-215, SEC-216. My calls: own phase (too big for Phase 25); the full regression moved to the end of Phase 26; deleting a project keeps its boards; a new guest still lands on the demo board.
+- **List view and export (Phase 25) notes:** `?view=list` in the URL; `board/listLogic.ts` sorts (ties keep board order) and reuses the board filters; export at `GET /api/boards/{id}/export.csv|json` (any member), CSV with a byte order mark for Excel and formula cells prefixed with `'`, file named after the board (`filename*=UTF-8''...`).
 - **Organize (Phase 24) notes:** archived cards are filtered out by the `BoardColumn.cards` relationship itself (a second `archived_cards` relationship cascades deletes so their files are removed); archived cards do not count toward the 100-card limit; duplicate and template copies go through `app/organize.py` and `seed.build_from_data` (cards accept `due_date` as well as `due`); the board header keeps its actions at the end when it wraps so the timer panel opens on screen.
 - **Further features (Phases 22-25): approved 2026-10-21 after trimming.** Design in "Further Features Design (Phases 22-25)" in PLAN.md; tests T-640 to T-714; security SEC-200 to SEC-205, SEC-207, SEC-208, SEC-214. My calls: Alembic moves to the start of Phase 22; Viewers read but do not write comments; the notification count refreshes on load, focus and own actions (no timed polling).
 - Optional: 10 OpenRouter credits would raise the AI limit from 50 to 1,000 requests per day.

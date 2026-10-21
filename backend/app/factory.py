@@ -21,6 +21,7 @@ from app.routes import (
     boards,
     cards,
     comments,
+    export,
     invites,
     meeting,
     members,
@@ -72,7 +73,7 @@ def create_app(settings: Settings) -> FastAPI:
 
     routers = (auth, account, google_routes, boards, cards, ai, file_routes, background)
     sharing = (members, invites, public, meeting, comments, notifications)
-    for module in (*routers, *sharing, archive, organize):
+    for module in (*routers, *sharing, archive, organize, export):
         app.include_router(module.router)
     mount_frontend(app, settings.frontend_dist)
     return app

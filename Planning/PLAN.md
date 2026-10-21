@@ -35,7 +35,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 22 - Collaboration: Comments and Activity | 6 / 6 | Done |
 | Phase 23 - Notifications and Reminders | 4 / 4 | Done |
 | Phase 24 - Organize: Archive, Copies, Templates, Stars, WIP, Auto-complete, Covers, Focus Sessions | 6 / 6 | Done |
-| Phase 25 - List View and Export | 0 / 3 | Not started |
+| Phase 25 - List View and Export | 3 / 3 | Done |
 | Phase 26 - Projects, Start Screen and Full Regression | 0 / 8 | Not started |
 | Phase 27 - Deployment (Vercel) | 0 / 14 | Not started |
 | Phase 28 - Documentation (Word files) | 0 / 8 | Not started |
@@ -654,9 +654,9 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 
 ## Phase 25 - List View and Export
 
-- [ ] Board / List switch (URL `?view=`); list view sortable and filtered
-- [ ] Export CSV and JSON
-- [ ] Tests T-700 to T-713 pass; SEC-208 ticked
+- [x] Board / List switch (URL `?view=`); list view sortable and filtered
+- [x] Export CSV and JSON
+- [x] Tests T-700 to T-713 pass; SEC-208 ticked
 
 ## Phase 26 - Projects, Start Screen and Full Regression
 

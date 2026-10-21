@@ -17,7 +17,15 @@ type Options = {
   openTemplate: () => void
 }
 
-/** Board menu items, star, archived note and focus sessions (Phase 24). */
+/** The server sends the file as an attachment, so the page stays where it is. */
+function download(boardId: number, kind: 'csv' | 'json') {
+  const link = document.createElement('a')
+  link.href = `/api/boards/${boardId}/export.${kind}`
+  link.download = ''
+  link.click()
+}
+
+/** Board menu items, star, archived note, focus sessions and export (Phases 24-25). */
 export function boardOrganize({ board, actions, starred, toast, onUpdated, onCreated, openArchived, openTemplate }: Options) {
   const admin = board.role === 'admin'
   const failed = (e: Error) => toast({ message: e.message, tone: 'error' })
@@ -51,6 +59,8 @@ export function boardOrganize({ board, actions, starred, toast, onUpdated, onCre
     { kind: 'action', label: t('board.archivedCards'), onSelect: openArchived },
     { kind: 'action', label: t('board.duplicate'), onSelect: duplicate },
     { kind: 'action', label: t('board.saveTemplate'), onSelect: () => actions.allowed('editor') && openTemplate() },
+    { kind: 'action', label: t('board.exportCsv'), onSelect: () => download(board.id, 'csv') },
+    { kind: 'action', label: t('board.exportJson'), onSelect: () => download(board.id, 'json') },
     ...(admin
       ? [
           {

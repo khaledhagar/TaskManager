@@ -439,16 +439,16 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 
 ### E10. List view and export (Phase 25)
 
-- [ ] T-700 View switch Board / List kept in the URL
-- [ ] T-701 List view shows every card, sorts by each column and follows the filters
-- [ ] T-706 CSV export has every card; cells starting with = + - @ are escaped (SEC-208)
-- [ ] T-707 JSON export contains the board and member emails only (SEC-208)
-- [ ] T-708 Export only for members (404 otherwise)
-- [ ] T-709 E2E: switch to the list, sort it, open a card from it
-- [ ] T-710 E2E: download CSV and JSON
-- [ ] T-711 List view in Arabic, RTL, dark, phone width
-- [ ] T-712 Accessibility: no axe violations in the list view
-- [ ] T-713 List view stays fast with 100 cards
+- [x] T-700 View switch Board / List kept in the URL
+- [x] T-701 List view shows every card, sorts by each column and follows the filters
+- [x] T-706 CSV export has every card; cells starting with = + - @ are escaped (SEC-208)
+- [x] T-707 JSON export contains the board and member emails only (SEC-208)
+- [x] T-708 Export only for members (404 otherwise)
+- [x] T-709 E2E: switch to the list, sort it, open a card from it
+- [x] T-710 E2E: download CSV and JSON
+- [x] T-711 List view in Arabic, RTL, dark, phone width
+- [x] T-712 Accessibility: no axe violations in the list view
+- [x] T-713 List view stays fast with 100 cards
 
 ### E11. Projects, start screen and full regression (Phase 26)
 

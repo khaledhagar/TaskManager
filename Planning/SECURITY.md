@@ -171,7 +171,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [x] Scheduled job endpoints need `CRON_SECRET` (compared in constant time) (SEC-204)
 - [x] Activity log keeps only short metadata (no descriptions or comment text), members only, 1,000 per board (SEC-205)
 - [x] Duplicates and templates respect every limit; templates are private to their owner (SEC-207)
-- [ ] Exports for members only; CSV cells starting with = + - @ are escaped against spreadsheet formula injection (SEC-208)
+- [x] Exports for members only; CSV cells starting with = + - @ are escaped against spreadsheet formula injection (SEC-208)
 - [x] Focus sessions saved only for the signed-in user, at most 60 minutes each (SEC-214)
 - [ ] Projects are private to their owner (404 otherwise); a board joins a project only when the user is the board's admin and the project's owner; limits on projects, names, boards per project and columns (SEC-215)
 - [ ] AI column suggestions: at most 10 board names in, each answer validated (3-8 plain-text names, at most 40 characters), `max_tokens` set, AI rate limits apply, no card content is sent (SEC-216)

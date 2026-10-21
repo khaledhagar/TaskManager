@@ -5,7 +5,7 @@ import { ChatPanel } from '../ai/ChatPanel'
 import { Backdrop } from '../files/Backdrop'
 import { BackgroundPicker } from '../files/BackgroundPicker'
 import { useI18n } from '../i18n/context'
-import { useLocation } from '../lib/router'
+import { navigate, useLocation } from '../lib/router'
 import { MembersPanel } from '../sharing/MembersPanel'
 import { ActivityPanel } from '../collab/ActivityList'
 import { InlineText } from '../ui/InlineText'
@@ -18,6 +18,8 @@ import { BoardHeader } from './BoardHeader'
 import { boardOrganize } from './boardOrganize'
 import { CardModal } from './CardModal'
 import { FilterBar } from './FilterBar'
+import list from './list.module.css'
+import { ListView } from './ListView'
 import { EMPTY_FILTERS, filtersActive, findCard, matchesFilters } from './logic'
 import { ShortcutsHelp } from './ShortcutsHelp'
 import { TemplateDialog } from './TemplateDialog'
@@ -53,6 +55,14 @@ export function BoardView({ boardId, userId, isGuest, starred = false, onRenamed
     if (cardParam) setOpenCardId(cardParam)
   }
   const [composing, setComposing] = useState<number | null>(null)
+  // Board or List, kept in the URL so a link or reload keeps the view.
+  const view = params.get('view') === 'list' ? 'list' : 'board'
+  function setView(next: 'board' | 'list') {
+    const query = new URLSearchParams(params)
+    if (next === 'list') query.set('view', 'list')
+    else query.delete('view')
+    navigate(`/?${query}`, { replace: true })
+  }
   const [help, setHelp] = useState(false)
   const [picking, setPicking] = useState(false)
   const [chatting, setChatting] = useState(false)
@@ -127,6 +137,13 @@ export function BoardView({ boardId, userId, isGuest, starred = false, onRenamed
         searchRef={searchRef}
         me={userId}
       />
+      <div className={list.views} role="group" aria-label={t('view.label')}>
+        {(['board', 'list'] as const).map((v) => (
+          <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)}>
+            {t(v === 'board' ? 'view.board' : 'view.list')}
+          </button>
+        ))}
+      </div>
       {board.columns.length === 0 ? <p className={css.noResults}>{t('board.noColumns')}</p> : null}
       {filtering && shown === 0 ? (
         <p className={css.noResults}>
@@ -137,6 +154,9 @@ export function BoardView({ boardId, userId, isGuest, starred = false, onRenamed
         </p>
       ) : null}
       </div>
+      {view === 'list' ? (
+        <ListView board={board} filters={filters} onOpenCard={setOpenCardId} />
+      ) : (
       <BoardColumns
         board={board}
         actions={actions}
@@ -147,6 +167,7 @@ export function BoardView({ boardId, userId, isGuest, starred = false, onRenamed
         onOpenCard={setOpenCardId}
         after={<AddColumn onAdd={(title) => actions.addColumn(title)} />}
       />
+      )}
       {openCard ? (
         <CardModal
           key={openCard.id}
