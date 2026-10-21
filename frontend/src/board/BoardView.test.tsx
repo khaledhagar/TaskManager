@@ -83,6 +83,17 @@ describe('board view', () => {
     expect(await within(column('Done')).findByText('Ship it')).toBeInTheDocument()
   })
 
+  test('a full board shows the card limit message and adds nothing', async () => {
+    const limit = 'Maximum cards in a board is 100. Delete a card to add a new one.'
+    vi.mocked(boards.addCard).mockRejectedValue(new Error(limit))
+    renderBoard()
+    await screen.findByText('Write announcement')
+    await userEvent.click(within(column('Done')).getByRole('button', { name: 'Add card' }))
+    await userEvent.type(screen.getByLabelText('New card title'), 'One more{Enter}')
+    expect(await screen.findByText(limit)).toBeInTheDocument()
+    expect(within(column('Done')).queryByText('One more')).not.toBeInTheDocument()
+  })
+
   test('renames a column in place', async () => {
     vi.mocked(boards.renameColumn).mockResolvedValue({ id: 1, title: 'Backlog', position: 0, cards: [] })
     renderBoard()

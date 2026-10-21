@@ -55,7 +55,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 - [x] All request bodies are Pydantic models with `max_length` on strings (title 200, details 10000, checklist item 300, label 40, chat message 2000) (SEC-40)
 - [x] Enums validated: priority, label color, template name (SEC-41)
-- [x] Per-user caps: 50 boards, 20 columns per board, 500 cards per board, 50 checklist items per card (SEC-42)
+- [x] Per-user caps: 50 boards, 20 columns per board, 100 cards per board (the user sees "Maximum cards in a board is 100"), 50 checklist items per card (SEC-42)
 - [x] Request body size limited to 1 MB (SEC-43)
 - [x] All database access through SQLModel parameters; no string-built SQL (SEC-44)
 
@@ -135,9 +135,9 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 - [x] Board with 500 cards loads from the API in under 300 ms locally (NFR-01)
 - [x] Production JS bundle under 300 KB gzipped (NFR-02)
-- [ ] Drag and drop stays smooth (no visible lag) with 200 cards on screen (NFR-03)
+- [x] Drag and drop stays smooth (no visible lag) on a full board of 100 cards, the board limit (NFR-03). Measured in Edge: no frame over 100 ms (one 84 ms frame on the first drag). At 200 cards dnd-kit paused 170-200 ms, so the user chose a 100-card limit on 2026-10-21.
   - 2026-10-21 (Edge, Playwright): no crash (a crash from cards flipping between columns was fixed), typical frame 25 ms, but 2-3 pauses of about 170-200 ms per drag (at pick-up and when the card enters another column) while dnd-kit re-measures every card. Open: needs a decision (accept, or show fewer cards per column at once).
-- [ ] Lighthouse performance score 90 or more (NFR-04)
+- [x] Lighthouse performance score 90 or more (NFR-04)
 
 ## Accessibility (WCAG 2.2 AA)
 

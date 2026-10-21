@@ -4,10 +4,10 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 
 ## Where the project stands (2026-10-21)
 
-- Phases 1-15 are done and pushed (`main`, https://github.com/khaledhagar/TaskManager).
-- **Next: Phase 16 (Done).** Stop before Phase 17 (Deployment).
+- Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
+- **Next:** the user's approval of the new phases (password strength, board members and invitations, permissions, assignment, meeting link, public/private boards); Deployment moves after them. Then delete `backend/taskmanager.db` and `backend/storage/` (final Phase 16 task) when the user agrees.
 - Tests: backend 273 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 209 passing; Playwright 59 passing (Edge full suite, Firefox and WebKit smoke). Lint, format and type checks are clean.
-- Checklists: 214 tests ticked in `Planning/TEST_PLAN.md` (open: T-165, T-166, T-405, T-407), 106 items ticked in `Planning/SECURITY.md` (open: NFR-03, NFR-04).
+- Checklists: 214 tests ticked in `Planning/TEST_PLAN.md` (all ticked), 106 items ticked in `Planning/SECURITY.md` (all ticked).
 
 | Done | Phase |
 |------|-------|
@@ -112,12 +112,9 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 
 ## Waiting on the user
 
-- Live account checks (Phase 6 task marked done; the check itself runs in Phase 16): add to `.env` and test one real verification email and one real Google sign-in.
-  - `EMAIL_MODE=smtp`, `SMTP_USER`, `SMTP_PASSWORD` (Gmail App Password; needs 2-step verification)
-  - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (Google Cloud OAuth client; redirect `http://localhost:8000/api/auth/google/callback`)
+- Approve the new phases (see "Next steps" at the end).
 - Optional: 10 OpenRouter credits would raise the AI limit from 50 to 1,000 requests per day.
-- Delete the old local database before the next local run (see gotchas).
-- **Reminder for the end of the project:** the FINAL task of Phase 16, right before Deployment, is deleting `backend/taskmanager.db` and `backend/storage/`. Remind the user then.
+- **Final Phase 16 task, before Deployment:** delete `backend/taskmanager.db` and `backend/storage/` (stop the server first). Remind the user and do it only when they agree; the local database now holds their live-test accounts.
 - The free AI quota is 50 requests per day for the whole account; Phase 12 used 1 for the live check.
 
 ## Hardening (Phase 14): how it works
@@ -143,11 +140,20 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 - Defects fixed in this phase: card check button raised to 24 px to click (WCAG 2.5.8; the circle stays 18 px); board switcher's accessible name starts with the board title (WCAG 2.5.3); link color darkened to `#146d9a` for 4.5:1 contrast.
 - `TEST_PLAN.md` duplicate numbers (second T-330 / T-331) were renumbered.
 
-## Next steps: Phase 16 - Done
+## Next steps: new feature phases (being planned, not approved yet)
 
-Tasks are in "Phase 16" in `PLAN.md`.
+Requested by the user on 2026-10-21. Deployment moves to the end. Proposed split (waiting for the user's approval, then update PLAN, TEST_PLAN, SECURITY and CLAUDE.md before building):
 
-- Live account checks (T-165, T-166): need the user's Gmail App Password and Google OAuth client in `.env` (see "Waiting on the user").
-- Open items: T-405 / NFR-04 Lighthouse (performance 90+, accessibility 100); NFR-03 drag smoothness with 200 cards (needs the user's decision); T-407 every SECURITY item ticked.
-- Server running locally with the built frontend, ready for the user.
-- FINAL task, before Deployment: remind the user to delete `backend/taskmanager.db` and `backend/storage/`.
+- **Phase 17:** password strength meter on sign-up, reset and change password (Weak / Medium / Strong; Weak is refused, server and browser); show the Google sign-in option clearly.
+- **Phase 18:** board members. The board's creator is its admin. Invite a signed-up user by exact email (no browsable user list); the invite is emailed and the admin also gets the link with Copy and Share on WhatsApp; the invitee signs in as that email and accepts. Proposed: one-time link, expires in 7 days, admin can cancel invites and remove members, guests cannot invite or be invited. Permission levels proposed: Full access / Can update tasks (move, complete, checklist) / View only. Only the admin invites, changes permissions, renames or deletes the board. Every endpoint's ownership check becomes a membership + permission check.
+- **Phase 19:** assign cards to members (initials on cards, "Assigned to me" filter); meeting link on the board (Zoom, Meet, Teams; Start meeting opens it, Zoom links open the app; Email the link to members). Creating Zoom meetings by API is left out (needs a Zoom developer app). Public / private boards: **open question to the user**, whether public means anyone with the link can view read-only without signing in.
+- **Phase 20:** Deployment (was Phase 17).
+
+## Phase 16 (2026-10-21): what was done
+
+- Done: README; Lighthouse (T-405, NFR-04); card limit (NFR-03, T-407); server running for the user's manual test.
+- Lighthouse: first run scored performance 73-76. Cause: the 510 KB JS bundle was sent uncompressed with no cache header. Fix in `app/frontend.py`: `/assets` gzipped (API responses are not, to avoid BREACH) and cached for a year (`immutable`); `index.html` gets `no-cache`. Now performance 94-96, accessibility 100 on `/signin` and the board. Rerun: start a server on a scratch DB, then `CHROME_PATH=<msedge.exe> npx lighthouse@13.5.0 <url> --only-categories=performance,accessibility` (board: pass the guest `session` cookie with `--extra-headers`).
+- Card limit (user decision on NFR-03): `limits.CARDS_PER_BOARD = 100`; the 101st card returns 400 "Maximum cards in a board is 100. Delete a card to add a new one." (Arabic in `i18n.py`), shown as an error toast. Measured in Edge with 100 cards: no frame over 100 ms (at 200 cards dnd-kit paused 170-200 ms). T-354 e2e now fills a board to 100 and checks the message; the backend speed test still inserts 500 cards directly.
+- Drag scripts: grab the card title, not its left edge (that is the completion circle, so the drag never starts).
+- Tests at this point: backend 276 (99% coverage), frontend 210, Playwright 59; audits clean.
+- Live checks passed on 2026-10-21 (T-165 email link confirmed an account, T-166 Google sign-in created an account). `.env` now has `EMAIL_MODE=smtp`, a Gmail App Password and a Google OAuth client (redirect `http://localhost:8000/api/auth/google/callback`; the JavaScript origins box takes only `http://localhost:8000`). A Gmail App Password is 16 lowercase letters; a normal password makes Gmail close the connection at login (`SMTPServerDisconnected`). The sender name is `Task Manager <SMTP_USER>`; Gmail may show a saved contact name instead, so use a dedicated Gmail account for the app in production.

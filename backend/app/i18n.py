@@ -33,7 +33,9 @@ AR: dict[str, str] = {
     "Order must list every column once": "يجب أن يتضمن الترتيب كل عمود مرة واحدة",
     "Limit reached: at most {cap} boards": "تم بلوغ الحد: {cap} لوحة كحد أقصى",
     "Limit reached: at most {cap} columns per board": "تم بلوغ الحد: {cap} عمود كحد أقصى لكل لوحة",
-    "Limit reached: at most {cap} cards per board": "تم بلوغ الحد: {cap} بطاقة كحد أقصى لكل لوحة",
+    "Maximum cards in a board is {cap}. Delete a card to add a new one.": (
+        "الحد الأقصى للبطاقات في اللوحة هو {cap} بطاقة. احذف بطاقة لإضافة بطاقة جديدة."
+    ),
     "Limit reached: at most {cap} labels per board": "تم بلوغ الحد: {cap} تصنيف كحد أقصى لكل لوحة",
     "Limit reached: at most {cap} checklist items per card": (
         "تم بلوغ الحد: {cap} عنصر كحد أقصى في قائمة كل بطاقة"

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { api, getBoard, startAsGuest } from './helpers.ts'
 
-test('T-354 a board with 500 cards loads in under 300 ms and renders without errors', async ({ page }) => {
+test('T-354 a full board (100 cards) loads in under 300 ms; the 101st card shows the limit message', async ({ page }) => {
   test.setTimeout(180_000)
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
@@ -10,7 +10,7 @@ test('T-354 a board with 500 cards loads in under 300 ms and renders without err
   const board = await getBoard(page, id)
   await page.evaluate(
     async (columnIds) => {
-      for (let i = 0; i < 500; i += 25) {
+      for (let i = 0; i < 100; i += 25) {
         await Promise.all(
           Array.from({ length: 25 }, (_, k) =>
             fetch(`/api/columns/${columnIds[(i + k) % 3]}/cards`, {
@@ -34,6 +34,11 @@ test('T-354 a board with 500 cards loads in under 300 ms and renders without err
   }
   expect(Math.min(...timings)).toBeLessThan(300)
   await page.goto(`/?board=${id}`)
-  await expect(page.locator('li[class*=cardSlot]')).toHaveCount(500)
+  await expect(page.locator('li[class*=cardSlot]')).toHaveCount(100)
+  await page.getByRole('region', { name: 'Done' }).getByRole('button', { name: 'Add card' }).click()
+  await page.getByLabel('New card title').fill('One more')
+  await page.getByLabel('New card title').press('Enter')
+  await expect(page.getByText('Maximum cards in a board is 100. Delete a card to add a new one.')).toBeVisible()
+  await expect(page.locator('li[class*=cardSlot]')).toHaveCount(100)
   expect(errors).toEqual([])
 })

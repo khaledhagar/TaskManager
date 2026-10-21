@@ -108,9 +108,14 @@ def test_move_negative_position_rejected(user, board):
 
 
 def test_card_cap(user, board, monkeypatch):
+    assert limits.CARDS_PER_BOARD == 100
     total = sum(len(c["cards"]) for c in board["columns"])
     monkeypatch.setattr(limits, "CARDS_PER_BOARD", total)
-    assert add_card(user, board["columns"][0]["id"]).status_code == 400
+    r = add_card(user, board["columns"][0]["id"])
+    assert r.status_code == 400
+    assert r.json()["detail"] == (
+        f"Maximum cards in a board is {total}. Delete a card to add a new one."
+    )
 
 
 def test_checklist_crud(user, board):

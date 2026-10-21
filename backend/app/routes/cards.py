@@ -28,7 +28,11 @@ def add_card(column_id: int, body: CardCreate, user: CurrentUser, session: Sessi
     column = owned_column(session, user, column_id)
     stmt = select(func.count()).select_from(Card).join(BoardColumn)
     count = session.exec(stmt.where(BoardColumn.board_id == column.board_id)).one()
-    limits.check(count, limits.CARDS_PER_BOARD, "Limit reached: at most {cap} cards per board")
+    limits.check(
+        count,
+        limits.CARDS_PER_BOARD,
+        "Maximum cards in a board is {cap}. Delete a card to add a new one.",
+    )
     card = Card(**body.model_dump(), position=len(column.cards))
     column.cards.append(card)
     session.commit()

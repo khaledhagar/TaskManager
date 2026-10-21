@@ -67,8 +67,8 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-162 Console mailer logs the link; SMTP mailer uses STARTTLS with the configured user (smtplib faked) (SEC-119)
 - [x] T-163 Reset email text contains no password and explains what to do if not requested (SEC-120)
 - [x] T-164 4th forgot-password request for one email within an hour returns 429 (SEC-121)
-- [ ] T-165 Live: one real verification email arrives through Gmail SMTP (manual check)
-- [ ] T-166 Live: one real Google sign-in completes in the browser (manual check)
+- [x] T-165 Live: one real verification email arrives through Gmail SMTP (manual check)
+- [x] T-166 Live: one real Google sign-in completes in the browser (manual check)
 
 ### A4. Boards
 - [x] T-040 List returns only the current user's boards
@@ -94,7 +94,7 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-064 Move within a column reorders positions correctly
 - [x] T-065 Move to another column at a position; both columns stay contiguous
 - [x] T-066 Move to a position past the end puts the card last
-- [x] T-067 501st card on a board returns 400 (SEC-42)
+- [x] T-067 101st card on a board returns 400 with "Maximum cards in a board is 100. Delete a card to add a new one." (SEC-42); the board shows it as a toast and adds nothing
 
 ### A7. Checklist and labels
 - [x] T-070 Add, rename, toggle and delete checklist items
@@ -255,7 +255,7 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-351 Layout at 360, 768 and 1440 px has no page-level horizontal scroll (NFR-20)
 - [x] T-352 Modal traps focus and returns focus on close (NFR-13)
 - [x] T-353 Reduced-motion setting disables animations (NFR-15)
-- [x] T-354 Board with 500 cards loads under 300 ms (API) and renders without errors (NFR-01)
+- [x] T-354 A full board (100 cards) loads under 300 ms (API), renders without errors, and the 101st card shows the limit message (NFR-01, SEC-42)
 - [x] T-355 Runs in Chromium, Firefox and WebKit (NFR-22)
 
 ## D. Release checks
@@ -265,6 +265,6 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-402 `uv run ruff check` and `npx tsc --noEmit` pass (NFR-41)
 - [x] T-403 `pip-audit` and `npm audit --omit=dev` clean (SEC-95, SEC-96)
 - [x] T-404 Bundle size under 300 KB gzipped (NFR-02)
-- [ ] T-405 Lighthouse performance 90 or more, accessibility 100 (NFR-04)
+- [x] T-405 Lighthouse performance 90 or more, accessibility 100 (NFR-04)
 - [x] T-406 `git ls-files` contains no `.env` or `.db` files (SEC-90)
-- [ ] T-407 Every item in `Planning/SECURITY.md` is checked
+- [x] T-407 Every item in `Planning/SECURITY.md` is checked

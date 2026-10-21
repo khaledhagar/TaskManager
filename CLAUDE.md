@@ -42,6 +42,7 @@
 - Overdue and due-soon highlighting
 - Keyboard shortcuts: N, /, Esc, ?
 - Markdown in card descriptions
+- At most 100 cards per board; adding the 101st shows "Maximum cards in a board is 100"
 
 ## Start Here (new session)
 

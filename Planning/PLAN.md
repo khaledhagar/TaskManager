@@ -26,7 +26,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 13 - Polish | 8 / 8 | Done |
 | Phase 14 - Security and Non-Functional Hardening | 5 / 5 | Done |
 | Phase 15 - Integration Testing (Playwright) | 19 / 19 | Done |
-| Phase 16 - Done | 0 / 6 | Not started |
+| Phase 16 - Done | 7 / 8 | In progress |
 | Phase 17 - Deployment (Vercel) | 0 / 12 | Not started |
 
 ## Stack
@@ -406,11 +406,13 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 
 ## Phase 16 - Done
 
-- [ ] Live account checks from Phase 6: real Gmail verification email and real Google sign-in
-- [ ] Every test in `Planning/TEST_PLAN.md` ticked and passing
-- [ ] Every item in `Planning/SECURITY.md` ticked
-- [ ] README has run and test instructions
-- [ ] Server running locally with the built frontend, ready for the user
+- [x] Live account checks from Phase 6: real Gmail verification email and real Google sign-in
+- [x] Every test in `Planning/TEST_PLAN.md` ticked and passing
+- [x] Every item in `Planning/SECURITY.md` ticked
+- [x] README has run and test instructions
+- [x] Server running locally with the built frontend, ready for the user
+- [x] Card limit: at most 100 cards per board with a clear message (approved by the user on 2026-10-21; resolves NFR-03)
+- [x] Lighthouse: performance 90 or more, accessibility 100 (static assets gzipped and cached)
 - [ ] FINAL TASK before Deployment (remind the user): delete the local test data `backend/taskmanager.db` and `backend/storage/`
 
 ## Phase 17 - Deployment (Vercel)
