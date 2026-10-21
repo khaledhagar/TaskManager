@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import { drag } from './sharingHelpers.ts'
-import { card, column, openBoard, startAsGuest } from './helpers.ts'
+import { card, column, openBoard, seedCards, startAsGuest } from './helpers.ts'
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']
 
@@ -97,6 +97,8 @@ test('T-693 T-694 new panels in Arabic, right to left, dark, at phone width; no 
   await page.goto('/signin')
   await page.getByRole('button', { name: 'المتابعة كضيف' }).click()
   await expect(page.getByRole('heading', { name: 'إطلاق الموقع' })).toBeVisible()
+  // Guests start with empty columns: two cards make the WIP limit of 1 show its warning.
+  await seedCards(page, [[], ['تصميم الصفحة', 'بناء الواجهة']])
   expect(await page.evaluate(() => document.documentElement.dir)).toBe('rtl')
   const found: string[] = []
 

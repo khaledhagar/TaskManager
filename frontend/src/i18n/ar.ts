@@ -663,4 +663,7 @@ export const ar: Dictionary = {
   'start.templates': 'قوالبك',
   'start.useTemplate': 'استخدام القالب',
   'start.useTemplateFor': 'استخدام القالب {name}',
+  'board.share': 'مشاركة',
+  'auth.repeatPassword': 'أعد كتابة كلمة المرور',
+  'start.boardOptions': 'خيارات اللوحة: {name}',
 }

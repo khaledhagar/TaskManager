@@ -1,5 +1,6 @@
 """Board members and access requests (Phase 18)."""
 
+from contextlib import suppress
 from datetime import datetime
 from typing import Literal
 
@@ -14,7 +15,7 @@ from app.activity import record
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.i18n import tr
-from app.mailer import access_email
+from app.mailer import MailError, access_email
 from app.models import AccessRequest, Board, BoardColumn, BoardMember, Card, CardAssignee, Role
 from app.schemas import Strict
 from app.sharing import board_link, membership, pending_invites
@@ -178,9 +179,11 @@ def request_access(
     board = session.get(Board, board_id)
     if board.owner.email:
         link = board_link(request.app.state.settings.app_url, board_id)
-        request.app.state.mailer.send(
-            access_email(board.owner.email, user.email, board.title, link)
-        )
+        # The request is saved and shown to the admin in the members panel either way.
+        with suppress(MailError):
+            request.app.state.mailer.send(
+                access_email(board.owner.email, user.email, board.title, link)
+            )
     return RequestCreated(id=access.id)
 
 

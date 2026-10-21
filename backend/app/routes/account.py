@@ -1,5 +1,7 @@
 """Email verification and password routes."""
 
+from contextlib import suppress
+
 from fastapi import APIRouter, HTTPException, Request, Response, status
 from pydantic import BaseModel, EmailStr, Field
 
@@ -8,6 +10,7 @@ from app.account import send_reset, send_verification
 from app.auth import CurrentUser, Password, UserOut, start_session
 from app.db import SessionDep
 from app.i18n import tr
+from app.mailer import MailError
 from app.models import TokenPurpose, User
 from app.passwords import require_not_weak
 from app.schemas import Strict
@@ -76,7 +79,9 @@ def resend_verification(body: EmailIn, request: Request, session: SessionDep) ->
     _limit_emails(request, body.email)
     user = find_by_email(session, body.email.lower())
     if user and not user.email_verified and user.password_hash:
-        send_verification(request, session, user)
+        # The answer stays the same either way, so it never reveals which addresses exist.
+        with suppress(MailError):
+            send_verification(request, session, user)
     return Answer(detail=tr(RESEND_ANSWER))
 
 
@@ -85,7 +90,8 @@ def forgot_password(body: EmailIn, request: Request, session: SessionDep) -> Ans
     _limit_emails(request, body.email)
     user = find_by_email(session, body.email.lower())
     if user:
-        send_reset(request, session, user)
+        with suppress(MailError):
+            send_reset(request, session, user)
     return Answer(detail=tr(RESET_ANSWER))
 
 

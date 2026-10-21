@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { api, card, openBoard, startAsGuest } from './helpers.ts'
+import { api, card, openBoard, seedCards, startAsGuest } from './helpers.ts'
 
 /** Collect browser dialogs (alert, confirm) that fire on the page. */
 function watchDialogs(page: Page) {
@@ -73,6 +73,7 @@ test('T-334 no CSP violations on any screen', async ({ page }) => {
   await page.getByRole('link', { name: 'Create an account' }).click()
   await page.goto('/forgot-password')
   await startAsGuest(page)
+  await seedCards(page, [['Design pricing page']])
   await card(page, 'Design pricing page').click()
   await page.getByRole('dialog').getByRole('button', { name: 'Preview' }).click()
   await page.keyboard.press('Escape')

@@ -64,7 +64,14 @@ export function Column({ column, cards, labels, members, actions, dragDisabled, 
       style={{ transform: CSS.Translate.toString(transform), transition }}
       aria-label={column.title}
     >
-      <header className={css.columnHead}>
+      {/* The whole header drags with a mouse or finger; the keyboard drag stays on the grip, so Enter
+          on the title still renames it. Clicks still work: a drag starts after moving 6 px. */}
+      <header
+        className={css.columnHead}
+        data-draggable={dragDisabled ? undefined : true}
+        onMouseDown={dragDisabled ? undefined : (e) => listeners?.onMouseDown?.(e)}
+        onTouchStart={dragDisabled ? undefined : (e) => listeners?.onTouchStart?.(e)}
+      >
         {dragDisabled ? null : (
           <button
             type="button"

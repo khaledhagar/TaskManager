@@ -36,7 +36,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 23 - Notifications and Reminders | 4 / 4 | Done |
 | Phase 24 - Organize: Archive, Copies, Templates, Stars, WIP, Auto-complete, Covers, Focus Sessions | 6 / 6 | Done |
 | Phase 25 - List View and Export | 3 / 3 | Done |
-| Phase 26 - Workspaces, Start Page and Full Regression | 10 / 10 | Done |
+| Phase 26 - Workspaces, Start Page and Full Regression | 11 / 11 | Done |
 | Phase 27 - Deployment (Vercel) | 0 / 14 | Not started |
 | Phase 28 - Documentation (Word files) | 0 / 8 | Not started |
 
@@ -674,6 +674,7 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 - [x] Notifications for invitations and for changes to cards assigned to you; What's new on the start page
 - [x] Board switcher grouped by workspace; "Move to workspace" in the board menu
 - [x] Fixes from the user's check on 2026-10-21: messages and Undo work inside open windows (voice errors were hidden), clear blocked-microphone message, Move left / Move right for columns, archive a whole column, labeled Board options button, clearer Board / List switch, saved templates on the start page, "Sign up to save your boards"; the running server is restarted after every phase (it was still on pre-Phase 23 code, which is why export, auto-complete and archive failed)
+- [x] Fixes from the user's second check on 2026-10-22: a failed email no longer leaves a half-made account; guests start with columns only; sign-up asks for the password twice; voice drops trailing punctuation and replaces one-line fields; the Excel download is laid out like the board; columns drag by their header and stack/wrap on smaller screens; bold "..." board options and a Share button; delete a board from the start page
 - [x] Full regression after Phases 21-26 (backend, frontend, Playwright in all browsers, axe, Lighthouse, audits)
 - [x] Tests T-714, T-720 to T-745 and T-750 to T-757 pass; SEC-215 to SEC-217 ticked
 

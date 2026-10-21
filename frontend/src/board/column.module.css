@@ -21,6 +21,10 @@
   opacity: 0.5;
 }
 
+.columnHead[data-draggable] {
+  cursor: grab;
+}
+
 .columnHead {
   display: flex;
   align-items: center;
@@ -175,13 +179,15 @@
 }
 
 /* Phones: columns scroll sideways and settle on a column edge. */
-@media (max-width: 640px) {
+/* Smaller screens: no column is cut off at the sides. Columns wrap at 260 px or wider: stacked
+   one per row on phones, two or three per row on tablets and small windows. */
+@media (max-width: 1023px) {
   .columns {
-    scroll-snap-type: x proximity;
-  }
-
-  .column {
-    scroll-snap-align: start;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    align-items: start;
+    min-height: 0;
+    overflow-x: visible;
   }
 }
 

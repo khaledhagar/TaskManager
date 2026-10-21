@@ -1,10 +1,11 @@
 import { expect, test } from '@playwright/test'
 import { accountMenu, DEMO, emailLink, newEmail, openBoard, PASSWORD, signIn, signUp, startAsGuest } from './helpers.ts'
 
-test('T-300 continue as guest shows the demo board with dummy data @smoke', async ({ page }) => {
+test('T-300 T-764 continue as guest opens a board with the column names only, no example cards @smoke', async ({ page }) => {
   await startAsGuest(page)
-  for (const title of ['To Do', 'In Progress', 'Done']) await expect(page.getByRole('region', { name: title })).toBeVisible()
-  await expect(page.getByText('Design pricing page')).toBeVisible()
+  for (const title of ['To Do', 'In Progress', 'Done']) {
+    await expect(page.getByRole('region', { name: title }).getByText('No cards here yet')).toBeVisible()
+  }
   await expect(page.getByText(/guest account/)).toBeVisible()
 })
 
@@ -25,6 +26,7 @@ test('T-321 an unverified account sees the verify message and can resend the ema
   await page.getByRole('link', { name: 'Create an account' }).click()
   await page.getByLabel('Email').fill(email)
   await page.getByLabel('Password', { exact: true }).fill(PASSWORD)
+  await page.getByLabel('Repeat password').fill(PASSWORD)
   await page.getByRole('button', { name: 'Create account' }).click()
   await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeVisible()
   const first = await emailLink(page.request, email)
@@ -125,6 +127,10 @@ test('T-509 sign up refuses a weak password, accepts a medium one, and offers Go
   await expect(page).toHaveURL(/\/signup$/)
   await password.fill('correct-horse')
   await expect(page.getByRole('meter', { name: 'Password strength' })).toHaveAttribute('aria-valuetext', 'Medium')
+  await page.getByLabel('Repeat password').fill('correct-hors')
+  await page.getByRole('button', { name: 'Create account' }).click()
+  await expect(page.getByText("Passwords don't match.")).toBeVisible()
+  await page.getByLabel('Repeat password').fill('correct-horse')
   await page.getByRole('button', { name: 'Create account' }).click()
   await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeVisible()
 })

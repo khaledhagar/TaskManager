@@ -109,8 +109,15 @@ describe('auth screen (T-202, T-217)', () => {
     expect(screen.getByRole('heading', { name: 'Create your account' })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Forgot password?' })).not.toBeInTheDocument()
     await userEvent.type(screen.getByLabelText('Email'), 'b@example.com')
-    await userEvent.type(screen.getByLabelText('Password'), 'correct-horse')
+    await userEvent.type(screen.getByLabelText('Password'), 'Correct-Horse-42')
+    await userEvent.type(screen.getByLabelText('Repeat password'), 'Correct-Horse-4')
     await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
+    // T-768: sign-up asks for the password twice; a mismatch sends nothing.
+    expect(screen.getByText("Passwords don't match.")).toBeInTheDocument()
+    expect(auth.signUp).not.toHaveBeenCalled()
+    await userEvent.type(screen.getByLabelText('Repeat password'), '2')
+    await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
+    expect(auth.signUp).toHaveBeenCalledWith({ email: 'b@example.com', password: 'Correct-Horse-42' })
     expect(location.pathname + location.search).toBe('/check-inbox?email=b%40example.com')
   })
 

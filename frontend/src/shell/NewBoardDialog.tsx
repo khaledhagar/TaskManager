@@ -183,7 +183,7 @@ function NewBoardForm({ onClose, onCreated, workspaces = [], workspaceId: startW
             aria-describedby={fieldError ? `${id}-error ${id}-hint` : `${id}-hint`}
             onChange={(e) => setDescription(e.target.value)}
           />
-          <MicButton value={description} onChange={setDescription} maxLength={500} />
+          <MicButton value={description} onChange={setDescription} maxLength={500} sentences />
           </div>
           {fieldError ? (
             <span id={`${id}-error`} className={ui.fieldError}>

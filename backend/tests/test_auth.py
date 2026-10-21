@@ -5,7 +5,7 @@ import json
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from helpers import PASSWORD, link_token, outbox, sign_up
+from helpers import PASSWORD, column_titles, first_board, link_token, outbox, sign_up
 from sqlmodel import Session, select
 
 from app.config import Settings, load_settings
@@ -84,6 +84,21 @@ def test_guest_gets_demo_board(client):
     assert r.json()["email"] is None
     with Session(client.app.state.engine) as s:
         assert len(s.exec(select(Board)).all()) == 1
+
+
+def test_guest_board_has_the_columns_only(client):
+    """T-764: a guest starts with the demo board's columns and no example cards or labels."""
+    client.post("/api/auth/guest")
+    board = first_board(client)
+    assert board["title"] == "Website Launch"
+    assert column_titles(board) == ["To Do", "In Progress", "Done"]
+    assert [c["cards"] for c in board["columns"]] == [[], [], []]
+    assert board["labels"] == []
+
+
+def test_new_accounts_keep_the_example_cards(client):
+    sign_up(client)
+    assert sum(len(c["cards"]) for c in first_board(client)["columns"]) > 0
 
 
 def test_me_requires_cookie(client):

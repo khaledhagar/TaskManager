@@ -491,6 +491,20 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-756 Saved templates show on the start page and start a board in one click
 - [x] T-757 The guest bar says "Sign up to save your boards" and opens the sign-up form
 
+### E13. Fixes from the user's second check (2026-10-22, Phase 26)
+
+- [x] T-760 A sign-up whose confirmation email cannot be sent says so (503, translated) and keeps no account, so it can be retried
+- [x] T-761 A guest upgrade whose email cannot be sent is undone; forgot-password and resend keep their neutral answer
+- [x] T-762 Assignment and mention emails that fail never block the action; the in-app notification is still saved
+- [x] T-763 An invitation whose email failed can be sent again
+- [x] T-764 A guest starts with the board's column names only: no example cards or labels; new accounts keep the example cards
+- [x] T-765 Voice in one-line fields (search, titles) drops the trailing "." or "?" the speech service adds; longer text keeps it
+- [x] T-766 The Excel (CSV) download is laid out like the board: each column's name heads its tasks, with a Status column beside it (in the user's language)
+- [x] T-767 Voice in a one-line field (a card or board name) replaces the old text; longer text gets it added at the end
+- [x] T-768 Sign-up asks for the password twice; a mismatch sends nothing
+- [x] T-769 A board's admin deletes it from its "..." menu on the start page, after confirming
+- [x] T-770 A column is dragged by its whole header (mouse or finger); on phones columns stack, on tablets they wrap, nothing is cut off at the sides; board options is a bold "..." icon and Share opens the sharing panel
+
 ### E6. Documentation (Phase 28)
 
 - [ ] T-620 The build script writes all 8 `.docx` files and each one opens (read back with `python-docx`)

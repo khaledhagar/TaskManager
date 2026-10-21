@@ -9,9 +9,20 @@ from app.models import Board, BoardColumn, BoardMember, Card, ChecklistItem, Lab
 from app.templates import TEMPLATES
 
 
-def build_board(session: Session, owner_id: int, template: str, title: str | None = None) -> Board:
-    """Create a board from a named template, in the request language."""
-    return build_from_data(session, owner_id, TEMPLATES[current_language()][template], title)
+def build_board(
+    session: Session, owner_id: int, template: str, title: str | None = None, empty: bool = False
+) -> Board:
+    """Create a board from a named template, in the request language.
+
+    `empty` keeps only the board name and column names (no cards or labels): a guest's board.
+    """
+    data = TEMPLATES[current_language()][template]
+    if empty:
+        data = {
+            "title": data["title"],
+            "columns": [{"title": c["title"], "cards": []} for c in data["columns"]],
+        }
+    return build_from_data(session, owner_id, data, title)
 
 
 def build_from_data(session: Session, owner_id: int, data: dict, title: str | None = None) -> Board:

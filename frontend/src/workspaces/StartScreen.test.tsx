@@ -12,7 +12,7 @@ import { StartScreen } from './StartScreen'
 vi.mock('../api/workspaces', () => ({ workspaces: { members: vi.fn(), rename: vi.fn(), remove: vi.fn() } }))
 vi.mock('../api/notifications', () => ({ notifications: { list: vi.fn(), read: vi.fn(async () => undefined) } }))
 vi.mock('../api/templates', () => ({ templates: { list: vi.fn() } }))
-vi.mock('../api/boards', () => ({ boards: { createFromTemplate: vi.fn() } }))
+vi.mock('../api/boards', () => ({ boards: { createFromTemplate: vi.fn(), remove: vi.fn(async () => undefined) } }))
 
 const board = (id: number, title: string, extra: Partial<BoardSummary> = {}): BoardSummary => ({
   id,
@@ -49,6 +49,7 @@ const props = {
   onWorkspacesChange: vi.fn(),
   onWorkspaceDeleted: vi.fn(),
   onBoardCreated: vi.fn(),
+  onBoardDeleted: vi.fn(),
 }
 
 function renderStart(list = BOARDS, ws = WS) {
@@ -173,5 +174,19 @@ describe("What's new and templates (T-744, T-756)", () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Use template Release kit' }))
     expect(boards.createFromTemplate).toHaveBeenCalledWith('Release kit', 3)
     expect(props.onBoardCreated).toHaveBeenCalledWith(expect.objectContaining({ id: 9 }))
+  })
+})
+
+describe('board menu on the start page (T-769)', () => {
+  test('the admin deletes a board from its tile after confirming; shared boards have no menu', async () => {
+    renderStart()
+    await userEvent.click(within(main()).getAllByRole('button', { name: 'Board options: Groceries' })[0])
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Delete board' }))
+    const confirm = screen.getByRole('dialog', { name: 'Delete this board?' })
+    expect(confirm).toHaveTextContent('"Groceries"')
+    await userEvent.click(within(confirm).getByRole('button', { name: 'Delete board' }))
+    expect(boards.remove).toHaveBeenCalledWith(2)
+    expect(props.onBoardDeleted).toHaveBeenCalledWith(2)
+    expect(within(main()).queryByRole('button', { name: 'Board options: Team plan' })).toBeNull()
   })
 })

@@ -7,12 +7,12 @@ import { ToastProvider } from '../ui/Toast'
 import { FakeRecognition, installFakeSpeech, removeFakeSpeech } from '../test/fakeSpeech'
 import { MicButton } from './MicButton'
 
-function Field({ start = '' }: { start?: string }) {
+function Field({ start = '', sentences = false }: { start?: string; sentences?: boolean }) {
   const [value, setValue] = useState(start)
   return (
     <ToastProvider>
       <input aria-label="Title" value={value} onChange={(e) => setValue(e.target.value)} />
-      <MicButton value={value} onChange={setValue} />
+      <MicButton value={value} onChange={setValue} sentences={sentences} />
     </ToastProvider>
   )
 }
@@ -27,8 +27,8 @@ beforeEach(() => {
 afterEach(removeFakeSpeech)
 
 describe('voice input (T-600 to T-605)', () => {
-  test('starts and stops; live words show in the field; final text is added to what was there', async () => {
-    render(<Field start="Call" />)
+  test('starts and stops; live words show in the field; longer text gets them added at the end', async () => {
+    render(<Field start="Call" sentences />)
     await userEvent.click(mic('Start voice input'))
     const engine = FakeRecognition.last!
     expect(engine.started).toBe(true)
@@ -79,5 +79,34 @@ describe('voice input (T-600 to T-605)', () => {
     await userEvent.click(mic('Stop voice input'))
     await userEvent.click(mic('Start voice input'))
     expect(screen.getAllByText(/turns your speech into text/)).toHaveLength(1)
+  })
+})
+
+describe('punctuation from the speech service (T-765)', () => {
+  test('one-line fields such as search drop the trailing "." or "?"', async () => {
+    render(<Field />)
+    await userEvent.click(mic('Start voice input'))
+    act(() => FakeRecognition.last!.say('design page.'))
+    expect(screen.getByLabelText('Title')).toHaveValue('design page')
+    act(() => FakeRecognition.last!.stop())
+    await userEvent.click(mic('Start voice input'))
+    act(() => FakeRecognition.last!.say('ما هو المتأخر؟'))
+    expect(screen.getByLabelText('Title')).toHaveValue('ما هو المتأخر')
+  })
+
+  test('T-767 a one-line field such as a card name is replaced by what is said', async () => {
+    render(<Field start="Old name" />)
+    await userEvent.click(mic('Start voice input'))
+    act(() => FakeRecognition.last!.say('New name', false))
+    expect(screen.getByLabelText('Title')).toHaveValue('New name')
+    act(() => FakeRecognition.last!.say('New name for the card.'))
+    expect(screen.getByLabelText('Title')).toHaveValue('New name for the card')
+  })
+
+  test('sentence fields keep it', async () => {
+    render(<Field sentences />)
+    await userEvent.click(mic('Start voice input'))
+    act(() => FakeRecognition.last!.say('Ship it today.'))
+    expect(screen.getByLabelText('Title')).toHaveValue('Ship it today.')
   })
 })

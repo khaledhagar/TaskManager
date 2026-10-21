@@ -27,7 +27,7 @@ def create_user(
     verified: bool = False,
     google_id: str | None = None,
 ) -> User:
-    """Create a user (guest when email is None) with the demo board."""
+    """Create a user (guest when email is None) with the demo board; a guest's has no cards."""
     user = User(
         email=email,
         password_hash=password_hash,
@@ -39,7 +39,7 @@ def create_user(
     session.add(user)
     session.commit()
     session.refresh(user)
-    build_board(session, user.id, "demo")
+    build_board(session, user.id, "demo", empty=email is None)
     return user
 
 

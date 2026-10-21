@@ -12,7 +12,7 @@ import { GoogleButton } from './GoogleButton'
 import { PasswordStrength } from './PasswordStrength'
 import { emailError, newPasswordError, passwordError } from './validation'
 
-type Errors = { email?: string | null; password?: string | null }
+type Errors = { email?: string | null; password?: string | null; repeat?: string | null }
 
 /** Sign in at /signin, sign up at /signup; Google and guest are offered on both. */
 export function AuthScreen({ onSignedIn }: { onSignedIn: (user: User, landing?: string) => void }) {
@@ -22,6 +22,7 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: (user: User, landing?: 
   const [google, setGoogle] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [repeat, setRepeat] = useState('')
   const [errors, setErrors] = useState<Errors>({})
   const [formError, setFormError] = useState<string | null>(
     params.get('error') === 'google' ? t('auth.googleFailed') : null,
@@ -38,11 +39,13 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: (user: User, landing?: 
     const next = {
       email: emailError(email),
       password: signup ? newPasswordError(password, email.trim()) : passwordError(password),
+      // Sign-up asks for the password twice, so a typo cannot lock the person out.
+      repeat: signup && password !== repeat ? t('reset.mismatch') : null,
     }
     setErrors(next)
     setFormError(null)
     setUnverified(false)
-    if (next.email || next.password) return
+    if (next.email || next.password || next.repeat) return
     setBusy(true)
     try {
       const body = { email: email.trim(), password }
@@ -119,6 +122,16 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: (user: User, landing?: 
           hint={signup && !password ? t('auth.passwordHint') : undefined}
         />
         {signup ? <PasswordStrength password={password} email={email.trim()} /> : null}
+        {signup ? (
+          <Field
+            label={t('auth.repeatPassword')}
+            type="password"
+            autoComplete="new-password"
+            value={repeat}
+            onChange={(e) => setRepeat(e.target.value)}
+            error={errors.repeat}
+          />
+        ) : null}
         {signup ? null : (
           <Link to="/forgot-password" className={css.forgot}>
             {t('auth.forgot')}

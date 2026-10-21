@@ -161,6 +161,7 @@ def test_guest_gets_the_arabic_demo_board(client):
     board = first_board(client)
     assert board["title"] == "إطلاق الموقع"
     assert column_titles(board) == ["المطلوب", "قيد التنفيذ", "تم"]
+    assert all(c["cards"] == [] for c in board["columns"])
 
 
 def test_templates_are_created_in_the_request_language(client):

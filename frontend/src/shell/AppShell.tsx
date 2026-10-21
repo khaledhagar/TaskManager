@@ -141,6 +141,7 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
             onNewBoard={(workspaceId) => setCreating({ workspaceId: workspaceId ?? null })}
             onWorkspacesChange={setWorkspaces}
             onBoardCreated={created}
+            onBoardDeleted={(id) => setList((current) => current?.filter((b) => b.id !== id) ?? null)}
             onWorkspaceDeleted={(id) =>
               setList((current) => current?.map((b) => (b.workspace_id === id ? { ...b, workspace_id: null } : b)) ?? null)
             }

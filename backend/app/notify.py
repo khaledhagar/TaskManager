@@ -7,11 +7,12 @@ nothing has to be stored.
 
 import hashlib
 import hmac
+from contextlib import suppress
 
 from sqlmodel import Session
 
 from app.config import Settings
-from app.mailer import Email, Mailer
+from app.mailer import Email, Mailer, MailError
 from app.models import Board, Card, User
 from app.models_notify import Notification, NotificationSetting
 from app.sharing import membership
@@ -124,4 +125,8 @@ def notify(
     )
     if emails_on(session, user):
         link = card_link(settings, board.id, card.id)
-        mailer.send(build_email(kind, user, settings, actor=actor.email or "", link=link, **data))
+        # The in-app notification is saved either way; a failed email is only logged.
+        with suppress(MailError):
+            mailer.send(
+                build_email(kind, user, settings, actor=actor.email or "", link=link, **data)
+            )

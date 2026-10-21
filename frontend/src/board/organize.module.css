@@ -68,3 +68,10 @@
   font-size: var(--text-sm);
   font-weight: 600;
 }
+
+/* Board options: the "..." icon, bold and larger so it is easy to notice. */
+.options {
+  width: 40px;
+  height: 40px;
+  color: var(--ink);
+}

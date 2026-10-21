@@ -11,6 +11,13 @@ from app.i18n import current_language
 log = logging.getLogger("taskmanager.mail")
 
 
+MAIL_FAILED = "We couldn't send the email right now. Please try again in a few minutes."
+
+
+class MailError(Exception):
+    """The mail server could not be reached or refused the email."""
+
+
 @dataclass(frozen=True)
 class Email:
     to: str
@@ -39,10 +46,14 @@ class Mailer:
         message["To"] = email.to
         message["Subject"] = email.subject
         message.set_content(email.text)
-        with smtplib.SMTP(self.settings.smtp_host, self.settings.smtp_port, timeout=20) as smtp:
-            smtp.starttls()
-            smtp.login(self.settings.smtp_user, self.settings.smtp_password)
-            smtp.send_message(message)
+        try:
+            with smtplib.SMTP(self.settings.smtp_host, self.settings.smtp_port, timeout=20) as smtp:
+                smtp.starttls()
+                smtp.login(self.settings.smtp_user, self.settings.smtp_password)
+                smtp.send_message(message)
+        except (smtplib.SMTPException, OSError) as exc:
+            log.warning("Email to %s not sent: %s", email.to, type(exc).__name__)
+            raise MailError(str(exc)) from exc
 
 
 VERIFY = {

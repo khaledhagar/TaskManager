@@ -3,20 +3,11 @@
 import csv
 import io
 
+from app.i18n import tr
 from app.models import Board, Card
 
 FORMULA_START = ("=", "+", "-", "@", "\t", "\r")
-HEADER = [
-    "Title",
-    "Column",
-    "Priority",
-    "Due date",
-    "Completed",
-    "Labels",
-    "Assignees",
-    "Checklist",
-    "Description",
-]
+BOM = "﻿"
 
 
 def safe_cell(text: str) -> str:
@@ -25,26 +16,24 @@ def safe_cell(text: str) -> str:
 
 
 def board_csv(board: Board) -> bytes:
-    """One row per card; UTF-8 with a byte order mark so Excel shows Arabic correctly."""
+    """Laid out like the board: each column's name heads its tasks, with a Status column beside it.
+
+    UTF-8 with a byte order mark so Excel shows Arabic correctly; words follow the request language.
+    """
     out = io.StringIO()
     writer = csv.writer(out)
-    writer.writerow(HEADER)
+    header: list[str] = []
     for column in board.columns:
-        for card in column.cards:
-            done = sum(i.done for i in card.checklist)
-            row = [
-                card.title,
-                column.title,
-                card.priority.value,
-                card.due_date.isoformat() if card.due_date else "",
-                "yes" if card.completed else "no",
-                ", ".join(label.name for label in card.labels),
-                ", ".join(u.email or "" for u in card.assignees),
-                f"{done}/{len(card.checklist)}" if card.checklist else "",
-                card.details,
-            ]
-            writer.writerow([safe_cell(cell) for cell in row])
-    return ("﻿" + out.getvalue()).encode("utf-8")
+        header += [column.title, tr("Status")]
+    writer.writerow([safe_cell(cell) for cell in header])
+    for i in range(max((len(c.cards) for c in board.columns), default=0)):
+        row: list[str] = []
+        for column in board.columns:
+            card = column.cards[i] if i < len(column.cards) else None
+            status = tr("Completed") if card and card.completed else tr("Open")
+            row += [card.title, status] if card else ["", ""]
+        writer.writerow([safe_cell(cell) for cell in row])
+    return (BOM + out.getvalue()).encode("utf-8")
 
 
 def board_json(board: Board) -> dict:

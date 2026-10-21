@@ -621,4 +621,7 @@ export const en = {
   'start.templates': 'Your templates',
   'start.useTemplate': 'Use template',
   'start.useTemplateFor': 'Use template {name}',
+  'board.share': 'Share',
+  'auth.repeatPassword': 'Repeat password',
+  'start.boardOptions': 'Board options: {name}',
 } satisfies Record<string, Message>

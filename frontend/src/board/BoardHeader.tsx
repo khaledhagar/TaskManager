@@ -1,4 +1,4 @@
-import { MoreHorizontal, Sparkles, Star, Video } from 'lucide-react'
+import { MoreHorizontal, Share2, Sparkles, Star, Video } from 'lucide-react'
 import { useState } from 'react'
 import type { Board } from '../api/boards'
 import aiCss from '../ai/ai.module.css'
@@ -119,6 +119,16 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, o
         <button
           type="button"
           className={`${ui.button} ${ui.secondary} ${aiCss.askButton}`}
+          aria-label={t('board.share')}
+          title={t('board.share')}
+          onClick={onMembers}
+        >
+          <Share2 size={16} aria-hidden="true" />
+          <span className={aiCss.askLabel}>{t('board.share')}</span>
+        </button>
+        <button
+          type="button"
+          className={`${ui.button} ${ui.secondary} ${aiCss.askButton}`}
           aria-label={t('chat.open')}
           title={t('chat.open')}
           onClick={onChat}
@@ -129,13 +139,8 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, o
         <Menu
           label={t('board.options')}
           align="end"
-          triggerClassName={`${ui.button} ${ui.secondary} ${aiCss.askButton}`}
-          trigger={
-            <>
-              <MoreHorizontal size={16} aria-hidden="true" />
-              <span className={aiCss.askLabel}>{t('board.options')}</span>
-            </>
-          }
+          triggerClassName={`${ui.iconButton} ${organize.options}`}
+          trigger={<MoreHorizontal size={24} strokeWidth={3} aria-hidden="true" />}
           items={items}
         />
       </div>

@@ -85,7 +85,8 @@ def test_account_quota(user, card_id, monkeypatch):
 def test_guest_quota_is_smaller(client, monkeypatch):
     monkeypatch.setattr(files, "GUEST_QUOTA", 50)
     client.post("/api/auth/guest")
-    guest_card = first_board(client)["columns"][0]["cards"][0]["id"]
+    column_id = first_board(client)["columns"][0]["id"]
+    guest_card = client.post(f"/api/columns/{column_id}/cards", json={"title": "x"}).json()["id"]
     assert upload(client, guest_card, "a.txt", b"x" * 60).status_code == 400
 
 

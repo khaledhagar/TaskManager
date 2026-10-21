@@ -141,7 +141,7 @@ export function ChatPanel({ open, board, actions, onClose }: Props) {
             }
           }}
         />
-        <MicButton value={draft} onChange={setDraft} maxLength={2000} />
+        <MicButton value={draft} onChange={setDraft} maxLength={2000} sentences />
         </div>
         <button className={`${ui.button} ${ui.primary}`} disabled={!draft.trim() || request.busy}>
           {t('chat.send')}

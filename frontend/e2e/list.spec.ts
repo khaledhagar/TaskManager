@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
-import { openBoard, startAsGuest } from './helpers.ts'
+import { openBoard, seedCards, startAsGuest } from './helpers.ts'
 
 const titles = (page: import('@playwright/test').Page) =>
   page.getByRole('region', { name: /^Cards on/ }).locator('tbody tr td:first-child').allTextContents()
@@ -20,7 +20,7 @@ test('T-709 switch to the list, sort it, open a card from it @smoke', async ({ p
   await expect(page.getByRole('dialog', { name: 'gamma' })).toBeVisible()
 })
 
-test('T-710 download the board as CSV and JSON', async ({ page }) => {
+test('T-710 T-766 download the board as CSV (laid out like the board) and JSON', async ({ page }) => {
   await startAsGuest(page)
   await openBoard(page, 'Export me', [['=SUM(A1)', 'Plain card'], [], []])
   const menu = async (item: string) => {
@@ -31,9 +31,12 @@ test('T-710 download the board as CSV and JSON', async ({ page }) => {
   }
   const csv = await menu('Download CSV (Excel)')
   expect(csv.suggestedFilename()).toBe('Export me.csv')
-  const text = await readFile(await csv.path(), 'utf-8')
-  expect(text).toContain("'=SUM(A1)")
-  expect(text).toContain('Plain card')
+  // Each board column heads its tasks, with a Status column beside it.
+  const text = (await readFile(await csv.path(), 'utf-8')).replace(String.fromCharCode(0xfeff), '')
+  const lines = text.trim().split(String.fromCharCode(13, 10))
+  expect(lines[0]).toBe('To Do,Status,In Progress,Status,Done,Status')
+  expect(lines[1]).toBe("'=SUM(A1),Open,,,,")
+  expect(lines[2]).toBe('Plain card,Open,,,,')
 
   const json = await menu('Download JSON')
   expect(json.suggestedFilename()).toBe('Export me.json')
@@ -52,10 +55,11 @@ test('T-711 T-712 list view in Arabic, right to left, dark, at phone width; no a
   await page.goto('/signin')
   await page.getByRole('button', { name: 'المتابعة كضيف' }).click()
   await expect(page.getByRole('heading', { name: 'إطلاق الموقع' })).toBeVisible()
+  await seedCards(page, [['تصميم الصفحة', 'كتابة الإعلان']])
   await page.getByRole('group', { name: 'طريقة العرض' }).getByRole('button', { name: 'قائمة' }).click()
   const table = page.getByRole('region', { name: 'بطاقات إطلاق الموقع' })
   await expect(table).toBeVisible()
-  await expect(table.locator('tbody tr')).toHaveCount(7)
+  await expect(table.locator('tbody tr')).toHaveCount(2)
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()
   expect(scan.violations.flatMap((v) => v.nodes.map((n) => `${v.id}: ${n.target.join(' ')}`))).toEqual([])

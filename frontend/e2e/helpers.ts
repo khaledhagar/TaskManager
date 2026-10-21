@@ -31,6 +31,7 @@ export async function signUp(page: Page, email = newEmail(), password = PASSWORD
   await page.getByRole('link', { name: 'Create an account' }).click()
   await page.getByLabel('Email').fill(email)
   await page.getByLabel('Password', { exact: true }).fill(password)
+  await page.getByLabel('Repeat password').fill(password)
   await page.getByRole('button', { name: 'Create account' }).click()
   await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeVisible()
   await page.goto(await emailLink(page.request, email))
@@ -89,3 +90,17 @@ export const columnCards = (page: Page) =>
 
 export const column = (page: Page, title: string) => page.getByRole('region', { name: title, exact: true })
 export const card = (page: Page, title: string) => page.getByRole('button', { name: new RegExp(`^${title}`) })
+
+/**
+ * Guests start with empty columns (2026-10-22). Add cards by title to the board on screen,
+ * column by column, then reload so they show.
+ */
+export async function seedCards(page: Page, cards: string[][]) {
+  const [first] = await api<{ id: number }[]>(page, 'GET', '/api/boards')
+  const board = await getBoard(page, first.id)
+  for (const [i, titles] of cards.entries()) {
+    for (const title of titles) await api(page, 'POST', `/api/columns/${board.columns[i].id}/cards`, { title })
+  }
+  await page.reload()
+  await expect(page.getByRole('button', { name: new RegExp(`^${cards.flat()[0]}`) })).toBeVisible()
+}

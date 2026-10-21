@@ -1,6 +1,7 @@
 """FastAPI application factory."""
 
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from sqlmodel import Session, text
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -9,8 +10,8 @@ from app.config import Settings
 from app.db import SessionDep, make_engine
 from app.frontend import mount_frontend
 from app.hardening import add_hardening
-from app.i18n import add_language
-from app.mailer import Mailer
+from app.i18n import add_language, tr
+from app.mailer import MAIL_FAILED, Mailer, MailError
 from app.middleware import add_origin_check
 from app.ratelimit import MemoryStore, RateLimiter
 from app.routes import (
@@ -71,6 +72,10 @@ def create_app(settings: Settings) -> FastAPI:
     def health(session: SessionDep) -> dict:
         session.exec(text("SELECT 1"))
         return {"status": "ok", "database": "ok"}
+
+    @app.exception_handler(MailError)
+    async def mail_failed(_request, _exc):
+        return JSONResponse({"detail": tr(MAIL_FAILED)}, status_code=503)
 
     routers = (auth, account, google_routes, boards, cards, ai, file_routes, background)
     sharing = (members, invites, public, meeting, comments, notifications)

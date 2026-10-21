@@ -106,9 +106,15 @@ describe('fixes from the user check (T-750 to T-755)', () => {
     expect(boards.restoreColumn).toHaveBeenCalledWith(2)
   })
 
-  test('T-755 the board options button shows its name, not only an icon', async () => {
+  test('T-755 board options is the bold "..." icon (named for screen readers); Share is a labeled button', async () => {
     await renderBoard()
-    expect(screen.getByRole('button', { name: 'Board options' })).toHaveTextContent('Board options')
+    const options = screen.getByRole('button', { name: 'Board options' })
+    expect(options).toHaveTextContent('')
+    expect(options.querySelector('svg')).toHaveAttribute('stroke-width', '3')
+    const share = screen.getByRole('button', { name: 'Share' })
+    expect(share).toHaveTextContent('Share')
+    await userEvent.click(share)
+    expect(screen.getByRole('dialog', { name: /^Members of/ })).toBeInTheDocument()
   })
 
   test('T-741 T-742 notification sentences and where they lead', () => {

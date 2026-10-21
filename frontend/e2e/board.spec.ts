@@ -1,7 +1,10 @@
 import { expect, test, type Page } from '@playwright/test'
-import { card, column, columnCards, DEMO, getBoard, openBoard, startAsGuest } from './helpers.ts'
+import { card, column, columnCards, DEMO, getBoard, openBoard, signUp } from './helpers.ts'
 
-test.beforeEach(async ({ page }) => startAsGuest(page))
+// A new account opens the full demo board (guests start with empty columns since 2026-10-22).
+test.beforeEach(async ({ page }) => {
+  await signUp(page)
+})
 
 async function newBoard(page: Page, template: string, name: string) {
   await page.getByRole('button', { name: 'New board' }).click()

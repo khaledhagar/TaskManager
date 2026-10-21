@@ -92,7 +92,7 @@ export function MentionInput({ value, onChange, members, label, placeholder, onS
           onKeyDown={onKeyDown}
           onBlur={() => setMention(null)}
         />
-        <MicButton value={value} onChange={onChange} maxLength={5000} />
+        <MicButton value={value} onChange={onChange} maxLength={5000} sentences />
       </div>
       <ul id={listId} role="listbox" aria-label={t('mention.list')} className={css.suggestions} hidden={!open}>
         {options.map((m, i) => (

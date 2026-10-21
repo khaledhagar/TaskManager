@@ -45,7 +45,7 @@ export function DescriptionEditor({ details, onSave }: { details: string; onSave
             if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && dirty) onSave(draft)
           }}
         />
-        <MicButton value={draft} onChange={setDraft} maxLength={10000} />
+        <MicButton value={draft} onChange={setDraft} maxLength={10000} sentences />
         </div>
       ) : draft.trim() ? (
         <Markdown text={draft} />

@@ -105,7 +105,8 @@ def test_guest_cleanup_removes_files(client, settings):
     from app.users import cleanup_guests
 
     client.post("/api/auth/guest")
-    guest_card = first_board(client)["columns"][0]["cards"][0]["id"]
+    column_id = first_board(client)["columns"][0]["id"]
+    guest_card = client.post(f"/api/columns/{column_id}/cards", json={"title": "x"}).json()["id"]
     assert upload(client, guest_card, "a.txt", b"x").status_code == 201
     with Session(client.app.state.engine, info={"storage": storage(client)}) as s:
         guest = s.exec(select(User)).one()

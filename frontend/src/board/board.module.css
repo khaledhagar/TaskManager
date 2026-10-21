@@ -177,6 +177,12 @@
   flex: 0 0 284px;
 }
 
+@media (max-width: 1023px) {
+  .addColumn {
+    flex: none;
+  }
+}
+
 .addColumnButton {
   display: flex;
   align-items: center;

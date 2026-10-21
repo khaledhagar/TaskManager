@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
-import { card } from './helpers.ts'
+import { card, DEMO, seedCards } from './helpers.ts'
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 
@@ -22,11 +22,12 @@ async function auditScreens(page: Page, theme: string, lang: 'en' | 'ar') {
   await page.goto('/signin')
   const found = await violations(page, 'auth')
   await page.goto('/signup')
-  await page.locator('input[type=password]').fill('correct-horse')
+  await page.locator('input[autocomplete=new-password]').first().fill('correct-horse')
   found.push(...(await violations(page, 'signup')))
   await page.goto('/signin')
   await page.getByRole('button', { name: L.guest }).click()
   await expect(page.getByRole('heading', { name: L.board })).toBeVisible()
+  await seedCards(page, [[L.card]])
   found.push(...(await violations(page, 'board')))
   await card(page, L.card).click()
   await expect(page.getByRole('dialog')).toBeVisible()
@@ -49,13 +50,17 @@ for (const theme of ['light', 'dark']) {
 test('T-352 a modal traps focus and returns focus to its trigger', async ({ page }) => {
   await page.goto('/signin')
   await page.getByRole('button', { name: 'Continue as guest' }).click()
+  await expect(page.getByRole('heading', { name: DEMO })).toBeVisible()
+  await seedCards(page, [['Design pricing page']])
   const trigger = card(page, 'Design pricing page')
   await trigger.click()
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()
+  // Tab never reaches the page behind the window. After the last control, a native modal hands
+  // focus to the browser's own toolbar (the page then reports <body>), and Tab comes back inside.
   for (let i = 0; i < 40; i++) {
     await page.keyboard.press('Tab')
-    expect(await dialog.evaluate((d) => d.contains(document.activeElement))).toBe(true)
+    expect(await dialog.evaluate((d) => d.contains(document.activeElement) || document.activeElement === document.body)).toBe(true)
   }
   await page.keyboard.press('Escape')
   await expect(dialog).toHaveCount(0)
@@ -66,6 +71,8 @@ test('T-353 reduced motion turns animations off', async ({ browser }) => {
   const page = await (await browser.newContext({ reducedMotion: 'reduce' })).newPage()
   await page.goto('/signin')
   await page.getByRole('button', { name: 'Continue as guest' }).click()
+  await expect(page.getByRole('heading', { name: DEMO })).toBeVisible()
+  await seedCards(page, [['Design pricing page']])
   await card(page, 'Design pricing page').click()
   const durations = await page.evaluate(() =>
     [...document.querySelectorAll('*')].flatMap((el) => {

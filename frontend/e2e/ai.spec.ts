@@ -1,10 +1,13 @@
 import { expect, test } from '@playwright/test'
-import { api, card, getBoard, startAsGuest } from './helpers.ts'
+import { api, card, getBoard, seedCards, startAsGuest } from './helpers.ts'
 
 // Live tests call the real free model (the whole account has 50 requests a day): run with LIVE=1.
 test.describe('live AI @live', () => {
   test.describe.configure({ mode: 'serial', timeout: 180_000 })
-  test.beforeEach(async ({ page }) => startAsGuest(page))
+  test.beforeEach(async ({ page }) => {
+    await startAsGuest(page)
+    await seedCards(page, [['Write launch announcement', 'Set up analytics']])
+  })
 
   test('T-314 suggest steps adds the selected items to the checklist', async ({ page }) => {
     await card(page, 'Write launch announcement').click()
@@ -43,6 +46,7 @@ test.describe('live AI @live', () => {
 
 test('T-317 a chat action is not applied unless the user confirms it', async ({ page }) => {
   await startAsGuest(page)
+  await seedCards(page, [['Write launch announcement']])
   const id = Number(new URL(page.url()).searchParams.get('board') ?? 0) || (await api<{ id: number }[]>(page, 'GET', '/api/boards'))[0].id
   const before = await getBoard(page, id)
   const moving = before.columns[0].cards[0]

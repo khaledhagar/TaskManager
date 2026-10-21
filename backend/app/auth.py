@@ -9,6 +9,7 @@ from app import ratelimit
 from app.account import send_verification
 from app.db import SessionDep
 from app.i18n import Language, tr
+from app.mailer import MailError
 from app.models import User
 from app.passwords import require_not_weak
 from app.schemas import Strict
@@ -104,7 +105,13 @@ def signup(creds: Credentials, request: Request, session: SessionDep) -> Pending
     ratelimit.enforce(request, f"signin:{ratelimit.client_ip(request)}", ratelimit.SIGN_IN)
     require_not_weak(creds.password, creds.email)
     user = create_user(session, new_email(session, creds.email), hash_password(creds.password))
-    send_verification(request, session, user)
+    try:
+        send_verification(request, session, user)
+    except MailError:
+        # Keep no account the person cannot confirm, so they can simply try again.
+        session.delete(user)
+        session.commit()
+        raise
     return PendingVerification(email=user.email)
 
 
@@ -141,7 +148,13 @@ def upgrade(
     user.email = new_email(session, creds.email)
     user.password_hash = hash_password(creds.password)
     session.commit()
-    send_verification(request, session, user)
+    try:
+        send_verification(request, session, user)
+    except MailError:
+        user.email = None
+        user.password_hash = None
+        session.commit()
+        raise
     return PendingVerification(email=user.email)
 
 

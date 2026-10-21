@@ -68,6 +68,7 @@ test('T-327 emails follow the language of the page', async ({ page }) => {
   await page.getByRole('link', { name: 'أنشئ حسابا' }).click()
   await page.getByLabel('البريد الإلكتروني').fill(email)
   await page.getByLabel('كلمة المرور', { exact: true }).fill(PASSWORD)
+  await page.getByLabel('أعد كتابة كلمة المرور').fill(PASSWORD)
   await page.getByRole('button', { name: 'إنشاء الحساب' }).click()
   await expect(page.getByRole('heading', { name: 'تحقق من بريدك' })).toBeVisible()
   const mail = await (await page.request.get(`/__e2e/outbox?to=${encodeURIComponent(email)}`)).json()

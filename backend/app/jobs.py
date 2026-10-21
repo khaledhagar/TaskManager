@@ -10,7 +10,7 @@ from datetime import UTC, date, datetime, timedelta
 from sqlmodel import Session, select
 
 from app.config import Settings
-from app.mailer import Mailer
+from app.mailer import Mailer, MailError
 from app.models import Board, BoardColumn, Card, CardAssignee, User
 from app.models_notify import Notification, NotificationSetting
 from app.notify import DUE, build_email, emails_on
@@ -65,7 +65,10 @@ def send_reminders(session: Session, mailer: Mailer, settings: Settings, today: 
         lines = "\n".join(
             f"- {card.title} ({card.column.board.title}): {DUE[lang][when]}" for card, when in cards
         )
-        mailer.send(build_email("reminder", user, settings, lines=lines, link=settings.app_url))
+        try:
+            mailer.send(build_email("reminder", user, settings, lines=lines, link=settings.app_url))
+        except MailError:
+            continue  # Not marked as sent: the next run tries again.
         setting.last_reminder_on = today
         session.add(setting)
         sent += 1

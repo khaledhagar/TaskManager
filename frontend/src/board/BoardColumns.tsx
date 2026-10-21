@@ -11,7 +11,7 @@ import {
   type DragOverEvent,
   type DragStartEvent,
 } from '@dnd-kit/core'
-import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable'
+import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable'
 import { useState, type ReactNode } from 'react'
 import type { Board } from '../api/boards'
 import { useI18n } from '../i18n/context'
@@ -153,7 +153,7 @@ export function BoardColumns({ board, actions, filters, dragDisabled, composingC
       }}
     >
       <div className={css.columns}>
-        <SortableContext items={shown.columns.map((c) => columnKey(c.id))} strategy={horizontalListSortingStrategy}>
+        <SortableContext items={shown.columns.map((c) => columnKey(c.id))} strategy={rectSortingStrategy}>
           {shown.columns.map((column, index) => (
             <Column
               key={column.id}

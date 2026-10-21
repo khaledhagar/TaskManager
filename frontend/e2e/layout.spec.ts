@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { getBoard, openBoard, startAsGuest } from './helpers.ts'
+import { getBoard, openBoard, seedCards, startAsGuest } from './helpers.ts'
 
 const TEXT = {
   en: { guest: 'Continue as guest', board: 'Website Launch', card: /^Design pricing page/, ask: 'Ask AI', newBoard: 'New board', timer: 'Focus timer' },
@@ -33,6 +33,7 @@ async function everyScreen(page: Page, lang: 'en' | 'ar', theme: string, width: 
   const found = await problems(page, 'sign-in')
   await page.getByRole('button', { name: L.guest }).click()
   await expect(page.getByRole('heading', { name: L.board })).toBeVisible()
+  await seedCards(page, [[lang === 'en' ? 'Design pricing page' : 'تصميم صفحة الأسعار']])
   found.push(...(await problems(page, 'board')))
   await page.getByRole('button', { name: L.card }).click()
   found.push(...(await problems(page, 'card')))
@@ -62,37 +63,38 @@ for (const lang of ['en', 'ar'] as const) {
   }
 }
 
-test('T-335 touch drag and drop on a phone; a quick swipe still scrolls', async ({ browser }) => {
+test('T-335 touch drag and drop on a phone, where columns stack; a quick swipe still scrolls', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
   const page = await context.newPage()
   await startAsGuest(page)
-  const id = await openBoard(page, 'Touch', [['T1', 'T2'], []])
+  // Enough cards that the stacked columns are taller than the phone screen.
+  const id = await openBoard(page, 'Touch', [['T1', 'T2', 'T3', 'T4', 'T5', 'T6'], []])
   const cdp = await context.newCDPSession(page)
   const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', x: number, y: number) =>
     cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] })
 
-  // Press and hold, then move to the second column (partly visible at the right edge).
+  // Press and hold a card, then move it down into the next column (stacked below).
   const a = (await page.getByText('T1', { exact: true }).boundingBox())!
   const target = (await page.getByRole('region', { name: 'In Progress' }).boundingBox())!
+  expect(target.y).toBeGreaterThan(a.y)
   const [x0, y0] = [a.x + 20, a.y + a.height / 2]
   await touch('touchStart', x0, y0)
   await page.waitForTimeout(400)
-  for (let i = 1; i <= 15; i++) await touch('touchMove', x0 + ((target.x + 30 - x0) * i) / 15, y0 + 40 * (i / 15))
+  for (let i = 1; i <= 15; i++) await touch('touchMove', x0, y0 + ((target.y + 60 - y0) * i) / 15)
   await page.waitForTimeout(150)
   await touch('touchEnd', 0, 0)
-  // Holding near the screen edge scrolls the board, so the card may land one column further.
   const placed = async () => (await getBoard(page, id)).columns.map((c) => c.cards.map((x) => x.title))
-  await expect.poll(async () => (await placed())[0]).toEqual(['T2'])
-  expect((await placed()).flat()).toContain('T1')
+  // Holding near the screen edge scrolls the page, so the card may land one column further.
+  await expect.poll(async () => (await placed())[0]).toEqual(['T2', 'T3', 'T4', 'T5', 'T6'])
+  expect((await placed()).slice(1).flat()).toContain('T1')
 
-  // A quick swipe (no hold) scrolls the columns back instead of dragging a card.
-  const columns = page.locator('div[class*="_columns_"]').first()
-  const before = await columns.evaluate((el) => el.scrollLeft)
-  const box = (await columns.boundingBox())!
-  const [sx, sy] = [100, box.y + 60]
-  await touch('touchStart', sx, sy)
-  for (let i = 1; i <= 8; i++) await touch('touchMove', sx + i * 25, sy)
+  // A quick swipe (no hold) scrolls the page instead of dragging a card.
+  await page.evaluate(() => scrollTo(0, 0))
+  const before = await page.evaluate(() => scrollY)
+  const card = (await page.getByText('T3', { exact: true }).boundingBox())!
+  await touch('touchStart', card.x + 20, card.y + 10)
+  for (let i = 1; i <= 8; i++) await touch('touchMove', card.x + 20, card.y + 10 - i * 30)
   await touch('touchEnd', 0, 0)
-  await expect.poll(() => columns.evaluate((el) => el.scrollLeft)).toBeLessThan(before)
-  expect((await getBoard(page, id)).columns[0].cards.map((c) => c.title)).toEqual(['T2'])
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(before)
+  expect((await placed())[0]).toEqual(['T2', 'T3', 'T4', 'T5', 'T6'])
 })

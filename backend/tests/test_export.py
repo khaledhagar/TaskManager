@@ -29,12 +29,18 @@ def board(alice):
     return first_board(alice)
 
 
-def rows(response) -> list[dict]:
-    text = response.content.decode("utf-8-sig")
-    return list(csv.DictReader(io.StringIO(text)))
+def rows(response) -> list[list[str]]:
+    return list(csv.reader(io.StringIO(response.content.decode("utf-8-sig"))))
 
 
-def test_csv_has_every_card(alice, board):
+def column_cells(found: list[list[str]], index: int) -> list[tuple[str, str]]:
+    """(task, status) pairs under board column `index`, skipping empty cells."""
+    pairs = [(r[2 * index], r[2 * index + 1]) for r in found[1:]]
+    return [p for p in pairs if p != ("", "")]
+
+
+def test_csv_has_each_board_column_with_its_tasks_and_status(alice, board):
+    """T-766: the user's layout: column name, its tasks below, then a Status column."""
     r = alice.get(f"/api/boards/{board['id']}/export.csv")
     assert r.status_code == 200
     assert r.headers["content-type"].startswith("text/csv")
@@ -43,15 +49,23 @@ def test_csv_has_every_card(alice, board):
     assert disposition.endswith("filename*=UTF-8''Website%20Launch.csv")
     assert r.content.startswith(b"\xef\xbb\xbf")
     found = rows(r)
-    titles = [c["title"] for col in board["columns"] for c in col["cards"]]
-    assert [row["Title"] for row in found] == titles
-    first = board["columns"][1]["cards"][0]
-    row = found[[r["Title"] for r in found].index(first["title"])]
-    assert row["Column"] == board["columns"][1]["title"]
-    assert row["Priority"] == first["priority"]
-    assert row["Due date"] == (first["due_date"] or "")
-    done = sum(i["done"] for i in first["checklist"])
-    assert row["Checklist"] == f"{done}/{len(first['checklist'])}"
+    header = []
+    for col in board["columns"]:
+        header += [col["title"], "Status"]
+    assert found[0] == header
+    tallest = max(len(c["cards"]) for c in board["columns"])
+    assert len(found) == 1 + tallest
+    for i, col in enumerate(board["columns"]):
+        expected = [(c["title"], "Completed" if c["completed"] else "Open") for c in col["cards"]]
+        assert column_cells(found, i) == expected
+
+
+def test_csv_status_words_follow_the_language(alice, board):
+    found = rows(
+        alice.get(f"/api/boards/{board['id']}/export.csv", headers={"Accept-Language": "ar"})
+    )
+    assert found[0][1] == "الحالة"
+    assert {cell for row in found[1:] for cell in row[1::2] if cell} <= {"منجزة", "مفتوحة"}
 
 
 @pytest.mark.parametrize("text", ["=1+1", "+cmd", "-2", "@SUM(A1)", "\t=x", "\r=x"])
@@ -68,14 +82,14 @@ def test_a_formula_title_is_escaped_in_the_file(alice, board):
     column_id = board["columns"][0]["id"]
     alice.post(f"/api/columns/{column_id}/cards", json={"title": "=HYPERLINK(1)"})
     found = rows(alice.get(f"/api/boards/{board['id']}/export.csv"))
-    assert "'=HYPERLINK(1)" in [r["Title"] for r in found]
+    assert "'=HYPERLINK(1)" in [task for task, _ in column_cells(found, 0)]
 
 
 def test_archived_cards_are_left_out(alice, board):
     card = board["columns"][0]["cards"][0]
     alice.post(f"/api/cards/{card['id']}/archive")
     found = rows(alice.get(f"/api/boards/{board['id']}/export.csv"))
-    assert card["title"] not in [r["Title"] for r in found]
+    assert card["title"] not in [task for task, _ in column_cells(found, 0)]
 
 
 def test_json_has_the_board_and_member_emails_only(alice, bob, board):
