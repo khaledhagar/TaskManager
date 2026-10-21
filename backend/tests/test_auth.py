@@ -168,6 +168,7 @@ def test_cookie_secure_in_production(dist, tmp_path):
         env="production",
         frontend_dist=dist,
         database_url=f"sqlite:///{tmp_path / 'prod.db'}",
+        allowed_hosts=("testserver",),
     )
     app = create_app(settings)
     with TestClient(app, base_url="https://testserver") as c:

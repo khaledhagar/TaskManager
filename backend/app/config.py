@@ -3,6 +3,7 @@
 import os
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
@@ -28,10 +29,15 @@ class Settings:
     smtp_password: str = ""
     google_client_id: str = ""
     google_client_secret: str = ""
+    allowed_hosts: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if len(self.jwt_secret) < 32:
             raise ValueError("JWT_SECRET must be at least 32 characters")
+        if self.env not in ("development", "production"):
+            raise ValueError("ENV must be 'development' or 'production'")
+        if self.production and not self.allowed_hosts:
+            raise ValueError("ALLOWED_HOSTS (or APP_URL) must name the site's host in production")
         if self.email_mode not in ("console", "smtp"):
             raise ValueError("EMAIL_MODE must be 'console' or 'smtp'")
 
@@ -48,6 +54,8 @@ def load_settings() -> Settings:
     """Build settings from environment variables; JWT_SECRET is required."""
     d = Settings(jwt_secret="-" * 32)
     env = os.getenv
+    app_url = env("APP_URL", d.app_url).rstrip("/")
+    hosts = env("ALLOWED_HOSTS") or urlparse(app_url).hostname or ""
     return Settings(
         jwt_secret=os.environ["JWT_SECRET"],
         openrouter_api_key=env("OPENROUTER_API_KEY", ""),
@@ -55,7 +63,7 @@ def load_settings() -> Settings:
         database_url=env("DATABASE_URL", d.database_url),
         frontend_dist=Path(env("FRONTEND_DIST", d.frontend_dist)),
         storage_dir=Path(env("STORAGE_DIR", d.storage_dir)),
-        app_url=env("APP_URL", d.app_url).rstrip("/"),
+        app_url=app_url,
         email_mode=env("EMAIL_MODE", d.email_mode),
         smtp_host=env("SMTP_HOST", d.smtp_host),
         smtp_port=int(env("SMTP_PORT", d.smtp_port)),
@@ -63,4 +71,5 @@ def load_settings() -> Settings:
         smtp_password=env("SMTP_PASSWORD", ""),
         google_client_id=env("GOOGLE_CLIENT_ID", ""),
         google_client_secret=env("GOOGLE_CLIENT_SECRET", ""),
+        allowed_hosts=tuple(h.strip() for h in hosts.split(",") if h.strip()),
     )

@@ -4,8 +4,10 @@ import os
 
 import pytest
 from fastapi.testclient import TestClient
+from helpers import FakeLLM
 from sqlmodel import Session
 
+from app import ai, ratelimit
 from app.config import Settings
 
 os.environ.setdefault("JWT_SECRET", "test-" + "x" * 60)
@@ -49,3 +51,13 @@ def client(settings):
     with TestClient(app) as c:
         yield c
     app.state.engine.dispose()
+
+
+@pytest.fixture
+def llm(monkeypatch):
+    """The model, faked; AI rate limits lifted (they have their own tests)."""
+    fake = FakeLLM()
+    monkeypatch.setattr(ai, "complete", fake)
+    monkeypatch.setattr(ratelimit, "AI_PER_MINUTE", ratelimit.Limit(1000, 60))
+    monkeypatch.setattr(ratelimit, "AI_PER_DAY", ratelimit.Limit(1000, 86400))
+    return fake

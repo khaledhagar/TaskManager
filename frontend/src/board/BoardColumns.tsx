@@ -1,6 +1,4 @@
 import {
-  closestCenter,
-  closestCorners,
   DndContext,
   DragOverlay,
   KeyboardSensor,
@@ -9,7 +7,6 @@ import {
   useSensor,
   useSensors,
   type Announcements,
-  type CollisionDetection,
   type DragEndEvent,
   type DragOverEvent,
   type DragStartEvent,
@@ -18,8 +15,10 @@ import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortabl
 import { useState, type ReactNode } from 'react'
 import type { Board } from '../api/boards'
 import { useI18n } from '../i18n/context'
-import css from './board.module.css'
+import cardCss from './card.module.css'
+import css from './column.module.css'
 import { CardItem } from './CardItem'
+import { boardCollision } from './collision'
 import { Column } from './Column'
 import { boardKeyboardCoordinates } from './keyboard'
 import { columnKey, findCard, matchesFilters, moveCard, type Filters } from './logic'
@@ -64,14 +63,6 @@ export function BoardColumns({ board, actions, filters, dragDisabled, composingC
       keyboardCodes: { start: ['Space'], cancel: ['Escape'], end: ['Space', 'Enter'] },
     }),
   )
-
-  const collision: CollisionDetection = (args) =>
-    drag?.type === 'column'
-      ? closestCenter({
-          ...args,
-          droppableContainers: args.droppableContainers.filter((c) => parse(c.id).type === 'column'),
-        })
-      : closestCorners(args)
 
   const columnOf = (b: Board, key: string | number) => {
     const target = parse(key)
@@ -151,7 +142,7 @@ export function BoardColumns({ board, actions, filters, dragDisabled, composingC
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={collision}
+      collisionDetection={boardCollision(drag?.type)}
       accessibility={{ announcements, screenReaderInstructions: { draggable: t('dnd.instructions') } }}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
@@ -182,7 +173,7 @@ export function BoardColumns({ board, actions, filters, dragDisabled, composingC
       </div>
       <DragOverlay dropAnimation={DROP}>
         {activeCard ? (
-          <div className={css.overlay}>
+          <div className={cardCss.overlay}>
             <CardItem card={activeCard} labels={shown.labels} onOpen={() => {}} onToggle={() => {}} />
           </div>
         ) : null}

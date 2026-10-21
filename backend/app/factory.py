@@ -8,9 +8,11 @@ from app import auth, google
 from app.config import Settings
 from app.db import SessionDep, make_engine
 from app.frontend import mount_frontend
+from app.hardening import add_hardening
 from app.i18n import add_language
 from app.mailer import Mailer
 from app.middleware import add_origin_check
+from app.ratelimit import MemoryStore, RateLimiter
 from app.routes import account, ai, background, boards, cards
 from app.routes import files as file_routes
 from app.routes import google as google_routes
@@ -20,10 +22,16 @@ from app.users import cleanup_guests
 
 def create_app(settings: Settings) -> FastAPI:
     """Build the FastAPI app for the given settings."""
-    app = FastAPI(title="Task Manager")
+    docs = (
+        {}
+        if not settings.production
+        else {"docs_url": None, "redoc_url": None, "openapi_url": None}
+    )
+    app = FastAPI(title="Task Manager", **docs)
     app.state.settings = settings
     app.state.engine = make_engine(settings.database_url)
     app.state.mailer = Mailer(settings)
+    app.state.limiter = RateLimiter(MemoryStore())
     app.state.storage = LocalStorage(settings.storage_dir)
     app.state.oauth = google.make_oauth(settings) if settings.google_enabled else None
     # Short-lived cookie holding only the Google sign-in state, nonce and PKCE verifier.
@@ -36,6 +44,7 @@ def create_app(settings: Settings) -> FastAPI:
         https_only=settings.production,
     )
     add_origin_check(app, settings)
+    add_hardening(app, settings)
     add_language(app)
     with Session(app.state.engine, info={"storage": app.state.storage}) as session:
         cleanup_guests(session)

@@ -65,6 +65,17 @@ AR: dict[str, str] = {
         "أعاد المساعد الذكي إجابة غير متوقعة. حاول مرة أخرى."
     ),
     "AI board": "لوحة ذكية",
+    "The request is too large.": "الطلب كبير جدا.",
+    "Too many attempts. Please wait a moment and try again.": (
+        "محاولات كثيرة جدا. انتظر قليلا ثم حاول مرة أخرى."
+    ),
+    "Too many AI requests. Please wait a minute and try again.": (
+        "طلبات كثيرة للذكاء الاصطناعي. انتظر دقيقة ثم حاول مرة أخرى."
+    ),
+    "You have used today's AI requests. Please try again tomorrow.": (
+        "استخدمت طلبات الذكاء الاصطناعي لهذا اليوم. حاول مرة أخرى غدا."
+    ),
+    "Something went wrong on our side. Please try again.": "حدث خطأ من جهتنا. حاول مرة أخرى.",
 }
 
 

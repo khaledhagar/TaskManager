@@ -1,0 +1,189 @@
+/* A card on the board and the card lifted while dragging. */
+.card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  transition: border-color 150ms var(--ease);
+}
+
+.card:hover {
+  border-color: var(--border-strong);
+}
+
+.card[data-completed] .cardTitle {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.check {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-block-start: 12px;
+  margin-inline-start: 10px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface);
+  color: #ffffff;
+}
+
+.check:hover {
+  border-color: var(--success);
+}
+
+.check[aria-checked="true"] {
+  border-color: var(--success);
+  background: var(--success);
+}
+
+.cardBody {
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.cardBody {
+  display: grid;
+  flex: 1;
+  gap: 6px;
+  min-width: 0;
+  padding-block: 10px;
+  padding-inline: 8px 12px;
+  border: 0;
+  border-radius: var(--radius-card);
+  background: transparent;
+  color: var(--text);
+  text-align: start;
+  cursor: pointer;
+}
+
+.cardTitle {
+  overflow-wrap: anywhere;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.priority {
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.priority[data-priority="urgent"] {
+  background: #fde8e6;
+  color: #a3281a;
+}
+
+.priority[data-priority="high"] {
+  background: #fdf0e3;
+  color: #8f4508;
+}
+
+.priority[data-priority="medium"] {
+  background: #e6f3fa;
+  color: #135f87;
+}
+
+.priority[data-priority="low"] {
+  background: var(--surface-sunken);
+  color: var(--muted);
+}
+
+:root[data-theme="dark"] .priority[data-priority="urgent"] {
+  background: rgb(255 138 115 / 16%);
+  color: #ffb3a5;
+}
+
+:root[data-theme="dark"] .priority[data-priority="high"] {
+  background: rgb(240 160 80 / 16%);
+  color: #f6c08c;
+}
+
+:root[data-theme="dark"] .priority[data-priority="medium"] {
+  background: rgb(79 182 230 / 16%);
+  color: #9fd6f1;
+}
+
+.label,
+.due,
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.label {
+  color: var(--text);
+}
+
+.swatch {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+}
+
+.due {
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.due[data-status="overdue"] {
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.due[data-status="soon"] {
+  background: rgb(236 173 10 / 18%);
+  color: #6f5100;
+  font-weight: 600;
+}
+
+:root[data-theme="dark"] .due[data-status="soon"] {
+  color: #f3c74f;
+}
+
+.metaItem[data-complete] {
+  color: var(--success);
+}
+
+.overlay .card {
+  border-color: var(--border-strong);
+  box-shadow: var(--lift);
+  transform: rotate(2deg) scale(1.02);
+  cursor: grabbing;
+  animation: lift 150ms var(--ease);
+}
+
+@keyframes lift {
+  from {
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+/* Touch screens: the small check keeps its look; an invisible layer makes it 40 px to tap. */
+@media (pointer: coarse) {
+  .check::after {
+    position: absolute;
+    inset: -11px;
+    content: "";
+  }
+}

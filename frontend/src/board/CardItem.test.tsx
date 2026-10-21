@@ -3,7 +3,13 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, test, vi } from 'vitest'
 import type { Card } from '../api/boards'
 import { CardItem } from './CardItem'
+import * as display from './display'
 import { Markdown } from './Markdown'
+
+vi.mock('./display', async (load) => {
+  const real = await load<typeof import('./display')>()
+  return { ...real, priorityLabel: vi.fn(real.priorityLabel) }
+})
 
 const iso = (offset: number) => {
   const d = new Date()
@@ -85,5 +91,17 @@ describe('markdown (T-209)', () => {
     render(<Markdown text={'[click](javascript:alert(1))'} />)
     const link = screen.getByText('click').closest('a')
     expect(link?.getAttribute('href') ?? '').not.toMatch(/javascript/i)
+  })
+})
+
+describe('drag performance (NFR-03)', () => {
+  test('a card is not redrawn when only its callbacks change', () => {
+    const draws = vi.mocked(display.priorityLabel)
+    const { rerender } = render(<CardItem card={card} labels={labels} onOpen={vi.fn()} onToggle={vi.fn()} />)
+    const before = draws.mock.calls.length
+    rerender(<CardItem card={card} labels={labels} onOpen={vi.fn()} onToggle={vi.fn()} />)
+    expect(draws.mock.calls.length).toBe(before)
+    rerender(<CardItem card={{ ...card, title: 'New' }} labels={labels} onOpen={vi.fn()} onToggle={vi.fn()} />)
+    expect(draws.mock.calls.length).toBe(before + 1)
   })
 })

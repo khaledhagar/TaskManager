@@ -132,6 +132,16 @@ describe('board edits', () => {
     expect(positions(b, 1)).toEqual([0, 1])
   })
 
+  test('cards whose place does not change keep their identity, so they are not redrawn', () => {
+    const before = board()
+    before.columns[0].cards.forEach((c, i) => (c.position = i))
+    const after = moveCard(before, 3, 2, 1)
+    expect(after.columns[0].cards[0]).toBe(before.columns[0].cards[0])
+    expect(after.columns[0].cards[1]).toBe(before.columns[0].cards[1])
+    expect(after.columns[1].cards[0]).toBe(before.columns[1].cards[0])
+    expect(after.labels).toBe(before.labels)
+  })
+
   test('move past the end goes last', () => {
     expect(ids(moveCard(board(), 1, 3, 99), 2)).toEqual([1])
   })

@@ -1,8 +1,8 @@
 import { AlignLeft, CalendarDays, Check, ListChecks, Paperclip } from 'lucide-react'
-import type { ButtonHTMLAttributes, Ref } from 'react'
+import { memo, type ButtonHTMLAttributes, type Ref } from 'react'
 import type { Card, Label } from '../api/boards'
 import { useI18n } from '../i18n/context'
-import css from './board.module.css'
+import css from './card.module.css'
 import { LABEL_SWATCH, priorityLabel } from './display'
 import { dueLabel, dueStatus } from './logic'
 
@@ -12,11 +12,25 @@ type Props = {
   onOpen: () => void
   onToggle: () => void
   activatorRef?: Ref<HTMLButtonElement>
-  activatorProps?: ButtonHTMLAttributes<HTMLButtonElement>
+  /** Drag handle attributes and listeners from dnd-kit (it keeps them stable between renders). */
+  activatorAttributes?: ButtonHTMLAttributes<HTMLButtonElement>
+  activatorListeners?: ButtonHTMLAttributes<HTMLButtonElement>
 }
 
+/**
+ * Redraw only when what the card shows changes. Callbacks are left out: they act on the card's id
+ * through the board's latest state, so an older one does the same thing. With 200 cards on a
+ * board this keeps dragging smooth (NFR-03).
+ */
+const sameCard = (a: Props, b: Props) =>
+  a.card === b.card &&
+  a.labels === b.labels &&
+  a.activatorRef === b.activatorRef &&
+  a.activatorAttributes === b.activatorAttributes &&
+  a.activatorListeners === b.activatorListeners
+
 /** Card tile: completion toggle, title and a compact row of details. */
-export function CardItem({ card, labels, onOpen, onToggle, activatorRef, activatorProps }: Props) {
+export const CardItem = memo(function CardItem({ card, labels, onOpen, onToggle, activatorRef, activatorAttributes, activatorListeners }: Props) {
   const { t } = useI18n()
   const status = dueStatus(card.due_date, card.completed)
   const cardLabels = labels.filter((l) => card.label_ids.includes(l.id))
@@ -39,7 +53,8 @@ export function CardItem({ card, labels, onOpen, onToggle, activatorRef, activat
         ref={activatorRef}
         className={css.cardBody}
         onClick={onOpen}
-        {...activatorProps}
+        {...activatorAttributes}
+        {...activatorListeners}
       >
         <span className={css.cardTitle} dir="auto">
           {card.title}
@@ -86,4 +101,4 @@ export function CardItem({ card, labels, onOpen, onToggle, activatorRef, activat
       </button>
     </div>
   )
-}
+}, sameCard)

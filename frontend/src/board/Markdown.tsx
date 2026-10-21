@@ -1,5 +1,5 @@
 import ReactMarkdown from 'react-markdown'
-import css from './board.module.css'
+import css from './cardWindow.module.css'
 
 /**
  * Markdown without raw HTML. react-markdown escapes HTML and its default URL transform

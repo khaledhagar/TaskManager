@@ -28,7 +28,11 @@ class Mailer:
     def send(self, email: Email) -> None:
         if self.settings.email_mode == "console":
             self.outbox.append(email)
-            log.info("Email to %s: %s\n%s", email.to, email.subject, email.text)
+            # The text holds a sign-in link: only shown in development logs.
+            if self.settings.production:
+                log.info("Email to %s: %s", email.to, email.subject)
+            else:
+                log.info("Email to %s: %s\n%s", email.to, email.subject, email.text)
             return
         message = EmailMessage()
         message["From"] = f"Task Manager <{self.settings.smtp_user}>"

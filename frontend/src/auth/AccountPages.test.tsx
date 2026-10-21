@@ -44,7 +44,7 @@ describe('forgot password', () => {
 })
 
 describe('reset password (T-219)', () => {
-  beforeEach(() => history.replaceState(null, '', '/reset-password?token=tok-123456789'))
+  beforeEach(() => history.replaceState(null, '', '/reset-password#token=tok-123456789'))
 
   test('validates length and match before calling the server', async () => {
     render(<ResetPassword onSignedIn={vi.fn()} />)
@@ -80,7 +80,7 @@ describe('reset password (T-219)', () => {
 
 describe('verify email', () => {
   test('verifies the token from the link once and signs in', async () => {
-    history.replaceState(null, '', '/verify?token=tok-abcdefghij')
+    history.replaceState(null, '', '/verify#token=tok-abcdefghij')
     vi.mocked(auth.verify).mockResolvedValue(user)
     const onSignedIn = vi.fn()
     render(<VerifyEmail onSignedIn={onSignedIn} />)
@@ -90,7 +90,7 @@ describe('verify email', () => {
   })
 
   test('explains an invalid link', async () => {
-    history.replaceState(null, '', '/verify?token=bad-token-123')
+    history.replaceState(null, '', '/verify#token=bad-token-123')
     vi.mocked(auth.verify).mockRejectedValue(new ApiError(400, 'This link is invalid or has expired.'))
     render(<VerifyEmail onSignedIn={vi.fn()} />)
     expect(await screen.findByRole('alert')).toHaveTextContent('expired')

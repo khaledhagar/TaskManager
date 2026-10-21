@@ -4,7 +4,7 @@ from typing import Literal
 
 from fastapi import APIRouter, HTTPException, Request, Response, UploadFile, status
 
-from app import files
+from app import files, ratelimit
 from app.access import owned_board
 from app.auth import CurrentUser
 from app.db import SessionDep
@@ -39,6 +39,7 @@ async def upload_background(
     board_id: int, file: UploadFile, request: Request, user: CurrentUser, session: SessionDep
 ) -> BackgroundOut:
     board = owned_board(session, user, board_id)
+    ratelimit.enforce(request, f"upload:{user.id}", ratelimit.UPLOADS)
     data = files.make_background(await read_upload(request, file, files.MAX_BACKGROUND_UPLOAD))
     check_quota(session, user, len(data) - board.background_size)
     key = new_key()

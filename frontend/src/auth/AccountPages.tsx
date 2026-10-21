@@ -10,6 +10,8 @@ import { AuthLayout } from './AuthLayout'
 import { emailError, passwordError } from './validation'
 
 const COOLDOWN = 30
+/** The token from an emailed link; it sits after '#', so it never reaches the server. */
+const linkToken = () => new URLSearchParams(location.hash.slice(1)).get('token') ?? ''
 const message = (error: unknown) => (error instanceof Error ? error.message : String(error))
 
 /** After sign up: tells the user where the link went and lets them resend it. */
@@ -132,7 +134,7 @@ export function ForgotPassword() {
 
 /** Opened from the reset email: choose a new password, then sign in. */
 export function ResetPassword({ onSignedIn }: { onSignedIn: (user: User) => void }) {
-  const token = useLocation().params.get('token') ?? ''
+  const token = linkToken()
   const { t } = useI18n()
   const [password, setPassword] = useState('')
   const [repeat, setRepeat] = useState('')
@@ -193,7 +195,7 @@ export function ResetPassword({ onSignedIn }: { onSignedIn: (user: User) => void
 
 /** Opened from the verification email: confirms the address and signs in. */
 export function VerifyEmail({ onSignedIn }: { onSignedIn: (user: User) => void }) {
-  const token = useLocation().params.get('token') ?? ''
+  const token = linkToken()
   const { t, rich } = useI18n()
   const [error, setError] = useState<string | null>(null)
   const started = useRef(false)

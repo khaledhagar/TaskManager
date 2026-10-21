@@ -5,7 +5,7 @@ import type { Card, Column as ColumnType, Label } from '../api/boards'
 import { useI18n } from '../i18n/context'
 import { InlineText } from '../ui/InlineText'
 import { Menu } from '../ui/Menu'
-import css from './board.module.css'
+import css from './column.module.css'
 import { CardComposer } from './CardComposer'
 import { CardItem } from './CardItem'
 import { cardKey, columnKey } from './logic'
@@ -134,7 +134,8 @@ function SortableCard({ card, columnId, labels, disabled, onOpen, onToggle }: Ca
         onOpen={onOpen}
         onToggle={onToggle}
         activatorRef={setActivatorNodeRef}
-        activatorProps={{ ...attributes, ...listeners }}
+        activatorAttributes={attributes}
+        activatorListeners={listeners}
       />
     </li>
   )

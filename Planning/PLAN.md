@@ -24,7 +24,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 11 - Languages: English and Arabic | 9 / 9 | Done |
 | Phase 12 - AI UI | 4 / 4 | Done |
 | Phase 13 - Polish | 8 / 8 | Done |
-| Phase 14 - Security and Non-Functional Hardening | 0 / 5 | Not started |
+| Phase 14 - Security and Non-Functional Hardening | 5 / 5 | Done |
 | Phase 15 - Integration Testing (Playwright) | 0 / 19 | Not started |
 | Phase 16 - Done | 0 / 6 | Not started |
 | Phase 17 - Deployment (Vercel) | 0 / 12 | Not started |
@@ -376,11 +376,11 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 
 ## Phase 14 - Security and Non-Functional Hardening
 
-- [ ] Security headers, Origin check, body size limit, TrustedHost, production settings (`ENV=production`)
-- [ ] Rate limits on auth, guest and AI endpoints
-- [ ] Per-user resource caps
-- [ ] Every SEC-xx item in `Planning/SECURITY.md` checked with its test
-- [ ] Dependency audits clean; ruff and tsc clean; coverage 90% or more
+- [x] Security headers, Origin check, body size limit, TrustedHost, production settings (`ENV=production`)
+- [x] Rate limits on auth, guest and AI endpoints
+- [x] Per-user resource caps
+- [x] Every SEC-xx item in `Planning/SECURITY.md` checked with its test
+- [x] Dependency audits clean; ruff and tsc clean; coverage 90% or more
 
 ## Phase 15 - Integration Testing (Playwright)
 

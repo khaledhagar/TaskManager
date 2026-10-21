@@ -1,17 +1,16 @@
-"""Attachments, board backgrounds and file safety (T-170 to T-183, T-090)."""
+"""Attachments and file safety (T-170 to T-183, T-090)."""
 
 import io
-import zipfile
 
 import pytest
 from fastapi.testclient import TestClient
+from file_helpers import PDF, docx, jpeg_with_gps, png, storage, upload
 from helpers import first_board, sign_up
 from PIL import Image
 from sqlmodel import Session, select
 
 from app import files
-from app.models import Attachment, User
-from app.storage import LocalStorage
+from app.models import Attachment
 
 
 @pytest.fixture
@@ -23,43 +22,6 @@ def user(client):
 @pytest.fixture
 def card_id(user):
     return first_board(user)["columns"][0]["cards"][0]["id"]
-
-
-def png(size=(40, 30), color="red") -> bytes:
-    out = io.BytesIO()
-    Image.new("RGB", size, color).save(out, "PNG")
-    return out.getvalue()
-
-
-def jpeg_with_gps(size=(3000, 2000)) -> bytes:
-    image = Image.new("RGB", size, "blue")
-    exif = Image.Exif()
-    exif[0x8825] = {1: "N", 2: (30.0, 0.0, 0.0)}  # GPSInfo
-    exif[0x010F] = "Camera Maker"
-    out = io.BytesIO()
-    image.save(out, "JPEG", exif=exif.tobytes())
-    return out.getvalue()
-
-
-def docx() -> bytes:
-    out = io.BytesIO()
-    with zipfile.ZipFile(out, "w") as z:
-        z.writestr("[Content_Types].xml", "<Types/>")
-        z.writestr("word/document.xml", "<w:document/>")
-    return out.getvalue()
-
-
-PDF = b"%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF\n"
-
-
-def upload(client, card_id, name, data, ctype="application/octet-stream", **kw):
-    return client.post(
-        f"/api/cards/{card_id}/attachments", files={"file": (name, data, ctype)}, **kw
-    )
-
-
-def storage(client) -> LocalStorage:
-    return client.app.state.storage
 
 
 # --- attachments --------------------------------------------------------------------
@@ -262,99 +224,3 @@ def test_usage_reports_bytes_and_limit(user, card_id):
 )
 def test_safe_filename(raw, clean):
     assert files.safe_filename(raw) == clean
-
-
-# --- board backgrounds ------------------------------------------------------------------
-
-
-def test_background_photo_is_shrunk_and_cleaned(user):
-    board_id = first_board(user)["id"]
-    r = user.put(
-        f"/api/boards/{board_id}/background",
-        files={"file": ("trip.jpg", jpeg_with_gps(), "image/jpeg")},
-    )
-    assert r.status_code == 200
-    assert r.json()["kind"] == "image"
-    image = user.get(f"/api/boards/{board_id}/background")
-    assert image.headers["content-type"] == "image/webp"
-    assert len(image.content) <= files.MAX_BACKGROUND_STORED
-    stored = Image.open(io.BytesIO(image.content))
-    assert stored.format == "WEBP"
-    assert max(stored.size) <= 2560
-    assert 0x8825 not in stored.getexif()
-    assert first_board(user)["background"]["kind"] == "image"
-
-
-def test_background_rejects_non_images(user):
-    board_id = first_board(user)["id"]
-    fake = user.put(
-        f"/api/boards/{board_id}/background", files={"file": ("x.png", b"nope", "image/png")}
-    )
-    assert fake.status_code == 400
-    pdf = user.put(
-        f"/api/boards/{board_id}/background", files={"file": ("x.pdf", PDF, "application/pdf")}
-    )
-    assert pdf.status_code == 400
-
-
-def test_background_upload_limit(user, monkeypatch):
-    monkeypatch.setattr(files, "MAX_BACKGROUND_UPLOAD", 500)
-    board_id = first_board(user)["id"]
-    r = user.put(
-        f"/api/boards/{board_id}/background",
-        files={"file": ("x.png", png((300, 300)), "image/png")},
-    )
-    assert r.status_code == 413
-
-
-def test_background_preset_and_remove(user):
-    board_id = first_board(user)["id"]
-    r = user.put(f"/api/boards/{board_id}/background/preset", json={"preset": "dusk"})
-    assert r.json() == {"kind": "preset", "preset": "dusk", "version": r.json()["version"]}
-    assert (
-        user.put(f"/api/boards/{board_id}/background/preset", json={"preset": "neon"}).status_code
-        == 422
-    )
-    user.put(f"/api/boards/{board_id}/background", files={"file": ("bg.png", png(), "image/png")})
-    assert len(list(storage(user).root.iterdir())) == 1
-    assert user.delete(f"/api/boards/{board_id}/background").status_code == 204
-    assert first_board(user)["background"]["kind"] == "none"
-    assert list(storage(user).root.iterdir()) == []
-    assert user.get(f"/api/boards/{board_id}/background").status_code == 404
-
-
-def test_background_counts_toward_quota(user, monkeypatch):
-    board_id = first_board(user)["id"]
-    user.put(f"/api/boards/{board_id}/background", files={"file": ("bg.png", png(), "image/png")})
-    assert user.get("/api/files/usage").json()["used"] > 0
-
-
-# --- storage ------------------------------------------------------------------
-
-
-def test_local_storage(tmp_path):
-    store = LocalStorage(tmp_path / "s")
-    store.put("abc", b"data")
-    assert store.get("abc") == b"data"
-    assert store.get("missing") is None
-    store.delete("abc")
-    store.delete("abc")
-    assert store.get("abc") is None
-    with pytest.raises(ValueError):
-        store.put("../escape", b"x")
-
-
-def test_guest_cleanup_removes_files(client, settings):
-    from datetime import UTC, datetime, timedelta
-
-    from app.users import cleanup_guests
-
-    client.post("/api/auth/guest")
-    guest_card = first_board(client)["columns"][0]["cards"][0]["id"]
-    assert upload(client, guest_card, "a.txt", b"x").status_code == 201
-    with Session(client.app.state.engine, info={"storage": storage(client)}) as s:
-        guest = s.exec(select(User)).one()
-        guest.created_at = datetime.now(UTC) - timedelta(days=8)
-        s.commit()
-        assert cleanup_guests(s) == 1
-    assert list(storage(client).root.iterdir()) == []

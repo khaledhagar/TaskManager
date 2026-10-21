@@ -2,18 +2,18 @@
 
 Handoff notes for the next working session. Read this first, then `CLAUDE.md`, then the Progress table in `Planning/PLAN.md`.
 
-## Where the project stands (2026-10-20)
+## Where the project stands (2026-10-21)
 
-- Phases 1-13 are done (`main`, https://github.com/khaledhagar/TaskManager).
-- Next: **Phase 14 - Security and Non-Functional Hardening** (see "Next steps" below).
-- Tests: backend 219 passing (plus 1 live AI test, skipped by default); frontend 200 passing. Lint, format and type checks are clean.
-- Checklists: 152 tests ticked in `Planning/TEST_PLAN.md`, 59 items ticked in `Planning/SECURITY.md`.
+- Phases 1-14 are done and pushed (`main`, https://github.com/khaledhagar/TaskManager).
+- **Next: Phase 15 (Playwright integration tests).** The user asked to run Phases 14, 15 and 16 back to back without stopping for approval, with a commit + push and a log update after each phase, and to stop before Phase 17 (Deployment).
+- Tests: backend 273 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 209 passing. Lint, format and type checks are clean.
+- Checklists: 170 tests ticked in `Planning/TEST_PLAN.md`, 96 items ticked in `Planning/SECURITY.md`.
 
 | Done | Phase |
 |------|-------|
-| Yes | 1 Scaffolding, 2 Database, 3 Auth, 4 Board API, 5 AI backend, 6 Account security, 7 Frontend foundation, 8 Board UI, 9 Files, 10 Focus timer, 11 Languages, 12 AI UI, 13 Polish |
-| Next | 14 Hardening (security headers, rate limits, audits, coverage) |
-| Later | 15 Playwright tests, 16 Done, 17 Deployment (Vercel) |
+| Yes | 1 Scaffolding to 14 Hardening |
+| Next | 15 Playwright tests |
+| Later | 16 Done, 17 Deployment (Vercel) |
 
 ## How we work (the user's preferences)
 
@@ -92,6 +92,11 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 - **Countdowns** (resend email, focus timer) are computed from a fixed end time, never by chaining one-second timers.
 - **Origin check middleware** blocks cross-site POST/PUT/PATCH/DELETE; the Vite dev server origins (`localhost:5173`) are allowed outside production.
 
+- **`uv sync` "Access is denied" removing a package folder in `.venv`:** OneDrive leaves empty placeholder folders (ReadOnly + ReparsePoint + Pinned). Clear the flags and remove the empty folders (`attrib -R -P <dir>` then `rmdir`), then `uv sync --reinstall-package <name>`.
+- **`npm run build` fails with EBUSY on `dist/assets`:** a shell whose working directory is inside `dist` locks it on Windows. `cd` out first.
+- **Stopping a background server:** stopping the shell can leave the uvicorn child running on port 8000. Find it with `netstat -ano | grep ":8000 .*LISTEN"` and stop it with `taskkill //PID <pid> //T //F`.
+- **Use `http://127.0.0.1:8000` in curl**, `localhost` may resolve to IPv6 and fail.
+
 ## Decisions already made
 
 - **AI:** LiteLLM via OpenRouter, free models only (`nvidia/nemotron-3.5-super-vl:free`, backup `nvidia/nemotron-3-super-120b-a12b:free`). The user will not buy credits, so the account has **50 AI requests per day in total**. Cerebras was dropped (paid). Per-user limits (3/min, 10/day) are planned in Phase 14.
@@ -115,16 +120,23 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 - **Reminder for the end of the project:** the FINAL task of Phase 16, right before Deployment, is deleting `backend/taskmanager.db` and `backend/storage/`. Remind the user then.
 - The free AI quota is 50 requests per day for the whole account; Phase 12 used 1 for the live check.
 
-## Next steps: Phase 14 - Security and Non-Functional Hardening
+## Hardening (Phase 14): how it works
 
-Tasks are in "Phase 14" in `PLAN.md`; the open items are the unticked SEC-xx and NFR-xx lines in `SECURITY.md` (49 left, some belong to Phases 15-17), and T-102 in `TEST_PLAN.md`.
+- `app/hardening.py`: CSP, nosniff, Referrer-Policy, Permissions-Policy on every response; HSTS and `TrustedHostMiddleware` only in production; 1 MB limit for non-multipart bodies (413); generic translated 500 without stack traces. API docs off in production.
+- `app/ratelimit.py`: `MemoryStore` + `RateLimiter` (fixed windows). Limits: sign in/up 10/min per IP (shared), guest 5/h per IP, forgot/resend 3/h per address and 10/h per IP, AI 3/min and 10/day per user, uploads 20/min per user. 429 with a translated message and `Retry-After`. **The guest limit is easy to hit during browser checks**: restart the server (memory store) or reuse one saved guest session (`context.storageState`).
+- Email links carry the token after `#` (`/verify#token=...`, `/reset-password#token=...`).
+- `app/main.py` turns on INFO logs for the `taskmanager` logger. Before this, console-mode emails (verification and reset links) were never printed, so local verification was impossible.
+- Source checks: `backend/tests/test_checks.py` and `frontend/src/test/source.test.ts` (no file over 300 lines except `i18n/en.ts` / `ar.ts`, every `css.x` exists in its CSS module, no external URLs, bundle under 300 KB gzipped when `dist` exists).
+- `board.module.css` was split into `board`, `column`, `card` and `cardWindow` modules.
+- Coverage floor: `[tool.coverage.report] fail_under = 90` in `backend/pyproject.toml`.
+- **Drag crash fixed:** with many cards, a card dragged into another column could flip back and forth between two columns until React stopped with "Maximum update depth exceeded" (blank page). Cause: `closestCorners` picks by the card's rectangle, and moving the card changes column heights. Fix: `board/collision.ts` picks the column under the pointer (`pointerWithin`), with `closestCorners` only for keyboard drags. `CardItem` is memoized and `renumber` keeps unchanged cards, so a drag redraws only cards that change.
+- **NFR-03 left open:** with 200 cards there are still 2-3 pauses of about 170-200 ms per drag (dnd-kit re-measures every card). Recorded in `SECURITY.md`; needs the user's decision.
+- Scratch scripts used for these checks (not in the repo): a 200-card drag with frame timing, and a drag regression check (reorder, cross-column, keyboard, reload).
 
-Suggested order (test first at each step):
+## Next steps: Phase 15 - Integration Testing (Playwright)
 
-1. **Rate limits** behind one swappable store class (memory now, Redis at deployment): sign in / sign up 10 per minute per IP (SEC-50), guest 5 per hour per IP (SEC-51), AI 3 per minute and 10 per day per user (SEC-52, T-102), forgot / resend 3 per hour per email and 10 per hour per IP (SEC-121), uploads 20 per minute per user (SEC-138); 429 with a clear message (SEC-53).
-2. **Security headers** (CSP, nosniff, Referrer-Policy, Permissions-Policy, HSTS in production) (SEC-80 to SEC-83, SEC-122); TrustedHost (SEC-92); docs off in production (SEC-91); generic 500 without stack traces (SEC-93); 1 MB body limit (SEC-43); JSON-only bodies (SEC-31).
-3. Check the remaining items with a test each: string length limits (SEC-40), no string-built SQL (SEC-44), API key never sent to the browser (SEC-70), chat actions only on Confirm (SEC-71), logs without secrets (SEC-94), git-ignored secrets (SEC-90).
-4. **Audits and quality:** `uv run --with pip-audit pip-audit`, `npm audit --omit=dev`, locked versions (SEC-95 to SEC-97); coverage 90% or more; performance NFR-01 to NFR-03. The JS bundle is 509 kB minified / 157 kB gzipped: within NFR-02 (300 kB gzipped), but Vite warns above 500 kB raw; consider lazy-loading `react-markdown` or the AI panel.
-5. Review, tick, commit and push.
+Tasks are in "Phase 15" in `PLAN.md`; tests T-300 to T-355 in `TEST_PLAN.md`.
 
-Known items: native date inputs follow the browser's locale, not the page language.
+- Note: `TEST_PLAN.md` has two different tests numbered T-330 and two numbered T-331 (lines ~227-228 and ~247-248). Renumber the second pair before ticking (the tick script ticks every match).
+- No `playwright.config.ts` or e2e folder exists yet. `npm run e2e` runs `playwright test`. Use Edge (`channel: 'msedge'`), a fresh scratch database per run (`DATABASE_URL`, `STORAGE_DIR`) and a `webServer` that starts uvicorn.
+- Live AI tests (T-314 to T-316) use the free daily quota (50 requests per day for the whole account); run them once.

@@ -1,6 +1,7 @@
 """Ownership-checked lookups. Anything not owned by the user is reported as 404."""
 
 from fastapi import HTTPException, status
+from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 
 from app.i18n import tr
@@ -15,6 +16,22 @@ def _found[T](obj: T | None) -> T:
 
 def owned_board(session: Session, user: User, board_id: int) -> Board:
     stmt = select(Board).where(Board.id == board_id, Board.owner_id == user.id)
+    return _found(session.exec(stmt).first())
+
+
+def owned_board_full(session: Session, user: User, board_id: int) -> Board:
+    """The board with columns, cards and their details, loaded in a few queries (NFR-01)."""
+    cards = selectinload(Board.columns).selectinload(BoardColumn.cards)
+    stmt = (
+        select(Board)
+        .where(Board.id == board_id, Board.owner_id == user.id)
+        .options(
+            selectinload(Board.labels),
+            cards.selectinload(Card.labels),
+            cards.selectinload(Card.checklist),
+            cards.selectinload(Card.attachments),
+        )
+    )
     return _found(session.exec(stmt).first())
 
 

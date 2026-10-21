@@ -4,7 +4,7 @@ import type { Card } from '../api/boards'
 import { useI18n } from '../i18n/context'
 import { ChecklistSuggest } from '../ai/ChecklistSuggest'
 import ui from '../ui/ui.module.css'
-import css from './board.module.css'
+import css from './cardWindow.module.css'
 import type { BoardActions } from './useBoard'
 
 /** Checklist with progress; items can be ticked, renamed in place, deleted and added. */

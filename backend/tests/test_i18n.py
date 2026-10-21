@@ -7,22 +7,14 @@ from pathlib import Path
 
 import pytest
 from helpers import PASSWORD, column_titles, first_board, outbox, sign_up
-from test_ai import FakeLLM
 
-from app import ai, limits
+from app import limits
 from app.assistant import BoardDraft, ChatDraft, ChecklistDraft, ColumnDraft
 from app.i18n import AR
 from app.templates import TEMPLATES
 
 APP = Path(__file__).parent.parent / "app"
 AR_HEADER = {"Accept-Language": "ar"}
-
-
-@pytest.fixture
-def llm(monkeypatch):
-    fake = FakeLLM()
-    monkeypatch.setattr(ai, "complete", fake)
-    return fake
 
 
 def bad_signin(client, headers=None):
@@ -87,12 +79,16 @@ def _calls(*names: str):
 
 def _texts():
     """Message texts passed to tr() or to the helpers that forward to it."""
-    for module, call in _calls("tr", "_bad", "check"):
+    for module, call in _calls("tr", "_bad", "check", "enforce"):
         for arg in call.args:
             if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
                 yield arg.value
             elif isinstance(arg, ast.Name) and isinstance(getattr(module, arg.id, None), str):
                 yield getattr(module, arg.id)
+            elif isinstance(arg, ast.Attribute) and isinstance(arg.value, ast.Name):
+                value = getattr(getattr(module, arg.value.id, None), arg.attr, None)
+                if isinstance(value, str):
+                    yield value
 
 
 def test_every_error_message_is_translated():
@@ -140,7 +136,7 @@ def test_verification_email_is_in_arabic(client):
     )
     email = outbox(client)[-1]
     assert email.subject == "أكّد بريدك الإلكتروني في مدير المهام"
-    assert "http://app.test/verify?token=" in email.text
+    assert "http://app.test/verify#token=" in email.text
     assert "24 ساعة" in email.text
 
 
@@ -149,7 +145,7 @@ def test_reset_email_is_in_arabic(client):
     client.post("/api/auth/forgot-password", json={"email": "alice@example.com"}, headers=AR_HEADER)
     email = outbox(client)[-1]
     assert email.subject == "إعادة تعيين كلمة مرور مدير المهام"
-    assert "http://app.test/reset-password?token=" in email.text
+    assert "http://app.test/reset-password#token=" in email.text
 
 
 def test_emails_stay_english_by_default(client):
@@ -194,18 +190,21 @@ def test_ai_prompts_ask_for_the_request_language(client, llm):
     card = board["columns"][0]["cards"][0]
 
     llm.result = ChecklistDraft(items=["a"])
-    client.post(f"/api/ai/cards/{card['id']}/checklist")
+    assert client.post(f"/api/ai/cards/{card['id']}/checklist").status_code == 200
     assert "Answer in English." in llm.prompt
-    client.post(f"/api/ai/cards/{card['id']}/checklist", headers=AR_HEADER)
+    assert (
+        client.post(f"/api/ai/cards/{card['id']}/checklist", headers=AR_HEADER).status_code == 200
+    )
     assert "Answer in Arabic." in llm.prompt
 
     llm.result = BoardDraft(title="ب", columns=[ColumnDraft(title="أ")])
-    client.post("/api/ai/boards", json={"description": "a small project"}, headers=AR_HEADER)
+    r = client.post("/api/ai/boards", json={"description": "a small project"}, headers=AR_HEADER)
+    assert r.status_code == 201
     assert "Answer in Arabic." in llm.prompt
 
     llm.result = ChatDraft(reply="ok")
     body = {"board_id": board["id"], "messages": [{"role": "user", "content": "hi"}]}
-    client.post("/api/ai/chat", json=body, headers=AR_HEADER)
+    assert client.post("/api/ai/chat", json=body, headers=AR_HEADER).status_code == 200
     assert "Answer in Arabic." in llm.prompt
 
 

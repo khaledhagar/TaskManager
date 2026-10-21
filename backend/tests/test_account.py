@@ -118,7 +118,7 @@ def test_forgot_password_is_enumeration_safe(client):
     assert known.status_code == unknown.status_code == 202
     assert known.json() == unknown.json()
     assert len(outbox(client)) == sent
-    assert "/reset-password?token=" in outbox(client)[-1].text
+    assert "/reset-password#token=" in outbox(client)[-1].text
 
 
 def test_reset_sets_new_password(client):
@@ -223,7 +223,7 @@ def test_links_use_app_url_not_host_header(client, settings):
         json={"email": EMAIL, "password": PASSWORD},
         headers={"host": "evil.example"},
     )
-    assert f"{settings.app_url}/verify?token=" in outbox(client)[-1].text
+    assert f"{settings.app_url}/verify#token=" in outbox(client)[-1].text
     assert "evil.example" not in outbox(client)[-1].text
 
 

@@ -12,7 +12,7 @@ def outbox(client: TestClient) -> list:
 def link_token(client: TestClient, path: str = "/verify") -> str:
     """Token from the link in the most recent email for `path`."""
     text = outbox(client)[-1].text
-    return text.split(f"{path}?token=")[1].split()[0]
+    return text.split(f"{path}#token=")[1].split()[0]
 
 
 def sign_up(client: TestClient, email: str = "alice@example.com") -> None:
@@ -34,3 +34,19 @@ def column_titles(board: dict) -> list[str]:
 
 def card_titles(column: dict) -> list[str]:
     return [c["title"] for c in column["cards"]]
+
+
+class FakeLLM:
+    """Stands in for `ai.complete`: records calls and returns a prepared draft."""
+
+    def __init__(self):
+        self.result = None
+        self.calls = []
+
+    def __call__(self, messages, schema, api_key):
+        self.calls.append({"messages": messages, "schema": schema})
+        return self.result
+
+    @property
+    def prompt(self) -> str:
+        return "\n".join(m["content"] for m in self.calls[-1]["messages"])

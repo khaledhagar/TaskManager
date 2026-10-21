@@ -5,7 +5,7 @@ from urllib.parse import quote
 from fastapi import APIRouter, HTTPException, Request, Response, UploadFile, status
 from sqlmodel import Session, func, select
 
-from app import files
+from app import files, ratelimit
 from app.access import owned_card
 from app.auth import CurrentUser
 from app.db import SessionDep
@@ -68,6 +68,7 @@ async def upload_attachment(
     card_id: int, file: UploadFile, request: Request, user: CurrentUser, session: SessionDep
 ) -> AttachmentOut:
     card = owned_card(session, user, card_id)
+    ratelimit.enforce(request, f"upload:{user.id}", ratelimit.UPLOADS)
     data = await read_upload(request, file, files.MAX_ATTACHMENT)
     if len(card.attachments) >= files.MAX_PER_CARD:
         raise HTTPException(

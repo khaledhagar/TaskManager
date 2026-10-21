@@ -59,7 +59,7 @@ describe('app routing', () => {
   })
 
   test('the verification link signs in and opens the app', async () => {
-    history.replaceState(null, '', '/verify?token=tok-1234567890')
+    history.replaceState(null, '', '/verify#token=tok-1234567890')
     vi.mocked(auth.me).mockRejectedValue(new ApiError(401, 'Not signed in'))
     vi.mocked(auth.verify).mockResolvedValue(member)
     renderApp()

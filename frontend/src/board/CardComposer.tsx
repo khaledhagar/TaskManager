@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useI18n } from '../i18n/context'
 import ui from '../ui/ui.module.css'
-import css from './board.module.css'
+import css from './column.module.css'
 
 /** Add cards one after another: Enter adds and keeps the field open, Escape closes. */
 export function CardComposer({ onAdd, onClose }: { onAdd: (title: string) => void; onClose: () => void }) {

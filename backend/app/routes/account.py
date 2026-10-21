@@ -3,7 +3,7 @@
 from fastapi import APIRouter, HTTPException, Request, Response, status
 from pydantic import BaseModel, EmailStr, Field
 
-from app import email_tokens
+from app import email_tokens, ratelimit
 from app.account import send_reset, send_verification
 from app.auth import CurrentUser, Password, UserOut, start_session
 from app.db import SessionDep
@@ -44,6 +44,12 @@ class Answer(BaseModel):
     detail: str
 
 
+def _limit_emails(request: Request, email: str) -> None:
+    """Emails we send on request: limited per address and per IP (SEC-121)."""
+    ratelimit.enforce(request, f"email-ip:{ratelimit.client_ip(request)}", ratelimit.EMAIL_PER_IP)
+    ratelimit.enforce(request, f"email:{email.lower()}", ratelimit.EMAIL_PER_ADDRESS)
+
+
 def _consume(session: SessionDep, token: str, purpose: TokenPurpose) -> User:
     user = email_tokens.consume(session, token, purpose)
     if user is None:
@@ -66,6 +72,7 @@ def verify(body: TokenIn, request: Request, response: Response, session: Session
 
 @router.post("/resend-verification", status_code=202)
 def resend_verification(body: EmailIn, request: Request, session: SessionDep) -> Answer:
+    _limit_emails(request, body.email)
     user = find_by_email(session, body.email.lower())
     if user and not user.email_verified and user.password_hash:
         send_verification(request, session, user)
@@ -74,6 +81,7 @@ def resend_verification(body: EmailIn, request: Request, session: SessionDep) ->
 
 @router.post("/forgot-password", status_code=202)
 def forgot_password(body: EmailIn, request: Request, session: SessionDep) -> Answer:
+    _limit_emails(request, body.email)
     user = find_by_email(session, body.email.lower())
     if user:
         send_reset(request, session, user)

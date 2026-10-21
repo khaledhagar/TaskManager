@@ -3,7 +3,7 @@ import { useState } from 'react'
 import type { Card, Label, LabelColor } from '../api/boards'
 import { useI18n } from '../i18n/context'
 import ui from '../ui/ui.module.css'
-import css from './board.module.css'
+import css from './cardWindow.module.css'
 import { LABEL_COLORS, LABEL_SWATCH } from './display'
 import type { BoardActions } from './useBoard'
 

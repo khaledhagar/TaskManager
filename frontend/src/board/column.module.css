@@ -1,0 +1,202 @@
+/* Columns: column head, card list, add card. */
+.columns {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-height: 60vh;
+  padding-bottom: 12px;
+  overflow-x: auto;
+}
+
+.column {
+  display: grid;
+  flex: 0 0 284px;
+  gap: 8px;
+  padding: 10px;
+  border-radius: var(--radius-panel);
+  background: var(--surface-sunken);
+}
+
+.column[data-dragging] {
+  opacity: 0.5;
+}
+
+.columnHead {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+}
+
+.grip,
+.columnMenu {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--muted);
+}
+
+.grip {
+  cursor: grab;
+}
+
+.grip {
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.grip:hover,
+.columnMenu:hover {
+  background: var(--border);
+  color: var(--ink);
+}
+
+.columnTitle {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-sm);
+}
+
+.columnTitleButton {
+  max-width: calc(100% + 6px);
+  padding: 2px 6px;
+  margin-inline-start: -6px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.columnTitleButton:hover {
+  background: var(--surface-sunken);
+}
+
+.columnTitleInput {
+  width: 100%;
+  padding: 2px 6px;
+  margin-inline-start: -6px;
+  border: 1px solid var(--focus);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+.count {
+  min-width: 22px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--border);
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-align: center;
+}
+
+.cards {
+  display: grid;
+  gap: 8px;
+  min-height: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* The empty spot shows where the card will land. */
+.cardSlot[data-dragging] {
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-card);
+}
+
+.cardSlot[data-dragging] > * {
+  visibility: hidden;
+}
+
+.emptyColumn {
+  padding: 18px 8px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-card);
+  color: var(--muted);
+  font-size: var(--text-xs);
+  text-align: center;
+}
+
+.addCard {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.addCard:hover {
+  background: var(--border);
+  color: var(--ink);
+}
+
+.composer {
+  display: grid;
+  gap: 8px;
+}
+
+.composerInput {
+  min-height: 64px;
+  padding: 8px 10px;
+  resize: none;
+}
+
+.inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Phones: columns scroll sideways and settle on a column edge. */
+@media (max-width: 640px) {
+  .columns {
+    scroll-snap-type: x proximity;
+  }
+
+  .column {
+    scroll-snap-align: start;
+  }
+}
+
+/* Touch screens: every control is at least 40 px to tap. */
+@media (pointer: coarse) {
+  .grip,
+  .columnMenu {
+    width: 40px;
+    height: 40px;
+  }
+
+  .columnHead {
+    min-height: 40px;
+  }
+
+  .columnTitleButton {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .addCard {
+    height: 40px;
+  }
+}

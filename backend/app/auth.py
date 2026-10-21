@@ -5,6 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel, EmailStr, Field
 
+from app import ratelimit
 from app.account import send_verification
 from app.db import SessionDep
 from app.i18n import Language, tr
@@ -99,6 +100,7 @@ def new_email(session: SessionDep, email: str) -> str:
 
 @router.post("/signup", status_code=201)
 def signup(creds: Credentials, request: Request, session: SessionDep) -> PendingVerification:
+    ratelimit.enforce(request, f"signin:{ratelimit.client_ip(request)}", ratelimit.SIGN_IN)
     user = create_user(session, new_email(session, creds.email), hash_password(creds.password))
     send_verification(request, session, user)
     return PendingVerification(email=user.email)
@@ -108,6 +110,7 @@ def signup(creds: Credentials, request: Request, session: SessionDep) -> Pending
 def signin(
     creds: Credentials, request: Request, response: Response, session: SessionDep
 ) -> UserOut:
+    ratelimit.enforce(request, f"signin:{ratelimit.client_ip(request)}", ratelimit.SIGN_IN)
     user = find_by_email(session, creds.email.lower())
     if not verify_password(creds.password, user.password_hash if user else None):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, tr("Invalid email or password"))
@@ -121,6 +124,7 @@ def signin(
 
 @router.post("/guest", status_code=201)
 def guest(request: Request, response: Response, session: SessionDep) -> UserOut:
+    ratelimit.enforce(request, f"guest:{ratelimit.client_ip(request)}", ratelimit.GUEST)
     return start_session(request, response, create_user(session, None, None))
 
 

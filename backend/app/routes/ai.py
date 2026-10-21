@@ -6,11 +6,11 @@ from fastapi import APIRouter, Request
 from pydantic import BaseModel, Field
 from sqlmodel import func, select
 
-from app import ai, assistant, limits
-from app.access import owned_board, owned_card
+from app import ai, assistant, limits, ratelimit
+from app.access import owned_board_full, owned_card
 from app.auth import CurrentUser
 from app.db import SessionDep
-from app.models import Board
+from app.models import Board, User
 from app.schemas import BoardSummary, Strict, text
 from app.seed import build_from_data
 
@@ -40,7 +40,10 @@ class ChatReply(BaseModel):
     actions: list[assistant.ChatAction]
 
 
-def _key(request: Request) -> str:
+def _key(request: Request, user: User) -> str:
+    """The API key for one model call, counted against the user's AI limits (SEC-52)."""
+    ratelimit.enforce(request, f"ai-minute:{user.id}", ratelimit.AI_PER_MINUTE, ratelimit.AI_MINUTE)
+    ratelimit.enforce(request, f"ai-day:{user.id}", ratelimit.AI_PER_DAY, ratelimit.AI_DAY)
     return request.app.state.settings.openrouter_api_key
 
 
@@ -49,7 +52,9 @@ def suggest_checklist(
     card_id: int, request: Request, user: CurrentUser, session: SessionDep
 ) -> Suggestions:
     card = owned_card(session, user, card_id)
-    draft = ai.complete(assistant.checklist_messages(card), assistant.ChecklistDraft, _key(request))
+    draft = ai.complete(
+        assistant.checklist_messages(card), assistant.ChecklistDraft, _key(request, user)
+    )
     return Suggestions(items=assistant.clean_checklist(draft))
 
 
@@ -60,16 +65,18 @@ def board_starter(
     count = session.exec(select(func.count()).where(Board.owner_id == user.id)).one()
     limits.check(count, limits.BOARDS_PER_USER, "Limit reached: at most {cap} boards")
     messages = assistant.board_messages(body.description)
-    draft = ai.complete(messages, assistant.BoardDraft, _key(request))
+    draft = ai.complete(messages, assistant.BoardDraft, _key(request, user))
     board = build_from_data(session, user.id, assistant.clean_board(draft))
     return BoardSummary.model_validate(board)
 
 
 @router.post("/chat")
 def chat(body: ChatRequest, request: Request, user: CurrentUser, session: SessionDep) -> ChatReply:
-    board = owned_board(session, user, body.board_id)
+    board = owned_board_full(session, user, body.board_id)
     history = [m.model_dump() for m in body.messages]
-    draft = ai.complete(assistant.chat_messages(board, history), assistant.ChatDraft, _key(request))
+    draft = ai.complete(
+        assistant.chat_messages(board, history), assistant.ChatDraft, _key(request, user)
+    )
     return ChatReply(
         reply=draft.reply.strip()[:4000], actions=assistant.clean_actions(board, draft.actions)
     )

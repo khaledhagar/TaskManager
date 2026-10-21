@@ -65,8 +65,9 @@ export function progress(board: Board) {
   return { done, total: cards.length, percent: cards.length ? Math.round((done / cards.length) * 100) : 0 }
 }
 
+/** Number items 0, 1, 2...; an item already in place is kept as is, so it is not redrawn. */
 const renumber = <T extends { position: number }>(items: T[]): T[] =>
-  items.map((item, position) => ({ ...item, position }))
+  items.map((item, position) => (item.position === position ? item : { ...item, position }))
 
 function mapColumns(board: Board, fn: (column: Column) => Column): Board {
   return { ...board, columns: board.columns.map(fn) }

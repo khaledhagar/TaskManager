@@ -9,7 +9,8 @@ from app.models import TokenPurpose, User
 
 
 def _link(request: Request, path: str, token: str) -> str:
-    return f"{request.app.state.settings.app_url}{path}?token={token}"
+    """The token goes after '#': browsers never send it to servers, logs or Referer headers."""
+    return f"{request.app.state.settings.app_url}{path}#token={token}"
 
 
 def send_verification(request: Request, session: Session, user: User) -> None:

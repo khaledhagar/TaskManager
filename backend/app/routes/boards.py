@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, status
 from sqlmodel import func, select
 
 from app import limits
-from app.access import owned_board, owned_column, owned_label, renumber
+from app.access import owned_board, owned_board_full, owned_column, owned_label, renumber
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.i18n import tr
@@ -42,7 +42,7 @@ def create_board(body: BoardCreate, user: CurrentUser, session: SessionDep) -> B
 
 @router.get("/boards/{board_id}")
 def get_board(board_id: int, user: CurrentUser, session: SessionDep) -> BoardOut:
-    return board_out(owned_board(session, user, board_id))
+    return board_out(owned_board_full(session, user, board_id))
 
 
 @router.patch("/boards/{board_id}")

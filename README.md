@@ -24,7 +24,7 @@ Open http://localhost:8000
 ## Test
 
 ```bash
-cd backend && uv run pytest
+cd backend && uv run pytest --cov=app   # fails under 90% coverage
 cd frontend && npm test
 cd frontend && npx playwright test
 ```
@@ -49,6 +49,20 @@ GOOGLE_CLIENT_SECRET=...
 ```
 
 Google OAuth redirect URI: `{APP_URL}/api/auth/google/callback`.
+
+Optional settings:
+
+```
+ENV=production            # development (default) or production: HSTS, trusted hosts, no API docs
+ALLOWED_HOSTS=example.com # comma-separated; defaults to the host of APP_URL
+DATABASE_URL=sqlite:///path/to/taskmanager.db   # default: backend/taskmanager.db
+STORAGE_DIR=path/to/storage                     # uploaded files; default: backend/storage
+```
+
+## Backup
+
+Stop the server, then copy the database file (`backend/taskmanager.db`, or the path in
+`DATABASE_URL`) and the `backend/storage/` folder. Restore by copying them back.
 
 On Windows, if the project path is deep, also set `CUSTOM_TIKTOKEN_CACHE_DIR` to a short folder
 (for example `C:/Users/<you>/.cache/tiktoken`). LiteLLM's tokenizer file otherwise exceeds the

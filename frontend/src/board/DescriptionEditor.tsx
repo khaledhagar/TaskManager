@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useI18n } from '../i18n/context'
 import ui from '../ui/ui.module.css'
-import css from './board.module.css'
+import css from './cardWindow.module.css'
 import { Markdown } from './Markdown'
 
 /** Markdown description with Write and Preview modes; saved explicitly. */

@@ -29,6 +29,9 @@ testpaths = ["tests"]
 addopts = "-m 'not live'"
 markers = ["live: calls the real AI model and uses the free daily quota"]
 
+[tool.coverage.report]
+fail_under = 90
+
 [tool.ruff]
 line-length = 100
 

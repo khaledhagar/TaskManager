@@ -27,8 +27,8 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [x] Email links built from `APP_URL` (https in production), never from the request Host header (SEC-118)
 - [x] Gmail App Password and Google client secret only in `.env` / Vercel settings; never logged or sent to the browser (SEC-119)
 - [x] Emails never contain passwords; reset email says what to do if the user did not ask for it (SEC-120)
-- [ ] Forgot password and resend verification: 3 per hour per email, 10 per hour per IP (SEC-121)
-- [ ] Reset and verify pages do not leak the token to third parties (`Referrer-Policy`, no external resources) (SEC-122)
+- [x] Forgot password and resend verification: 3 per hour per email, 10 per hour per IP (SEC-121)
+- [x] Reset and verify pages do not leak the token to third parties (`Referrer-Policy`, no external resources) (SEC-122)
 
 ## 2. Session cookie
 
@@ -46,18 +46,18 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## 4. CSRF and CORS
 
-- [ ] No CORS middleware: frontend and API share one origin (SEC-30)
-- [ ] State-changing endpoints accept only `application/json` bodies, so cross-site forms cannot call them (SEC-31)
-- [ ] `SameSite=Lax` cookie blocks cross-site POST with credentials (SEC-32)
+- [x] No CORS middleware: frontend and API share one origin (SEC-30)
+- [x] State-changing endpoints accept only `application/json` bodies, so cross-site forms cannot call them (SEC-31)
+- [x] `SameSite=Lax` cookie blocks cross-site POST with credentials (SEC-32)
 - [x] Requests with a foreign `Origin` header on POST/PATCH/PUT/DELETE are rejected with 403 (SEC-33)
 
 ## 5. Input validation and abuse limits
 
-- [ ] All request bodies are Pydantic models with `max_length` on strings (title 200, details 10000, checklist item 300, label 40, chat message 2000) (SEC-40)
+- [x] All request bodies are Pydantic models with `max_length` on strings (title 200, details 10000, checklist item 300, label 40, chat message 2000) (SEC-40)
 - [x] Enums validated: priority, label color, template name (SEC-41)
 - [x] Per-user caps: 50 boards, 20 columns per board, 500 cards per board, 50 checklist items per card (SEC-42)
-- [ ] Request body size limited to 1 MB (SEC-43)
-- [ ] All database access through SQLModel parameters; no string-built SQL (SEC-44)
+- [x] Request body size limited to 1 MB (SEC-43)
+- [x] All database access through SQLModel parameters; no string-built SQL (SEC-44)
 
 ## 5b. File uploads (attachments and board backgrounds)
 
@@ -69,7 +69,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [x] Downloads only through an owner-checked endpoint; other users get 404; no public links (SEC-135)
 - [x] Download headers: `Content-Disposition: attachment` (inline only for images), stored content type, `nosniff`, `Content-Security-Policy: sandbox` (SEC-136)
 - [x] Upload endpoints protected by the Origin check, because multipart forms can be sent cross-site (SEC-137)
-- [ ] Uploads rate-limited: 20 per minute per user (SEC-138)
+- [x] Uploads rate-limited: 20 per minute per user (SEC-138)
 - [x] Deleting a card, column, board or account deletes its stored files; no orphans left (SEC-139)
 - [x] Request size checked before reading the whole body (no memory exhaustion) (SEC-140)
 - [x] Storage credentials only in `.env` / Vercel settings; local storage folder git-ignored (SEC-141)
@@ -78,10 +78,10 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## 6. Rate limiting
 
-- [ ] Sign in and sign up: 10 per minute per IP (SEC-50)
-- [ ] Guest creation: 5 per hour per IP (SEC-51)
-- [ ] AI endpoints: 3 per minute and 10 per day per user, because the whole account only has 50 free requests per day (SEC-52)
-- [ ] Exceeded limits return 429 with a clear message shown in the UI (SEC-53)
+- [x] Sign in and sign up: 10 per minute per IP (SEC-50)
+- [x] Guest creation: 5 per hour per IP (SEC-51)
+- [x] AI endpoints: 3 per minute and 10 per day per user, because the whole account only has 50 free requests per day (SEC-52)
+- [x] Exceeded limits return 429 with a clear message shown in the UI (SEC-53)
 
 ## 7. Output and XSS
 
@@ -91,8 +91,8 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## 8. AI-specific risks
 
-- [ ] `OPENROUTER_API_KEY` used only on the server; never sent to the browser (SEC-70)
-- [ ] Chat actions are proposals only; nothing is written until the user clicks Confirm, which calls normal, authorized endpoints (SEC-71)
+- [x] `OPENROUTER_API_KEY` used only on the server; never sent to the browser (SEC-70)
+- [x] Chat actions are proposals only; nothing is written until the user clicks Confirm, which calls normal, authorized endpoints (SEC-71)
 - [x] Proposed actions referencing cards or columns not on the user's board are dropped (prompt injection defense) (SEC-72)
 - [x] Chat history sent to the model is capped (last 20 messages) and `max_tokens` is set (cost control) (SEC-73)
 - [x] Model errors and timeouts return a friendly 502 without leaking provider details (SEC-74)
@@ -101,24 +101,24 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## 9. HTTP security headers
 
-- [ ] `Content-Security-Policy`: `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'` (SEC-80)
-- [ ] `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` disabling camera, microphone and geolocation (SEC-81)
-- [ ] `Strict-Transport-Security` in production (SEC-82)
-- [ ] Fonts and icons bundled locally (no third-party CDNs), so CSP stays `'self'` (SEC-83)
+- [x] `Content-Security-Policy`: `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'` (SEC-80)
+- [x] `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` disabling camera, microphone and geolocation (SEC-81)
+- [x] `Strict-Transport-Security` in production (SEC-82)
+- [x] Fonts and icons bundled locally (no third-party CDNs), so CSP stays `'self'` (SEC-83)
 
 ## 10. Configuration and secrets
 
-- [ ] `.env` and `*.db` are git-ignored; secrets never committed (SEC-90)
-- [ ] `/docs`, `/redoc` and `/openapi.json` disabled when `ENV=production` (SEC-91)
-- [ ] `TrustedHostMiddleware` with the production host name (SEC-92)
-- [ ] Unhandled errors return a generic 500 JSON with no stack trace (SEC-93)
-- [ ] Logs never contain passwords, tokens or the API key (SEC-94)
+- [x] `.env` and `*.db` are git-ignored; secrets never committed (SEC-90)
+- [x] `/docs`, `/redoc` and `/openapi.json` disabled when `ENV=production` (SEC-91)
+- [x] `TrustedHostMiddleware` with the production host name (SEC-92)
+- [x] Unhandled errors return a generic 500 JSON with no stack trace (SEC-93)
+- [x] Logs never contain passwords, tokens or the API key (SEC-94)
 
 ## 11. Dependencies
 
-- [ ] `uv run --with pip-audit pip-audit` reports no known vulnerabilities (SEC-95)
-- [ ] `npm audit --omit=dev` reports no high or critical issues (SEC-96)
-- [ ] All dependency versions locked (`uv.lock`, `package-lock.json`) (SEC-97)
+- [x] `uv run --with pip-audit pip-audit` reports no known vulnerabilities (SEC-95)
+- [x] `npm audit --omit=dev` reports no high or critical issues (SEC-96)
+- [x] All dependency versions locked (`uv.lock`, `package-lock.json`) (SEC-97)
 
 ## 12. Data protection
 
@@ -133,9 +133,10 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## Performance
 
-- [ ] Board with 500 cards loads from the API in under 300 ms locally (NFR-01)
-- [ ] Production JS bundle under 300 KB gzipped (NFR-02)
+- [x] Board with 500 cards loads from the API in under 300 ms locally (NFR-01)
+- [x] Production JS bundle under 300 KB gzipped (NFR-02)
 - [ ] Drag and drop stays smooth (no visible lag) with 200 cards on screen (NFR-03)
+  - 2026-10-21 (Edge, Playwright): no crash (a crash from cards flipping between columns was fixed), typical frame 25 ms, but 2-3 pauses of about 170-200 ms per drag (at pick-up and when the card enters another column) while dnd-kit re-measures every card. Open: needs a decision (accept, or show fewer cards per column at once).
 - [ ] Lighthouse performance score 90 or more (NFR-04)
 
 ## Accessibility (WCAG 2.2 AA)
@@ -160,14 +161,14 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## Reliability and operations
 
-- [ ] `GET /api/health` reports app and database status (NFR-30)
-- [ ] Failed optimistic updates roll back and show an error (NFR-31)
-- [ ] Database file location configurable via `DATABASE_URL`; README covers backup by copying the file (NFR-32)
-- [ ] Server starts with one command and serves the built frontend (NFR-33)
-- [ ] Portability rules in `Planning/PLAN.md` followed: config from env, no SQLite-specific SQL, swappable rate-limit store, background jobs as plain functions (NFR-34)
+- [x] `GET /api/health` reports app and database status (NFR-30)
+- [x] Failed optimistic updates roll back and show an error (NFR-31)
+- [x] Database file location configurable via `DATABASE_URL`; README covers backup by copying the file (NFR-32)
+- [x] Server starts with one command and serves the built frontend (NFR-33)
+- [x] Portability rules in `Planning/PLAN.md` followed: config from env, no SQLite-specific SQL, swappable rate-limit store, background jobs as plain functions (NFR-34)
 
 ## Maintainability
 
-- [ ] Backend tests cover at least 90% of lines (NFR-40)
-- [ ] `ruff check` and `tsc --noEmit` pass with no errors (NFR-41)
-- [ ] Short modules: no file over 300 lines (NFR-42)
+- [x] Backend tests cover at least 90% of lines (NFR-40)
+- [x] `ruff check` and `tsc --noEmit` pass with no errors (NFR-41)
+- [x] Short modules: no file over 300 lines (NFR-42)

@@ -11,8 +11,8 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-001 `GET /api/health` returns 200 with app and database status (NFR-30)
 - [x] T-002 Unknown `/api/*` path returns JSON 404, not the SPA page
 - [x] T-003 Non-API path returns `index.html` (SPA fallback)
-- [ ] T-004 Unhandled error returns generic 500 JSON without a stack trace (SEC-93)
-- [ ] T-005 `/docs` and `/openapi.json` return 404 when `ENV=production` (SEC-91)
+- [x] T-004 Unhandled error returns generic 500 JSON without a stack trace (SEC-93)
+- [x] T-005 `/docs` and `/openapi.json` return 404 when `ENV=production` (SEC-91)
 - [x] T-006 App fails to start when `JWT_SECRET` is missing (SEC-04)
 
 ### A2. Models and seed
@@ -66,7 +66,7 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-161 Email links use `APP_URL`, not the request Host header (SEC-118)
 - [x] T-162 Console mailer logs the link; SMTP mailer uses STARTTLS with the configured user (smtplib faked) (SEC-119)
 - [x] T-163 Reset email text contains no password and explains what to do if not requested (SEC-120)
-- [ ] T-164 4th forgot-password request for one email within an hour returns 429 (SEC-121)
+- [x] T-164 4th forgot-password request for one email within an hour returns 429 (SEC-121)
 - [ ] T-165 Live: one real verification email arrives through Gmail SMTP (manual check)
 - [ ] T-166 Live: one real Google sign-in completes in the browser (manual check)
 
@@ -112,15 +112,15 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 
 ### A9. CSRF and input limits
 - [x] T-090 POST with a foreign `Origin` header returns 403 (SEC-33)
-- [ ] T-091 Form-encoded body on a JSON endpoint returns 422 (SEC-31)
-- [ ] T-092 Strings over their `max_length` return 422 for every field (SEC-40)
-- [ ] T-093 Body over 1 MB returns 413 (SEC-43)
-- [ ] T-094 SQL-like input (`'; DROP TABLE cards;--`) is stored as plain text (SEC-44)
+- [x] T-091 Form-encoded body on a JSON endpoint returns 422 (SEC-31)
+- [x] T-092 Strings over their `max_length` return 422 for every field (SEC-40)
+- [x] T-093 Body over 1 MB returns 413 (SEC-43)
+- [x] T-094 SQL-like input (`'; DROP TABLE cards;--`) is stored as plain text (SEC-44)
 
 ### A10. Rate limits
-- [ ] T-100 11th sign-in within a minute from one IP returns 429 (SEC-50)
-- [ ] T-101 6th guest creation within an hour returns 429 (SEC-51)
-- [ ] T-102 4th AI call within a minute and 11th within a day return 429 (SEC-52)
+- [x] T-100 11th sign-in within a minute from one IP returns 429 (SEC-50)
+- [x] T-101 6th guest creation within an hour returns 429 (SEC-51)
+- [x] T-102 4th AI call within a minute and 11th within a day return 429 (SEC-52)
 
 ### A11. AI (model call mocked)
 - [x] T-110 Checklist suggestion returns 3 to 7 items and saves nothing
@@ -137,9 +137,9 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-120 Live smoke test (run with `uv run pytest -m live`; skipped by default to save the free daily quota): a real text reply and a structured reply come back
 
 ### A12. Security headers
-- [ ] T-130 CSP, nosniff, Referrer-Policy and Permissions-Policy headers on HTML and API responses (SEC-80, SEC-81)
-- [ ] T-131 HSTS only when `ENV=production` (SEC-82)
-- [ ] T-132 Request with an untrusted Host header is rejected in production (SEC-92)
+- [x] T-130 CSP, nosniff, Referrer-Policy and Permissions-Policy headers on HTML and API responses (SEC-80, SEC-81)
+- [x] T-131 HSTS only when `ENV=production` (SEC-82)
+- [x] T-132 Request with an untrusted Host header is rejected in production (SEC-92)
 
 ### A14. Files: attachments and backgrounds (Phase 9)
 - [x] T-170 Upload an attachment, list it on the card, download it with the same bytes, delete it
@@ -260,11 +260,11 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 
 ## D. Release checks
 
-- [ ] T-400 `uv run pytest --cov` passes with 90% or more coverage (NFR-40)
+- [x] T-400 `uv run pytest --cov` passes with 90% or more coverage (NFR-40)
 - [ ] T-401 `npm test` and `npx playwright test` pass
-- [ ] T-402 `uv run ruff check` and `npx tsc --noEmit` pass (NFR-41)
-- [ ] T-403 `pip-audit` and `npm audit --omit=dev` clean (SEC-95, SEC-96)
-- [ ] T-404 Bundle size under 300 KB gzipped (NFR-02)
+- [x] T-402 `uv run ruff check` and `npx tsc --noEmit` pass (NFR-41)
+- [x] T-403 `pip-audit` and `npm audit --omit=dev` clean (SEC-95, SEC-96)
+- [x] T-404 Bundle size under 300 KB gzipped (NFR-02)
 - [ ] T-405 Lighthouse performance 90 or more, accessibility 100 (NFR-04)
-- [ ] T-406 `git ls-files` contains no `.env` or `.db` files (SEC-90)
+- [x] T-406 `git ls-files` contains no `.env` or `.db` files (SEC-90)
 - [ ] T-407 Every item in `Planning/SECURITY.md` is checked
