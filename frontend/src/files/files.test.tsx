@@ -53,7 +53,7 @@ let actions: BoardActions
 beforeEach(() => {
   vi.clearAllMocks()
   vi.mocked(files.usage).mockResolvedValue({ used: 3 * 1024 * 1024, limit: 100 * 1024 * 1024 })
-  actions = { attachmentAdded: vi.fn(), deleteAttachment: vi.fn() } as unknown as BoardActions
+  actions = { attachmentAdded: vi.fn(), deleteAttachment: vi.fn(), allowed: vi.fn(() => true) } as unknown as BoardActions
 })
 
 const fileOf = (name: string, size = 10, type = '') => new File([new Uint8Array(size)], name, { type })
@@ -65,6 +65,14 @@ describe('attachments (T-221, T-222)', () => {
     expect(screen.getByRole('link', { name: 'spec.pdf' })).toHaveAttribute('download', 'spec.pdf')
     expect(document.querySelector('img')).toHaveAttribute('src', '/api/attachments/6?inline=1')
     expect(await screen.findByText('3.0 MB of 100.0 MB used')).toBeInTheDocument()
+  })
+
+  test('a member without full access cannot upload; nothing is sent (T-546)', async () => {
+    vi.mocked(actions.allowed).mockReturnValue(false)
+    render(<AttachmentsSection card={card()} actions={actions} />)
+    await userEvent.upload(screen.getByLabelText('Choose files'), fileOf('spec.pdf'))
+    expect(actions.allowed).toHaveBeenCalledWith('editor')
+    expect(files.attach).not.toHaveBeenCalled()
   })
 
   test('uploads with progress and adds the file to the card', async () => {

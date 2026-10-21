@@ -34,7 +34,7 @@ function sample(): Board {
   return {
     id: 1,
     title: 'Website Launch',
-    background: { kind: 'none' as const, preset: null, version: 0 },
+    background: { kind: 'none' as const, preset: null, version: 0 }, role: 'admin' as const,
     labels: [{ id: 5, name: 'Bug', color: 'red' }],
     columns: [
       {
@@ -51,7 +51,7 @@ function sample(): Board {
 function renderBoard(props = {}) {
   return render(
     <ToastProvider>
-      <BoardView boardId={1} onRenamed={vi.fn()} onDeleted={vi.fn()} {...props} />
+      <BoardView boardId={1} userId={1} isGuest={false} onRenamed={vi.fn()} onDeleted={vi.fn()} {...props} />
     </ToastProvider>,
   )
 }

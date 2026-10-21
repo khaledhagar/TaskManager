@@ -5,15 +5,15 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 ## Where the project stands (2026-10-21)
 
 - Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
-- Phases 17 (password strength) and 18 (board sharing backend) are done and pushed. **Next: Phase 19 (board sharing UI).** The user asked (2026-10-21) to run Phases 18, 19 and 20 back to back without asking: finish each, test everything, push, update this log, then start the next. Stop before Phase 21 (Deployment).
-- Tests: backend 368 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 252 passing; Playwright 62 passing (Edge full suite, Firefox and WebKit smoke). Lint, format and type checks are clean.
-- Checklists: 258 tests ticked in `Planning/TEST_PLAN.md` (open: T-540 to T-589, Phases 19-20), 119 items ticked in `Planning/SECURITY.md` (open: SEC-164, SEC-168, SEC-170 to SEC-174).
+- Phases 17 (password strength), 18 (sharing backend) and 19 (sharing UI) are done and pushed. **Next: Phase 20 (public boards, card assignment, meeting link).** The user asked (2026-10-21) to run Phases 18, 19 and 20 back to back without asking: finish each, test everything, push, update this log, then start the next. Stop before Phase 21 (Deployment).
+- Tests: backend 368 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 271 passing; Playwright 69 passing (Edge full suite, Firefox and WebKit smoke). Lint, format and type checks are clean.
+- Checklists: 278 tests ticked in `Planning/TEST_PLAN.md` (open: T-560 to T-589, Phase 20), 119 items ticked in `Planning/SECURITY.md` (open: SEC-164, SEC-168, SEC-170 to SEC-174).
 
 | Done | Phase |
 |------|-------|
-| Yes | 1 Scaffolding to 18 Board sharing (backend) |
-| Next | 19 Board sharing (UI) |
-| Later | 20 Public boards / assignment / meeting link, 21 Deployment (Vercel) |
+| Yes | 1 Scaffolding to 19 Board sharing (UI) |
+| Next | 20 Public boards / assignment / meeting link |
+| Later | 21 Deployment (Vercel) |
 
 ## How we work (the user's preferences)
 
@@ -158,7 +158,19 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 - Limits: 50 members and 20 pending invites per board; rate limits `ratelimit.INVITES` (20/h per user) and `ACCESS_REQUESTS` (3/day per member per board); `frontend/e2e/server.py` lifts them for browser tests.
 - Tests: `tests/test_sharing_roles.py` (the role table over every endpoint), `test_sharing_invites.py`, `test_sharing_members.py`; helpers in `tests/sharing_helpers.py` (`join(admin, member, board_id, email, role)`).
 
-## Next steps: Phases 19-20
+## Board sharing UI (Phase 19): how it works
+
+- API calls in `frontend/src/api/sharing.ts`; `Board` and `BoardSummary` carry `role` (`viewer` / `updater` / `editor` / `admin`).
+- **Permission check before sending:** `board/permissions.ts` (`can`, `deniedKey`, `needFor`) mirrors the server table. In `board/useBoard.ts` every protected action starts with `allowed(need)`; a refused action returns `false`, sends nothing and shows a toast with the same text as the server's 403, plus a **Request access** button (not for admin-only actions) that calls `POST /boards/{id}/access-requests` and confirms "Request sent". `actions.allowed(need)` is also used by direct API callers: attachment upload (`files/AttachmentsSection.tsx`) and AI step suggestions (`ai/ChecklistSuggest.tsx`, prop `allowed`). Drag and drop go through `moveCard` / `reorderColumns`, so they are covered too. (An earlier version wrapped the whole actions object; React's lint flags that as reading refs during render, so each action checks itself.)
+- The board reloads when the window regains focus (if no delete is waiting for Undo), so members see each other's changes.
+- **Members panel** (`sharing/MembersPanel.tsx`, opened from the board menu "Members", or by `?members=1` from the access-request email): admin sees the invite form (`InviteForm`), the link box with Copy and Share on WhatsApp (`ShareLink`, `https://wa.me/?text=...`), member rows (`MemberRow`: a radio group per member, chosen permission shows at once, saved in the background; Remove asks first), access requests and pending invites (`PendingLists`: Send again gives a new link, Cancel). Members see the list read-only, their permission, Request access and Leave board. A guest admin sees "Create an account to share this board."
+- Board menu: Members for everyone; Change background and Delete board for the admin only. Renaming the board as a member shows "Only the board admin can do this." and the switcher keeps the old name.
+- **Invite page** `/invite#token=...` (`sharing/InvitePage.tsx`): preview without sign-in, Accept when signed in, a clear message for a wrong account with "Sign out and use another account". Signed-out visitors get Sign in / Create an account; the token waits in `localStorage` (`sharing/inviteStore.ts`) and `App` returns to `/invite` after sign-in or email verification.
+- Board switcher groups "Your boards" (role admin) and "Shared with you".
+- CSS gotchas: a `fieldset` does not shrink below its content (`min-inline-size: 0`), and grid rows need `grid-template-columns: minmax(0, 1fr)`, or a long email widens the dialog on phones. The visually hidden radio covers its label, so Playwright must `check()` the radio rather than click the text. After a drop, wait for the card count to be 1 (the drag overlay lingers 200 ms).
+- E2E: `frontend/e2e/sharing.spec.ts` (two browser contexts: admin and member). Stop any server on port 8001 before `npx playwright test` (the runner starts its own and fails silently if the port is taken).
+
+## Next steps: Phase 20
 
 Approved on 2026-10-21; details in PLAN.md. User decisions: public = read-only for anyone with the link, signed-in visitors can join as Viewer; every new member starts as Viewer; Request access button emails the admin; admin picks exactly one permission per member in a members panel; invites by email plus Copy / Share on WhatsApp. My calls (tell the user if questioned): any address can be invited (no user search, no account enumeration); public view hides attachments, member emails and AI; no live sync (board reloads on tab focus); Zoom meetings are links, not created by API.
 

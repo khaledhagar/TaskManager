@@ -30,8 +30,8 @@ const member: User = {
   language: 'en',
 }
 const LIST = [
-  { id: 1, title: 'Website Launch', created_at: '2026-10-20T00:00:00' },
-  { id: 2, title: 'Personal', created_at: '2026-10-20T00:00:01' },
+  { id: 1, title: 'Website Launch', created_at: '2026-10-20T00:00:00', role: 'admin' as const },
+  { id: 2, title: 'Personal', created_at: '2026-10-20T00:00:01', role: 'admin' as const },
 ]
 
 function boardFor(id: number) {
@@ -41,7 +41,7 @@ function boardFor(id: number) {
     title,
     labels: [],
     columns: [{ id: 1, title: 'To Do', position: 0, cards: [] }],
-    background: { kind: 'none' as const, preset: null, version: 0 },
+    background: { kind: 'none' as const, preset: null, version: 0 }, role: 'admin' as const,
   }
 }
 
@@ -75,7 +75,7 @@ describe('app shell', () => {
   })
 
   test('creates a new board and opens it', async () => {
-    vi.mocked(boards.create).mockResolvedValue({ id: 3, title: 'Q4 Roadmap', created_at: '' })
+    vi.mocked(boards.create).mockResolvedValue({ id: 3, title: 'Q4 Roadmap', created_at: '', role: 'admin' as const })
     renderShell()
     await screen.findByRole('heading', { name: 'Website Launch' })
     await userEvent.click(screen.getByRole('button', { name: 'New board' }))

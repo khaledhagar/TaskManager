@@ -13,7 +13,7 @@ const board: Board = {
   id: 1,
   title: 'B',
   labels: [],
-  background: { kind: 'none', preset: null, version: 0 },
+  background: { kind: 'none', preset: null, version: 0 }, role: 'admin' as const,
   columns: [{ id: 1, title: 'To Do', position: 0, cards: [card(10, 'Write post')] }],
 }
 

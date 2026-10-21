@@ -27,7 +27,7 @@ function sample(): Board {
   return {
     id: 1,
     title: 'B',
-    background: { kind: 'none' as const, preset: null, version: 0 },
+    background: { kind: 'none' as const, preset: null, version: 0 }, role: 'admin' as const,
     labels: [],
     columns: [
       { id: 1, title: 'To Do', position: 0, cards: [card(1), card(2)] },
@@ -86,7 +86,9 @@ describe('optimistic updates (T-215)', () => {
   test('a move shows at once and is sent to the server', async () => {
     vi.mocked(boards.moveCard).mockResolvedValue(sample().columns[0].cards[0])
     const { result } = await setup()
-    await act(() => result.current.actions.moveCard(1, 2, 0))
+    await act(async () => {
+      await result.current.actions.moveCard(1, 2, 0)
+    })
     expect(cardIds(result.current.board, 1)).toEqual([1])
     expect(boards.moveCard).toHaveBeenCalledWith(1, 2, 0)
   })
@@ -94,7 +96,9 @@ describe('optimistic updates (T-215)', () => {
   test('a failed move rolls back, shows the error and reloads', async () => {
     vi.mocked(boards.moveCard).mockRejectedValue(new ApiError(500, 'Server unavailable'))
     const { result } = await setup()
-    await act(() => result.current.actions.moveCard(1, 2, 0))
+    await act(async () => {
+      await result.current.actions.moveCard(1, 2, 0)
+    })
     expect(cardIds(result.current.board, 0)).toEqual([1, 2])
     expect(cardIds(result.current.board, 1)).toEqual([])
     expect(await screen.findByText('Server unavailable')).toBeInTheDocument()

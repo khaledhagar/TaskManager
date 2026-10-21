@@ -9,13 +9,16 @@ import { useAiRequest } from './useAiRequest'
 type Suggestion = { text: string; picked: boolean }
 
 /** Ask the AI for checklist steps; the user picks which ones to add. */
-export function ChecklistSuggest({ cardId, onAdd }: { cardId: number; onAdd: (text: string) => Promise<unknown> }) {
+type Props = { cardId: number; onAdd: (text: string) => unknown; allowed: () => boolean }
+
+export function ChecklistSuggest({ cardId, onAdd, allowed }: Props) {
   const { t } = useI18n()
   const request = useAiRequest()
   const [suggestions, setSuggestions] = useState<Suggestion[] | null>(null)
   const picked = suggestions?.filter((s) => s.picked) ?? []
 
   async function suggest() {
+    if (!allowed()) return
     const answer = await request.run((signal) => ai.suggestChecklist(cardId, signal))
     if (answer) setSuggestions(answer.items.map((text) => ({ text, picked: true })))
   }

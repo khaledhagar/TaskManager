@@ -26,6 +26,7 @@ export function AttachmentsSection({ card, actions }: { card: Card; actions: Boa
   }, [card.attachments.length])
 
   function start(list: File[]) {
+    if (!actions.allowed('editor')) return
     const problems: string[] = []
     let room = MAX_PER_CARD - card.attachments.length - uploads.length
     for (const file of list) {

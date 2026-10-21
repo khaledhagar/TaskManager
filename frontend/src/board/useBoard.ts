@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { boards, type Attachment, type Background, type Board, type Card, type CardPatch, type LabelColor } from '../api/boards'
+import { boards, type Attachment, type Background, type Board, type Card, type CardPatch, type LabelColor, type Role } from '../api/boards'
 import { files } from '../api/files'
+import { sharing } from '../api/sharing'
 import { t } from '../i18n/language'
 import { useToast } from '../ui/toastContext'
 import * as logic from './logic'
+import { can, deniedKey, needFor } from './permissions'
 
 export const UNDO_MS = 5000
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e))
@@ -13,6 +15,7 @@ type Pending = { timer: ReturnType<typeof setTimeout>; run: () => Promise<unknow
 /**
  * Board state with optimistic edits. A failed request restores the previous state at once
  * and then reloads the board from the server. Deletes wait UNDO_MS so they can be undone.
+ * Actions the user's role does not allow send nothing and show who to ask instead.
  */
 export function useBoard(boardId: number) {
   const toast = useToast()
@@ -30,6 +33,15 @@ export function useBoard(boardId: number) {
     () => boards.get(boardId).then(commit, (e) => setLoadError(message(e))),
     [boardId, commit],
   )
+
+  useEffect(() => {
+    // Other members' changes show up when the user comes back to this tab.
+    const refresh = () => {
+      if (pending.current.size === 0) reload()
+    }
+    window.addEventListener('focus', refresh)
+    return () => window.removeEventListener('focus', refresh)
+  }, [reload])
 
   useEffect(() => {
     reload()
@@ -94,26 +106,50 @@ export function useBoard(boardId: number) {
     })
   }
 
+  function requestAccess() {
+    sharing.requestAccess(boardId).then(
+      () => toast({ message: t('access.sent') }),
+      (e) => toast({ message: message(e), tone: 'error' }),
+    )
+  }
+
+  /** True when the user's role allows `need`; otherwise explain and offer Request access. */
+  function allowed(need: Role): boolean {
+    const role = ref.current?.role ?? 'viewer'
+    if (can(role, need)) return true
+    toast({
+      message: t(deniedKey(role, need)),
+      tone: 'error',
+      action: need === 'admin' ? undefined : { label: t('access.request'), onClick: requestAccess },
+    })
+    return false
+  }
+
   const withCard = (cardId: number, fn: (card: Card) => Partial<Card>) => (b: Board) =>
     logic.updateCard(b, cardId, fn(logic.findCard(b, cardId)!.card))
 
   const actions = {
     renameBoard: (title: string) =>
+      allowed('admin') &&
       mutate((b) => ({ ...b, title }), () => boards.rename(boardId, title)),
 
     addColumn: (title: string) =>
+      allowed('editor') &&
       create(
         () => boards.addColumn(boardId, title),
         (b, column) => logic.insertColumn(b, b.columns.length, column),
       ),
     renameColumn: (columnId: number, title: string) =>
+      allowed('editor') &&
       mutate(
         (b) => ({ ...b, columns: b.columns.map((c) => (c.id === columnId ? { ...c, title } : c)) }),
         () => boards.renameColumn(columnId, title),
       ),
     reorderColumns: (columnIds: number[]) =>
+      allowed('editor') &&
       mutate((b) => logic.reorderColumns(b, columnIds), () => boards.reorderColumns(boardId, columnIds)),
     deleteColumn: (columnId: number) => {
+      if (!allowed('editor')) return
       const b = ref.current!
       const index = b.columns.findIndex((c) => c.id === columnId)
       const column = b.columns[index]
@@ -127,18 +163,22 @@ export function useBoard(boardId: number) {
     },
 
     addCard: (columnId: number, title: string) =>
+      allowed('editor') &&
       create(
         () => boards.addCard(columnId, title),
         (b, card) => logic.insertCard(b, columnId, Infinity, card),
       ),
     updateCard: (cardId: number, changes: CardPatch) =>
+      allowed(needFor(changes, 'completed')) &&
       mutate((b) => logic.updateCard(b, cardId, changes), () => boards.updateCard(cardId, changes)),
     moveCard: (cardId: number, columnId: number, index: number) =>
+      allowed('updater') &&
       mutate(
         (b) => logic.moveCard(b, cardId, columnId, index),
         () => boards.moveCard(cardId, columnId, index),
       ),
     deleteCard: (cardId: number) => {
+      if (!allowed('editor')) return
       const found = logic.findCard(ref.current!, cardId)!
       commit(logic.removeCard(ref.current!, cardId))
       deleteLater(
@@ -149,17 +189,20 @@ export function useBoard(boardId: number) {
       )
     },
     setCardLabels: (cardId: number, labelIds: number[]) =>
+      allowed('editor') &&
       mutate(
         (b) => logic.updateCard(b, cardId, { label_ids: labelIds }),
         () => boards.setCardLabels(cardId, labelIds),
       ),
 
     addItem: (cardId: number, text: string) =>
+      allowed('editor') &&
       create(
         () => boards.addItem(cardId, text),
         (b, item) => withCard(cardId, (c) => ({ checklist: [...c.checklist, item] }))(b),
       ),
     updateItem: (cardId: number, itemId: number, changes: { text?: string; done?: boolean }) =>
+      allowed(needFor(changes, 'done')) &&
       mutate(
         withCard(cardId, (c) => ({
           checklist: c.checklist.map((i) => (i.id === itemId ? { ...i, ...changes } : i)),
@@ -167,6 +210,7 @@ export function useBoard(boardId: number) {
         () => boards.updateItem(itemId, changes),
       ),
     deleteItem: (cardId: number, itemId: number) =>
+      allowed('editor') &&
       mutate(
         withCard(cardId, (c) => ({
           checklist: c.checklist
@@ -179,6 +223,7 @@ export function useBoard(boardId: number) {
     attachmentAdded: (cardId: number, attachment: Attachment) =>
       commit(withCard(cardId, (c) => ({ attachments: [...c.attachments, attachment] }))(ref.current!)),
     deleteAttachment: (cardId: number, attachmentId: number) =>
+      allowed('editor') &&
       mutate(
         withCard(cardId, (c) => ({ attachments: c.attachments.filter((a) => a.id !== attachmentId) })),
         () => files.remove(attachmentId),
@@ -186,8 +231,10 @@ export function useBoard(boardId: number) {
     setBackground: (background: Background) => commit({ ...ref.current!, background }),
 
     addLabel: (name: string, color: LabelColor) =>
+      allowed('editor') &&
       create(() => boards.addLabel(boardId, name, color), (b, label) => ({ ...b, labels: [...b.labels, label] })),
     deleteLabel: (labelId: number) =>
+      allowed('editor') &&
       mutate(
         (b) => ({
           ...b,
@@ -201,7 +248,7 @@ export function useBoard(boardId: number) {
       ),
   }
 
-  return { board, loadError, actions }
+  return { board, loadError, actions: { ...actions, allowed } }
 }
 
 export type BoardActions = ReturnType<typeof useBoard>['actions']

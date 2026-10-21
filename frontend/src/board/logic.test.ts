@@ -38,7 +38,7 @@ function board(): Board {
   return {
     id: 1,
     title: 'B',
-    background: { kind: 'none' as const, preset: null, version: 0 },
+    background: { kind: 'none' as const, preset: null, version: 0 }, role: 'admin' as const,
     labels: [{ id: 9, name: 'Bug', color: 'red' }],
     columns: [
       { id: 1, title: 'To Do', position: 0, cards: [card(1), card(2), card(3)] },

@@ -17,7 +17,7 @@ const board: Board = {
   id: 5,
   title: 'Launch',
   labels: [],
-  background: { kind: 'none', preset: null, version: 0 },
+  background: { kind: 'none', preset: null, version: 0 }, role: 'admin' as const,
   columns: [
     { id: 1, title: 'To Do', position: 0, cards: [card(10, 'Write post'), card(11, 'Set up analytics')] },
     { id: 2, title: 'Done', position: 1, cards: [card(12, 'Pick colors')] },

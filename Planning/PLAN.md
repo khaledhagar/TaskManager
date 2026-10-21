@@ -29,7 +29,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 16 - Done | 7 / 7 | Done |
 | Phase 17 - Password Strength | 7 / 7 | Done |
 | Phase 18 - Board Sharing (backend) | 9 / 9 | Done |
-| Phase 19 - Board Sharing (UI) | 0 / 7 | Not started |
+| Phase 19 - Board Sharing (UI) | 7 / 7 | Done |
 | Phase 20 - Public Boards, Assignment and Meeting Link | 0 / 7 | Not started |
 | Phase 21 - Deployment (Vercel) | 0 / 14 | Not started |
 
@@ -494,13 +494,13 @@ Roles (stored per member; the admin chooses exactly one per member in the member
 
 ## Phase 19 - Board Sharing (UI)
 
-- [ ] Members panel: member rows with a single-choice permission (Viewer / Can update tasks / Full access), Remove, pending invites, access requests
-- [ ] Invite dialog: email field, sends the invite, shows the link with Copy and Share on WhatsApp
-- [ ] Invite page `/invite`: shows board and inviter, Accept (sign in or sign up first when needed), clear errors (expired, used, other email)
-- [ ] The board follows the user's role: blocked actions show the "ask the admin" toast with Request access; drag is refused for Viewers with the same message
-- [ ] Board switcher: "Your boards" and "Shared with you"; Leave board; board reloads when the tab regains focus
-- [ ] Tests T-540 to T-559 pass (unit and Playwright: two users, invite, accept, permissions, request access)
-- [ ] Browser review: phone and desktop, light and dark, English and Arabic
+- [x] Members panel: member rows with a single-choice permission (Viewer / Can update tasks / Full access), Remove, pending invites, access requests
+- [x] Invite dialog: email field, sends the invite, shows the link with Copy and Share on WhatsApp
+- [x] Invite page `/invite`: shows board and inviter, Accept (sign in or sign up first when needed), clear errors (expired, used, other email)
+- [x] The board follows the user's role: blocked actions show the "ask the admin" toast with Request access; drag is refused for Viewers with the same message
+- [x] Board switcher: "Your boards" and "Shared with you"; Leave board; board reloads when the tab regains focus
+- [x] Tests T-540 to T-559 pass (unit and Playwright: two users, invite, accept, permissions, request access)
+- [x] Browser review: phone and desktop, light and dark, English and Arabic
 
 ## Phase 20 - Public Boards, Assignment and Meeting Link
 

@@ -30,13 +30,13 @@ beforeEach(() => {
 
 describe('AI checklist suggestions (T-212)', () => {
   test('says the card text goes to an AI service', () => {
-    render(<ChecklistSuggest cardId={7} onAdd={addItem} />)
+    render(<ChecklistSuggest cardId={7} onAdd={addItem} allowed={() => true} />)
     expect(screen.getByText(/third-party AI service/)).toBeInTheDocument()
   })
 
   test('shows a loading state, then adds only the selected suggestions in order', async () => {
     const request = pending()
-    render(<ChecklistSuggest cardId={7} onAdd={addItem} />)
+    render(<ChecklistSuggest cardId={7} onAdd={addItem} allowed={() => true} />)
     await userEvent.click(screen.getByRole('button', { name: 'Suggest steps' }))
     expect(ai.suggestChecklist).toHaveBeenCalledWith(7, expect.any(AbortSignal))
     expect(screen.getByRole('status')).toHaveTextContent('Thinking...')
@@ -54,7 +54,7 @@ describe('AI checklist suggestions (T-212)', () => {
 
   test('Discard drops the suggestions without adding anything', async () => {
     vi.mocked(ai.suggestChecklist).mockResolvedValue({ items: ['One'] })
-    render(<ChecklistSuggest cardId={7} onAdd={addItem} />)
+    render(<ChecklistSuggest cardId={7} onAdd={addItem} allowed={() => true} />)
     await userEvent.click(screen.getByRole('button', { name: 'Suggest steps' }))
     await userEvent.click(await screen.findByRole('button', { name: 'Discard' }))
     expect(screen.queryByRole('checkbox')).toBeNull()
@@ -63,7 +63,7 @@ describe('AI checklist suggestions (T-212)', () => {
 
   test('Cancel stops the request', async () => {
     const request = pending()
-    render(<ChecklistSuggest cardId={7} onAdd={addItem} />)
+    render(<ChecklistSuggest cardId={7} onAdd={addItem} allowed={() => true} />)
     await userEvent.click(screen.getByRole('button', { name: 'Suggest steps' }))
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
     expect(request.signal()?.aborted).toBe(true)
@@ -73,7 +73,7 @@ describe('AI checklist suggestions (T-212)', () => {
 
   test('a failed request shows the server message', async () => {
     vi.mocked(ai.suggestChecklist).mockRejectedValue(new ApiError(429, 'AI limit reached'))
-    render(<ChecklistSuggest cardId={7} onAdd={addItem} />)
+    render(<ChecklistSuggest cardId={7} onAdd={addItem} allowed={() => true} />)
     await userEvent.click(screen.getByRole('button', { name: 'Suggest steps' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('AI limit reached')
   })

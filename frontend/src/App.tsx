@@ -5,6 +5,8 @@ import { AuthScreen } from './auth/AuthScreen'
 import { useI18n } from './i18n/context'
 import { hasSavedLanguage } from './i18n/language'
 import { navigate, useLocation } from './lib/router'
+import { InvitePage } from './sharing/InvitePage'
+import { savedInvite } from './sharing/inviteStore'
 import { AppShell } from './shell/AppShell'
 
 const SIGNED_OUT_ONLY = ['/signin', '/signup']
@@ -30,9 +32,10 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only when a different user signs in
   }, [userId])
 
+  // After signing in, go back to an invitation the user opened while signed out.
   const signedIn = useCallback((next: User) => {
     setUser(next)
-    navigate('/', { replace: true })
+    navigate(savedInvite() ? '/invite' : '/', { replace: true })
   }, [])
 
   useEffect(() => {
@@ -44,6 +47,8 @@ export default function App() {
   if (path === '/check-inbox') return <CheckInbox />
   if (path === '/forgot-password') return <ForgotPassword />
   if (user === undefined) return <div role="status" aria-label={t('app.loading')} />
+  if (path === '/invite')
+    return <InvitePage user={user} onSignOut={() => auth.signOut().then(() => setUser(null))} />
   if (user === null) return <AuthScreen onSignedIn={signedIn} />
   return (
     <AppShell

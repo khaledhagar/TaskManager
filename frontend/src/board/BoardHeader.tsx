@@ -7,7 +7,7 @@ import { FocusTimer } from '../timer/FocusTimer'
 import { Dialog } from '../ui/Dialog'
 import dialog from '../ui/dialog.module.css'
 import { InlineText } from '../ui/InlineText'
-import { Menu } from '../ui/Menu'
+import { Menu, type MenuItem } from '../ui/Menu'
 import ui from '../ui/ui.module.css'
 import css from './board.module.css'
 import { progress } from './logic'
@@ -19,14 +19,27 @@ type Props = {
   onHelp: () => void
   onBackground: () => void
   onChat: () => void
+  onMembers: () => void
 }
 
 /** Board title (click to rename), completion progress and board options. */
-export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, onChat }: Props) {
+export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, onChat, onMembers }: Props) {
   const { t } = useI18n()
   const [confirming, setConfirming] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { done, total, percent } = progress(board)
+  const admin = board.role === 'admin'
+  const items: MenuItem[] = [
+    { kind: 'action', label: t('board.members'), onSelect: onMembers },
+    ...(admin ? [{ kind: 'action' as const, label: t('board.changeBackground'), onSelect: onBackground }] : []),
+    { kind: 'action', label: t('board.shortcuts'), onSelect: onHelp },
+    ...(admin
+      ? [
+          { kind: 'separator' as const },
+          { kind: 'action' as const, label: t('board.delete'), danger: true, onSelect: () => setConfirming(true) },
+        ]
+      : []),
+  ]
 
   async function remove() {
     try {
@@ -79,12 +92,7 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, o
           align="end"
           triggerClassName={ui.iconButton}
           trigger={<MoreHorizontal size={18} aria-hidden="true" />}
-          items={[
-            { kind: 'action', label: t('board.changeBackground'), onSelect: onBackground },
-            { kind: 'action', label: t('board.shortcuts'), onSelect: onHelp },
-            { kind: 'separator' },
-            { kind: 'action', label: t('board.delete'), danger: true, onSelect: () => setConfirming(true) },
-          ]}
+          items={items}
         />
       </div>
       <Dialog open={confirming} onClose={() => setConfirming(false)} title={t('board.deleteTitle')}>

@@ -11,6 +11,14 @@ export function BoardSwitcher({ boards, selectedId, onSelect }: Props) {
   const current = boards.find((b) => b.id === selectedId)
   const { t } = useI18n()
   const title = current?.title ?? t('shell.boards')
+  const own = boards.filter((b) => b.role === 'admin')
+  const shared = boards.filter((b) => b.role !== 'admin')
+  const item = (b: BoardSummary) => ({
+    kind: 'action' as const,
+    label: b.title,
+    checked: b.id === selectedId,
+    onSelect: () => onSelect(b.id),
+  })
   // The name starts with the text people see, so voice control can find it (WCAG 2.5.3).
   return (
     <Menu
@@ -24,12 +32,8 @@ export function BoardSwitcher({ boards, selectedId, onSelect }: Props) {
       }
       items={[
         { kind: 'note', label: t('shell.yourBoards') },
-        ...boards.map((b) => ({
-          kind: 'action' as const,
-          label: b.title,
-          checked: b.id === selectedId,
-          onSelect: () => onSelect(b.id),
-        })),
+        ...own.map(item),
+        ...(shared.length ? [{ kind: 'note' as const, label: t('shell.sharedBoards') }, ...shared.map(item)] : []),
       ]}
     />
   )

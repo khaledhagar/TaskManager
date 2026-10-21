@@ -93,6 +93,8 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
           <BoardView
             key={selectedId}
             boardId={selectedId}
+            userId={user.id}
+            isGuest={user.is_guest}
             onRenamed={renamed}
             onDeleted={deleted}
           />

@@ -4,7 +4,9 @@ export type Priority = 'low' | 'medium' | 'high' | 'urgent'
 export type Template = 'blank' | 'sprint' | 'bug_tracking' | 'personal'
 export type LabelColor = 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purple' | 'gray'
 
-export type BoardSummary = { id: number; title: string; created_at: string }
+/** A member's permission: Viewer, Can update tasks, Full access, or Admin (the board's creator). */
+export type Role = 'viewer' | 'updater' | 'editor' | 'admin'
+export type BoardSummary = { id: number; title: string; created_at: string; role: Role }
 export type Label = { id: number; name: string; color: LabelColor }
 export type ChecklistItem = { id: number; text: string; done: boolean; position: number }
 export type Attachment = {
@@ -35,6 +37,7 @@ export type Board = {
   labels: Label[]
   columns: Column[]
   background: Background
+  role: Role
 }
 export type CardPatch = Partial<
   Pick<Card, 'title' | 'details' | 'completed' | 'priority' | 'due_date'>

@@ -308,26 +308,26 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 
 ### E3. Board sharing UI (Phase 19)
 
-- [ ] T-540 Members panel lists members with one selected permission each; choosing another turns the old one off and saves
-- [ ] T-541 The admin row is fixed; Remove asks first; pending invites show Copy link, Share on WhatsApp, Cancel
-- [ ] T-542 Access requests show with Approve (Can update tasks / Full access) and Decline
-- [ ] T-543 Invite dialog validates the email, sends, then shows the link with Copy and Share on WhatsApp (`wa.me` link opened in a new tab)
-- [ ] T-544 Invite page shows board and inviter; Accept works; expired, used and other-email cases show clear messages
-- [ ] T-545 Signed-out visitor on the invite page is sent to sign in or sign up, then back to accept
-- [ ] T-546 Viewer: adding, editing, dragging or completing shows "ask the admin" with Request access; nothing changes and no request is sent
-- [ ] T-547 Can update tasks: drag and complete work; add and delete show the full-access message
-- [ ] T-548 Request access sends once, then shows "Request sent"
-- [ ] T-549 Board switcher groups "Your boards" and "Shared with you"; Leave board works
-- [ ] T-550 Board reloads when the tab regains focus (shows another member's change)
-- [ ] T-551 Guest admin sees "Create an account to share this board"
-- [ ] T-552 New texts in both dictionaries; no hard-coded English (existing source check)
-- [ ] T-553 E2E: admin invites a second user, who accepts and sees the board as Viewer
-- [ ] T-554 E2E: Viewer drag is refused with the message; Request access reaches the admin (email in outbox); admin approves Full access; the member can now add a card
-- [ ] T-555 E2E: admin changes a member to Can update tasks; the member can move and complete but not delete
-- [ ] T-556 E2E: removed member loses the board
-- [ ] T-557 E2E: members panel and invite page at phone width, dark mode, Arabic
-- [ ] T-558 Accessibility: members panel and invite page have no axe violations; the permission choice is a labelled radio group
-- [ ] T-559 Existing E2E suite still passes for single-user boards
+- [x] T-540 Members panel lists members with one selected permission each; choosing another turns the old one off and saves
+- [x] T-541 The admin row is fixed; Remove asks first; pending invites show Copy link, Share on WhatsApp, Cancel
+- [x] T-542 Access requests show with Approve (Can update tasks / Full access) and Decline
+- [x] T-543 Invite dialog validates the email, sends, then shows the link with Copy and Share on WhatsApp (`wa.me` link opened in a new tab)
+- [x] T-544 Invite page shows board and inviter; Accept works; expired, used and other-email cases show clear messages
+- [x] T-545 Signed-out visitor on the invite page is sent to sign in or sign up, then back to accept
+- [x] T-546 Viewer: adding, editing, dragging or completing shows "ask the admin" with Request access; nothing changes and no request is sent
+- [x] T-547 Can update tasks: drag and complete work; add and delete show the full-access message
+- [x] T-548 Request access sends once, then shows "Request sent"
+- [x] T-549 Board switcher groups "Your boards" and "Shared with you"; Leave board works
+- [x] T-550 Board reloads when the tab regains focus (shows another member's change)
+- [x] T-551 Guest admin sees "Create an account to share this board"
+- [x] T-552 New texts in both dictionaries; no hard-coded English (existing source check)
+- [x] T-553 E2E: admin invites a second user, who accepts and sees the board as Viewer
+- [x] T-554 E2E: Viewer drag is refused with the message; Request access reaches the admin (email in outbox); admin approves Full access; the member can now add a card
+- [x] T-555 E2E: admin changes a member to Can update tasks; the member can move and complete but not delete
+- [x] T-556 E2E: removed member loses the board
+- [x] T-557 E2E: members panel and invite page at phone width, dark mode, Arabic
+- [x] T-558 Accessibility: members panel and invite page have no axe violations; the permission choice is a labelled radio group
+- [x] T-559 Existing E2E suite still passes for single-user boards
 
 ### E4. Public boards, assignment, meeting link (Phase 20)
 

@@ -66,7 +66,11 @@ export function ChecklistEditor({ card, actions }: { card: Card; actions: BoardA
         onChange={(e) => setDraft(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && add()}
       />
-      <ChecklistSuggest cardId={card.id} onAdd={(text) => actions.addItem(card.id, text)} />
+      <ChecklistSuggest
+        cardId={card.id}
+        onAdd={(text) => actions.addItem(card.id, text)}
+        allowed={() => actions.allowed('editor')}
+      />
     </section>
   )
 }

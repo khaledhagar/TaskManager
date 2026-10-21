@@ -5,6 +5,8 @@ import { ChatPanel } from '../ai/ChatPanel'
 import { Backdrop } from '../files/Backdrop'
 import { BackgroundPicker } from '../files/BackgroundPicker'
 import { useI18n } from '../i18n/context'
+import { useLocation } from '../lib/router'
+import { MembersPanel } from '../sharing/MembersPanel'
 import { InlineText } from '../ui/InlineText'
 import ui from '../ui/ui.module.css'
 import css from './board.module.css'
@@ -19,13 +21,18 @@ import { useShortcuts } from './useShortcuts'
 
 type Props = {
   boardId: number
+  userId: number
+  isGuest: boolean
   onRenamed: (id: number, title: string) => void
   onDeleted: (id: number) => void
 }
 
 /** The interactive board: header, filters, columns with drag and drop, card details. */
-export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
+export function BoardView({ boardId, userId, isGuest, onRenamed, onDeleted }: Props) {
   const { board, loadError, actions } = useBoard(boardId)
+  const { params } = useLocation()
+  // The access-request email links here with ?members=1 so the admin lands on the panel.
+  const [members, setMembers] = useState(params.get('members') === '1')
   const { t } = useI18n()
   const [filters, setFilters] = useState(EMPTY_FILTERS)
   const [openCardId, setOpenCardId] = useState<number | null>(null)
@@ -65,8 +72,7 @@ export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
       <BoardHeader
         board={board}
         onRename={(title) => {
-          actions.renameBoard(title)
-          onRenamed(board.id, title)
+          if (actions.renameBoard(title)) onRenamed(board.id, title)
         }}
         onDelete={async () => {
           await boards.remove(board.id)
@@ -75,6 +81,7 @@ export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
         onHelp={() => setHelp(true)}
         onBackground={() => setPicking(true)}
         onChat={() => setChatting(true)}
+        onMembers={() => setMembers(true)}
       />
       <FilterBar
         filters={filters}
@@ -115,6 +122,14 @@ export function BoardView({ boardId, onRenamed, onDeleted }: Props) {
       ) : null}
       <ShortcutsHelp open={help} onClose={() => setHelp(false)} />
       <ChatPanel open={chatting} board={board} actions={actions} onClose={() => setChatting(false)} />
+      <MembersPanel
+        open={members}
+        onClose={() => setMembers(false)}
+        board={board}
+        userId={userId}
+        isGuest={isGuest}
+        onLeft={() => onDeleted(board.id)}
+      />
       <BackgroundPicker
         open={picking}
         board={board}

@@ -8,7 +8,7 @@ import { NewBoardDialog } from './NewBoardDialog'
 vi.mock('../api/boards', () => ({ boards: { create: vi.fn() } }))
 vi.mock('../api/ai', () => ({ ai: { startBoard: vi.fn() } }))
 
-const board = { id: 9, title: 'Made', created_at: '' }
+const board = { id: 9, title: 'Made', created_at: '', role: 'admin' as const }
 const onCreated = vi.fn()
 const onClose = vi.fn()
 
