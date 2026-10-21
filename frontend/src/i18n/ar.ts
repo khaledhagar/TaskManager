@@ -99,7 +99,7 @@ export const ar: Dictionary = {
   'shell.saveBoards': 'احفظ لوحاتك',
   'shell.noBoards': 'لا توجد لوحات بعد',
   'shell.noBoardsHint': 'أنشئ لوحة لتبدأ التخطيط.',
-  'shell.switchBoard': 'تبديل اللوحة',
+  'shell.switchBoard': '{title}، تبديل اللوحة',
   'shell.boards': 'اللوحات',
   'shell.yourBoards': 'لوحاتك',
   'account.menu': 'الحساب',

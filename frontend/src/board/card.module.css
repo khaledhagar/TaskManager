@@ -19,26 +19,41 @@
   text-decoration: line-through;
 }
 
+/* The button is 24 px to click (WCAG 2.5.8); the circle inside it stays 18 px. */
 .check {
   position: relative;
   display: grid;
   flex: none;
   place-items: center;
-  width: 18px;
-  height: 18px;
-  margin-block-start: 12px;
-  margin-inline-start: 10px;
-  border: 1.5px solid var(--border-strong);
+  width: 24px;
+  height: 24px;
+  margin-block-start: 9px;
+  margin-inline-start: 7px;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
-  background: var(--surface);
+  background: transparent;
   color: #ffffff;
 }
 
-.check:hover {
+.check::before {
+  position: absolute;
+  inset: 3px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface);
+  content: "";
+}
+
+.check > svg {
+  position: relative;
+}
+
+.check:hover::before {
   border-color: var(--success);
 }
 
-.check[aria-checked="true"] {
+.check[aria-checked="true"]::before {
   border-color: var(--success);
   background: var(--success);
 }
@@ -179,11 +194,11 @@
   }
 }
 
-/* Touch screens: the small check keeps its look; an invisible layer makes it 40 px to tap. */
+/* Touch screens: the check keeps its look; an invisible layer makes it 40 px to tap. */
 @media (pointer: coarse) {
   .check::after {
     position: absolute;
-    inset: -11px;
+    inset: -8px;
     content: "";
   }
 }

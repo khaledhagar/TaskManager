@@ -68,7 +68,7 @@ describe('app shell', () => {
   test('opens the first board and switches boards', async () => {
     renderShell()
     expect(await screen.findByRole('heading', { name: 'Website Launch' })).toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: 'Switch board' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Website Launch, switch board' }))
     await userEvent.click(screen.getByRole('menuitemradio', { name: 'Personal' }))
     expect(await screen.findByRole('heading', { name: 'Personal' })).toBeInTheDocument()
     expect(location.search).toBe('?board=2')

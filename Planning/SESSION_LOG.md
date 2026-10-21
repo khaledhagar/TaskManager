@@ -4,16 +4,16 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 
 ## Where the project stands (2026-10-21)
 
-- Phases 1-14 are done and pushed (`main`, https://github.com/khaledhagar/TaskManager).
-- **Next: Phase 15 (Playwright integration tests).** The user asked to run Phases 14, 15 and 16 back to back without stopping for approval, with a commit + push and a log update after each phase, and to stop before Phase 17 (Deployment).
-- Tests: backend 273 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 209 passing. Lint, format and type checks are clean.
-- Checklists: 170 tests ticked in `Planning/TEST_PLAN.md`, 96 items ticked in `Planning/SECURITY.md`.
+- Phases 1-15 are done and pushed (`main`, https://github.com/khaledhagar/TaskManager).
+- **Next: Phase 16 (Done).** Stop before Phase 17 (Deployment).
+- Tests: backend 273 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 209 passing; Playwright 59 passing (Edge full suite, Firefox and WebKit smoke). Lint, format and type checks are clean.
+- Checklists: 214 tests ticked in `Planning/TEST_PLAN.md` (open: T-165, T-166, T-405, T-407), 106 items ticked in `Planning/SECURITY.md` (open: NFR-03, NFR-04).
 
 | Done | Phase |
 |------|-------|
-| Yes | 1 Scaffolding to 14 Hardening |
-| Next | 15 Playwright tests |
-| Later | 16 Done, 17 Deployment (Vercel) |
+| Yes | 1 Scaffolding to 15 Playwright tests |
+| Next | 16 Done |
+| Later | 17 Deployment (Vercel) |
 
 ## How we work (the user's preferences)
 
@@ -133,10 +133,21 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 - **NFR-03 left open:** with 200 cards there are still 2-3 pauses of about 170-200 ms per drag (dnd-kit re-measures every card). Recorded in `SECURITY.md`; needs the user's decision.
 - Scratch scripts used for these checks (not in the repo): a 200-card drag with frame timing, and a drag regression check (reorder, cross-column, keyboard, reload).
 
-## Next steps: Phase 15 - Integration Testing (Playwright)
+## Playwright tests (Phase 15): how it works
 
-Tasks are in "Phase 15" in `PLAN.md`; tests T-300 to T-355 in `TEST_PLAN.md`.
+- `cd frontend && npm run build && npx playwright test` (README has it). `playwright.config.ts` starts `e2e/server.py` on port 8001 with a fresh database in the system temp folder (`taskmanager-e2e`, outside OneDrive).
+- `e2e/server.py` runs the real app, raises the rate limits (one machine is one IP), and adds `/__e2e` routes: `/outbox?to=` reads console emails (verification and reset links), and a fake Google OpenID provider (`/google/authorize`, `/token`, `/jwks`, `/google/identity` picks the next Google user).
+- Edge runs every test; Firefox and WebKit run the tests tagged `@smoke` (T-355). First time on a new machine: `npx playwright install firefox webkit`.
+- Live AI tests are tagged `@live` and skipped unless `LIVE=1` (uses the free daily quota).
+- `e2e/helpers.ts`: `newEmail`, `emailLink`, `startAsGuest`, `signUp`. TypeScript for e2e is checked through `tsconfig.e2e.json`.
+- Defects fixed in this phase: card check button raised to 24 px to click (WCAG 2.5.8; the circle stays 18 px); board switcher's accessible name starts with the board title (WCAG 2.5.3); link color darkened to `#146d9a` for 4.5:1 contrast.
+- `TEST_PLAN.md` duplicate numbers (second T-330 / T-331) were renumbered.
 
-- Note: `TEST_PLAN.md` has two different tests numbered T-330 and two numbered T-331 (lines ~227-228 and ~247-248). Renumber the second pair before ticking (the tick script ticks every match).
-- No `playwright.config.ts` or e2e folder exists yet. `npm run e2e` runs `playwright test`. Use Edge (`channel: 'msedge'`), a fresh scratch database per run (`DATABASE_URL`, `STORAGE_DIR`) and a `webServer` that starts uvicorn.
-- Live AI tests (T-314 to T-316) use the free daily quota (50 requests per day for the whole account); run them once.
+## Next steps: Phase 16 - Done
+
+Tasks are in "Phase 16" in `PLAN.md`.
+
+- Live account checks (T-165, T-166): need the user's Gmail App Password and Google OAuth client in `.env` (see "Waiting on the user").
+- Open items: T-405 / NFR-04 Lighthouse (performance 90+, accessibility 100); NFR-03 drag smoothness with 200 cards (needs the user's decision); T-407 every SECURITY item ticked.
+- Server running locally with the built frontend, ready for the user.
+- FINAL task, before Deployment: remind the user to delete `backend/taskmanager.db` and `backend/storage/`.

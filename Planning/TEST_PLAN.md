@@ -210,58 +210,58 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 ## C. End-to-end tests (Playwright, `frontend/e2e/`)
 
 ### C1. Functional
-- [ ] T-300 Continue as guest shows the demo board with dummy data
-- [ ] T-301 Sign up, open the verification link (console mode), sign out, sign in again; data persists
-- [ ] T-318 Forgot password, open the reset link, set a new password, sign in with it; old password fails
-- [ ] T-319 Password change in one browser signs out a second browser
-- [ ] T-320 Continue with Google using a faked Google provider in test mode
-- [ ] T-321 Unverified account sees the verify message and can resend the email
-- [ ] T-322 Upload a background photo; it shows after reload; remove it
-- [ ] T-323 Attach a PDF and an image, download both, delete one
-- [ ] T-324 A 5 MB file is refused with a clear message
-- [ ] T-325 Focus timer is off by default; turn it on, fast-forward the browser clock 25 minutes: break starts; reset focus and reset break work; turn it off
-- [ ] T-326 Focus timer 50/10 mode and state kept after reload
-- [ ] T-327 Switch to Arabic: page is right-to-left, texts are Arabic, choice survives reload and sign-in
-- [ ] T-328 Drag a card and reorder columns in Arabic (mouse and keyboard)
-- [ ] T-329 Every main screen at 360, 768, 1024 and 1440 px in both themes and both languages: no page-level horizontal scroll, nothing cut off (NFR-23)
-- [ ] T-330 Touch drag and drop on a phone-sized touch screen; the page still scrolls (NFR-24)
-- [ ] T-331 No axe violations in Arabic, in both themes (NFR-16, NFR-17)
-- [ ] T-302 Guest upgrade keeps boards and allows sign in with the new email
-- [ ] T-303 Create a blank board with 3 columns; create a board from each template
-- [ ] T-304 Rename, add, reorder (drag) and delete columns; undo column delete
-- [ ] T-305 Add a card; mark it completed; delete it; undo; delete again and let it expire
-- [ ] T-306 Open a card; edit description in markdown and preview; set priority, due date, labels; add, tick and delete checklist items
-- [ ] T-307 Drag a card to another column and within a column; reload; order persists
-- [ ] T-308 Move a card with the keyboard only (NFR-11)
-- [ ] T-309 Search and each filter narrow the visible cards; clearing restores them
-- [ ] T-310 Overdue card is highlighted; progress bar updates when a card is completed
-- [ ] T-311 Keyboard shortcuts N, /, ?, Esc work
-- [ ] T-312 Dark mode persists across reload
-- [ ] T-313 Delete account signs out and the old credentials no longer work
-- [ ] T-314 AI suggest checklist adds selected items (live)
-- [ ] T-315 AI board starter creates a filled board (live)
-- [ ] T-316 Chat answers a question about the board; a proposed action is confirmed and appears on the board (live)
-- [ ] T-317 Chat action is not applied when the user does not confirm
+- [x] T-300 Continue as guest shows the demo board with dummy data
+- [x] T-301 Sign up, open the verification link (console mode), sign out, sign in again; data persists
+- [x] T-318 Forgot password, open the reset link, set a new password, sign in with it; old password fails
+- [x] T-319 Password change in one browser signs out a second browser
+- [x] T-320 Continue with Google using a faked Google provider in test mode
+- [x] T-321 Unverified account sees the verify message and can resend the email
+- [x] T-322 Upload a background photo; it shows after reload; remove it
+- [x] T-323 Attach a PDF and an image, download both, delete one
+- [x] T-324 A 5 MB file is refused with a clear message
+- [x] T-325 Focus timer is off by default; turn it on, fast-forward the browser clock 25 minutes: break starts; reset focus and reset break work; turn it off
+- [x] T-326 Focus timer 50/10 mode and state kept after reload
+- [x] T-327 Switch to Arabic: page is right-to-left, texts are Arabic, choice survives reload and sign-in
+- [x] T-328 Drag a card and reorder columns in Arabic (mouse and keyboard)
+- [x] T-329 Every main screen at 360, 768, 1024 and 1440 px in both themes and both languages: no page-level horizontal scroll, nothing cut off (NFR-23)
+- [x] T-335 Touch drag and drop on a phone-sized touch screen; the page still scrolls (NFR-24)
+- [x] T-336 No axe violations in Arabic, in both themes (NFR-16, NFR-17)
+- [x] T-302 Guest upgrade keeps boards and allows sign in with the new email
+- [x] T-303 Create a blank board with 3 columns; create a board from each template
+- [x] T-304 Rename, add, reorder (drag) and delete columns; undo column delete
+- [x] T-305 Add a card; mark it completed; delete it; undo; delete again and let it expire
+- [x] T-306 Open a card; edit description in markdown and preview; set priority, due date, labels; add, tick and delete checklist items
+- [x] T-307 Drag a card to another column and within a column; reload; order persists
+- [x] T-308 Move a card with the keyboard only (NFR-11)
+- [x] T-309 Search and each filter narrow the visible cards; clearing restores them
+- [x] T-310 Overdue card is highlighted; progress bar updates when a card is completed
+- [x] T-311 Keyboard shortcuts N, /, ?, Esc work
+- [x] T-312 Dark mode persists across reload
+- [x] T-313 Delete account signs out and the old credentials no longer work
+- [x] T-314 AI suggest checklist adds selected items (live)
+- [x] T-315 AI board starter creates a filled board (live)
+- [x] T-316 Chat answers a question about the board; a proposed action is confirmed and appears on the board (live)
+- [x] T-317 Chat action is not applied when the user does not confirm
 
 ### C2. Security
-- [ ] T-330 User B cannot open user A's board by URL
-- [ ] T-331 Cookie is not readable from `document.cookie`
-- [ ] T-332 A card titled `<img src=x onerror=alert(1)>` renders as text, no dialog fires (SEC-60)
-- [ ] T-333 A description link `javascript:alert(1)` does nothing (SEC-61)
-- [ ] T-334 No CSP violations reported in the console on any screen (SEC-80)
+- [x] T-330 User B cannot open user A's board by URL
+- [x] T-331 Cookie is not readable from `document.cookie`
+- [x] T-332 A card titled `<img src=x onerror=alert(1)>` renders as text, no dialog fires (SEC-60)
+- [x] T-333 A description link `javascript:alert(1)` does nothing (SEC-61)
+- [x] T-334 No CSP violations reported in the console on any screen (SEC-80)
 
 ### C3. Non-functional
-- [ ] T-350 No axe violations on auth, board, card modal and chat panel, in both themes (NFR-10, NFR-16)
-- [ ] T-351 Layout at 360, 768 and 1440 px has no page-level horizontal scroll (NFR-20)
-- [ ] T-352 Modal traps focus and returns focus on close (NFR-13)
-- [ ] T-353 Reduced-motion setting disables animations (NFR-15)
-- [ ] T-354 Board with 500 cards loads under 300 ms (API) and renders without errors (NFR-01)
-- [ ] T-355 Runs in Chromium, Firefox and WebKit (NFR-22)
+- [x] T-350 No axe violations on auth, board, card modal and chat panel, in both themes (NFR-10, NFR-16)
+- [x] T-351 Layout at 360, 768 and 1440 px has no page-level horizontal scroll (NFR-20)
+- [x] T-352 Modal traps focus and returns focus on close (NFR-13)
+- [x] T-353 Reduced-motion setting disables animations (NFR-15)
+- [x] T-354 Board with 500 cards loads under 300 ms (API) and renders without errors (NFR-01)
+- [x] T-355 Runs in Chromium, Firefox and WebKit (NFR-22)
 
 ## D. Release checks
 
 - [x] T-400 `uv run pytest --cov` passes with 90% or more coverage (NFR-40)
-- [ ] T-401 `npm test` and `npx playwright test` pass
+- [x] T-401 `npm test` and `npx playwright test` pass
 - [x] T-402 `uv run ruff check` and `npx tsc --noEmit` pass (NFR-41)
 - [x] T-403 `pip-audit` and `npm audit --omit=dev` clean (SEC-95, SEC-96)
 - [x] T-404 Bundle size under 300 KB gzipped (NFR-02)

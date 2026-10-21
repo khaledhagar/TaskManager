@@ -25,7 +25,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 12 - AI UI | 4 / 4 | Done |
 | Phase 13 - Polish | 8 / 8 | Done |
 | Phase 14 - Security and Non-Functional Hardening | 5 / 5 | Done |
-| Phase 15 - Integration Testing (Playwright) | 0 / 19 | Not started |
+| Phase 15 - Integration Testing (Playwright) | 19 / 19 | Done |
 | Phase 16 - Done | 0 / 6 | Not started |
 | Phase 17 - Deployment (Vercel) | 0 / 12 | Not started |
 
@@ -384,25 +384,25 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 
 ## Phase 15 - Integration Testing (Playwright)
 
-- [ ] Guest flow: continue as guest, demo board with dummy data visible
-- [ ] Sign up, verify email (link read from console mode), sign out, sign in, data persists; guest upgrade keeps boards
-- [ ] Forgot password, reset, old password rejected, other session signed out
-- [ ] Google sign-in with a faked Google provider in test mode
-- [ ] Create board with 3 default columns; rename, add, reorder, delete columns
-- [ ] Add card, edit description, due date, labels, checklist, mark completed, delete
-- [ ] Drag a card to another column; reload; position persists
-- [ ] Search and filters narrow the visible cards
-- [ ] Dark mode toggle persists across reload
-- [ ] Priority filter, overdue highlight, progress bar, undo delete, keyboard shortcuts, markdown preview
-- [ ] Board from template
-- [ ] AI: suggest checklist, AI board starter, chat reply, chat action confirmed and applied (live, with key)
-- [ ] Two users cannot see each other's boards
-- [ ] Switch to Arabic: layout becomes right-to-left, texts are Arabic, choice survives reload and sign-in; emails and AI answers in Arabic
-- [ ] Main flows at phone and tablet sizes, including touch drag and drop
-- [ ] Upload a board background and see it after reload; remove it
-- [ ] Attach a PDF and an image to a card, download them, delete one; an oversized file is refused
-- [ ] Focus timer: off by default; turn it on, run it with a fast-forwarded browser clock (focus ends, break starts, reset focus and reset break work, 50/10 mode); turn it off
-- [ ] All defects fixed and re-tested
+- [x] Guest flow: continue as guest, demo board with dummy data visible
+- [x] Sign up, verify email (link read from console mode), sign out, sign in, data persists; guest upgrade keeps boards
+- [x] Forgot password, reset, old password rejected, other session signed out
+- [x] Google sign-in with a faked Google provider in test mode
+- [x] Create board with 3 default columns; rename, add, reorder, delete columns
+- [x] Add card, edit description, due date, labels, checklist, mark completed, delete
+- [x] Drag a card to another column; reload; position persists
+- [x] Search and filters narrow the visible cards
+- [x] Dark mode toggle persists across reload
+- [x] Priority filter, overdue highlight, progress bar, undo delete, keyboard shortcuts, markdown preview
+- [x] Board from template
+- [x] AI: suggest checklist, AI board starter, chat reply, chat action confirmed and applied (live, with key)
+- [x] Two users cannot see each other's boards
+- [x] Switch to Arabic: layout becomes right-to-left, texts are Arabic, choice survives reload and sign-in; emails and AI answers in Arabic
+- [x] Main flows at phone and tablet sizes, including touch drag and drop
+- [x] Upload a board background and see it after reload; remove it
+- [x] Attach a PDF and an image to a card, download them, delete one; an oversized file is refused
+- [x] Focus timer: off by default; turn it on, run it with a fast-forwarded browser clock (focus ends, break starts, reset focus and reset break work, 50/10 mode); turn it off
+- [x] All defects fixed and re-tested
 
 ## Phase 16 - Done
 

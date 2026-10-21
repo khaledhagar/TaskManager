@@ -10,13 +10,15 @@ type Props = { boards: BoardSummary[]; selectedId?: number; onSelect: (id: numbe
 export function BoardSwitcher({ boards, selectedId, onSelect }: Props) {
   const current = boards.find((b) => b.id === selectedId)
   const { t } = useI18n()
+  const title = current?.title ?? t('shell.boards')
+  // The name starts with the text people see, so voice control can find it (WCAG 2.5.3).
   return (
     <Menu
-      label={t('shell.switchBoard')}
+      label={t('shell.switchBoard', { title })}
       triggerClassName={css.switcher}
       trigger={
         <>
-          <span className={css.switcherName} dir="auto">{current?.title ?? t('shell.boards')}</span>
+          <span className={css.switcherName} dir="auto">{title}</span>
           <ChevronDown size={16} aria-hidden="true" />
         </>
       }

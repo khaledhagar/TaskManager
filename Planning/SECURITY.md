@@ -141,20 +141,20 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## Accessibility (WCAG 2.2 AA)
 
-- [ ] Text contrast at least 4.5:1 in light and dark themes (NFR-10)
-- [ ] All actions reachable by keyboard, including drag and drop via dnd-kit keyboard sensor (NFR-11)
-- [ ] Visible focus ring on every interactive element (NFR-12)
-- [ ] Modals trap focus, close on Escape, and return focus to the trigger (NFR-13)
-- [ ] Icon buttons have `aria-label`; live region announces drag results and toasts (NFR-14)
-- [ ] Animations respect `prefers-reduced-motion` (NFR-15)
-- [ ] No violations from `@axe-core/playwright` on auth, board and card modal screens (NFR-16)
+- [x] Text contrast at least 4.5:1 in light and dark themes (NFR-10)
+- [x] All actions reachable by keyboard, including drag and drop via dnd-kit keyboard sensor (NFR-11)
+- [x] Visible focus ring on every interactive element (NFR-12)
+- [x] Modals trap focus, close on Escape, and return focus to the trigger (NFR-13)
+- [x] Icon buttons have `aria-label`; live region announces drag results and toasts (NFR-14)
+- [x] Animations respect `prefers-reduced-motion` (NFR-15)
+- [x] No violations from `@axe-core/playwright` on auth, board and card modal screens (NFR-16)
 - [x] `<html lang>` and `dir` always match the chosen language, so screen readers use the right voice and reading order (NFR-17)
 
 ## Usability and responsiveness
 
-- [ ] Works at 360 px, 768 px and 1440 px widths without horizontal page scroll (board scrolls inside its area) (NFR-20)
-- [ ] Every API action shows feedback: optimistic update, loading state, or error toast (NFR-21)
-- [ ] Works in current Chrome, Firefox, Safari and Edge (NFR-22)
+- [x] Works at 360 px, 768 px and 1440 px widths without horizontal page scroll (board scrolls inside its area) (NFR-20)
+- [x] Every API action shows feedback: optimistic update, loading state, or error toast (NFR-21)
+- [x] Works in current Chrome, Firefox, Safari and Edge (NFR-22)
 - [x] Every feature works at 360, 768, 1024 and 1440 px, in light and dark themes, in English and Arabic (NFR-23)
 - [x] Touch: cards and columns can be dragged on phones and tablets without blocking page scrolling; tap targets at least 40 px (NFR-24)
 - [x] Arabic layout is fully right-to-left with no mixed-direction glitches; user-typed names display correctly in either direction (NFR-25)

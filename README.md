@@ -26,8 +26,12 @@ Open http://localhost:8000
 ```bash
 cd backend && uv run pytest --cov=app   # fails under 90% coverage
 cd frontend && npm test
-cd frontend && npx playwright test
+cd frontend && npm run build && npx playwright test   # end-to-end (Edge; Firefox and WebKit run the smoke tests)
+cd frontend && LIVE=1 npx playwright test -g @live    # real AI calls (uses the free daily quota)
 ```
+
+The end-to-end tests start their own server on port 8001 with a fresh database in the system temp
+folder (`frontend/e2e/server.py`). First time only: `npx playwright install firefox webkit`.
 
 ## Configuration
 

@@ -92,7 +92,7 @@ export const en = {
   'shell.saveBoards': 'Save your boards',
   'shell.noBoards': 'No boards yet',
   'shell.noBoardsHint': 'Create a board to start planning.',
-  'shell.switchBoard': 'Switch board',
+  'shell.switchBoard': '{title}, switch board',
   'shell.boards': 'Boards',
   'shell.yourBoards': 'Your boards',
   'account.menu': 'Account',
