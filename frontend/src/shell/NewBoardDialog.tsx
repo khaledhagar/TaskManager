@@ -10,6 +10,8 @@ import { Dialog } from '../ui/Dialog'
 import dialog from '../ui/dialog.module.css'
 import { Field } from '../ui/Field'
 import ui from '../ui/ui.module.css'
+import { MicButton } from '../voice/MicButton'
+import voice from '../voice/voice.module.css'
 import css from './shell.module.css'
 
 type Props = { open: boolean; onClose: () => void; onCreated: (board: BoardSummary) => void }
@@ -103,6 +105,7 @@ function NewBoardForm({ onClose, onCreated }: Omit<Props, 'open'>) {
           <label className={ui.label} htmlFor={id}>
             {t('newBoard.describe')}
           </label>
+          <div className={voice.withMic}>
           <textarea
             id={id}
             dir="auto"
@@ -117,6 +120,8 @@ function NewBoardForm({ onClose, onCreated }: Omit<Props, 'open'>) {
             aria-describedby={fieldError ? `${id}-error ${id}-hint` : `${id}-hint`}
             onChange={(e) => setDescription(e.target.value)}
           />
+          <MicButton value={description} onChange={setDescription} maxLength={500} />
+          </div>
           {fieldError ? (
             <span id={`${id}-error`} className={ui.fieldError}>
               {fieldError}
@@ -135,6 +140,7 @@ function NewBoardForm({ onClose, onCreated }: Omit<Props, 'open'>) {
           dir="auto"
           placeholder={t('newBoard.placeholder')}
           onChange={(e) => setTitle(e.target.value)}
+          after={<MicButton value={title} onChange={setTitle} maxLength={200} />}
           error={fieldError}
           hint={t(hint)}
         />

@@ -34,7 +34,8 @@ def test_security_headers_on_every_response(client, path):
     assert headers["content-security-policy"] == CSP
     assert headers["x-content-type-options"] == "nosniff"
     assert headers["referrer-policy"] == "strict-origin-when-cross-origin"
-    assert headers["permissions-policy"] == "camera=(), microphone=(), geolocation=()"
+    # Voice input (Phase 21): only this site may use the microphone (SEC-180).
+    assert headers["permissions-policy"] == "camera=(), microphone=(self), geolocation=()"
     assert "strict-transport-security" not in headers
 
 

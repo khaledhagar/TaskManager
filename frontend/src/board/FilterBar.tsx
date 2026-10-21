@@ -3,6 +3,7 @@ import type { Ref } from 'react'
 import type { Label, Priority } from '../api/boards'
 import { useI18n } from '../i18n/context'
 import ui from '../ui/ui.module.css'
+import { MicButton } from '../voice/MicButton'
 import css from './board.module.css'
 import { PRIORITIES, priorityLabel } from './display'
 import { EMPTY_FILTERS, filtersActive, type Filters } from './logic'
@@ -37,6 +38,7 @@ export function FilterBar({ filters, onChange, labels, shown, total, searchRef, 
           onChange={(e) => set({ text: e.target.value })}
           onKeyDown={(e) => e.key === 'Escape' && set({ text: '' })}
         />
+        <MicButton value={filters.text} onChange={(text) => set({ text })} maxLength={200} />
         <kbd className={css.kbd} aria-hidden="true">
           /
         </kbd>

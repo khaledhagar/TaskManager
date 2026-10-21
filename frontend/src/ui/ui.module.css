@@ -142,3 +142,15 @@
     height: 40px;
   }
 }
+
+/* An input with something at its end (a microphone button). */
+.withAfter {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.withAfter > input {
+  flex: 1;
+  min-width: 0;
+}

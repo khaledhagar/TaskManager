@@ -1,10 +1,12 @@
 import { Check, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { Board, Card, Label, Priority } from '../api/boards'
 import { AttachmentsSection } from '../files/AttachmentsSection'
 import { useI18n } from '../i18n/context'
 import { Dialog } from '../ui/Dialog'
 import ui from '../ui/ui.module.css'
+import { MicButton } from '../voice/MicButton'
+import voice from '../voice/voice.module.css'
 import css from './cardWindow.module.css'
 import { AssigneePicker } from './AssigneePicker'
 import { ChecklistEditor } from './ChecklistEditor'
@@ -108,13 +110,16 @@ export function CardModal({ card, labels, members, actions, onClose }: Props) {
 function TitleEditor({ title, onSave }: { title: string; onSave: (title: string) => void }) {
   const { t } = useI18n()
   const [value, setValue] = useState(title)
+  const input = useRef<HTMLTextAreaElement>(null)
   function commit() {
     const next = value.trim()
     if (next && next !== title) onSave(next)
     else setValue(title)
   }
   return (
+    <div className={voice.withMic}>
     <textarea
+      ref={input}
       aria-label={t('card.title')}
       dir="auto"
       className={css.titleInput}
@@ -130,5 +135,8 @@ function TitleEditor({ title, onSave }: { title: string; onSave: (title: string)
         }
       }}
     />
+    {/* After speaking, focus returns to the title: Enter or leaving the field saves it. */}
+    <MicButton value={value} onChange={setValue} maxLength={200} onEnd={() => input.current?.focus()} />
+    </div>
   )
 }

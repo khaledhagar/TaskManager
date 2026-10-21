@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useI18n } from '../i18n/context'
 import ui from '../ui/ui.module.css'
+import { MicButton } from '../voice/MicButton'
+import voice from '../voice/voice.module.css'
 import css from './column.module.css'
 
 /** Add cards one after another: Enter adds and keeps the field open, Escape closes. */
@@ -17,6 +19,7 @@ export function CardComposer({ onAdd, onClose }: { onAdd: (title: string) => voi
 
   return (
     <div className={css.composer}>
+      <div className={voice.withMic}>
       <textarea
         aria-label={t('composer.label')}
         dir="auto"
@@ -35,6 +38,8 @@ export function CardComposer({ onAdd, onClose }: { onAdd: (title: string) => voi
           if (e.key === 'Escape') onClose()
         }}
       />
+      <MicButton value={title} onChange={(v) => setTitle(v.replace(/\n/g, ''))} maxLength={200} />
+      </div>
       <div className={css.inline}>
         <button type="button" className={`${ui.button} ${ui.primary}`} onClick={add}>
           {t('column.addCard')}

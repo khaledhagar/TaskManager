@@ -31,7 +31,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 18 - Board Sharing (backend) | 9 / 9 | Done |
 | Phase 19 - Board Sharing (UI) | 7 / 7 | Done |
 | Phase 20 - Public Boards, Assignment and Meeting Link | 7 / 7 | Done |
-| Phase 21 - Voice Input | 0 / 6 | Not started |
+| Phase 21 - Voice Input | 6 / 7 | In progress |
 | Phase 22 - Collaboration: Comments and Activity | 0 / 6 | Not started |
 | Phase 23 - Notifications and Reminders | 0 / 4 | Not started |
 | Phase 24 - Organize: Archive, Copies, Templates, Stars, WIP, Auto-complete, Covers, Focus Sessions | 0 / 6 | Not started |
@@ -600,12 +600,13 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 
 ## Phase 21 - Voice Input
 
-- [ ] `useSpeech` hook (start, stop, interim and final text, errors, language) and a `MicButton` component; hidden when the browser has no speech recognition
-- [ ] Microphone in the column composer, card title and description, checklist item, search, new board title, "Describe it to AI" and the AI chat message
-- [ ] One-time privacy notice, listening state, live-region announcements, translated errors, reduced motion, 40 px touch target, RTL
-- [ ] `Permissions-Policy: microphone=(self)` on the server; camera and geolocation stay blocked
-- [ ] Tests T-600 to T-614 pass; SEC-180 to SEC-183 ticked
-- [ ] Browser review: phone and desktop, light and dark, English and Arabic; real check by the user in Edge or Chrome with a microphone
+- [x] `useSpeech` hook (start, stop, interim and final text, errors, language) and a `MicButton` component; hidden when the browser has no speech recognition
+- [x] Microphone in the column composer, card title and description, checklist item, search, new board title, "Describe it to AI" and the AI chat message
+- [x] One-time privacy notice, listening state, live-region announcements, translated errors, reduced motion, 40 px touch target, RTL
+- [x] `Permissions-Policy: microphone=(self)` on the server; camera and geolocation stay blocked
+- [x] Tests T-600 to T-614 pass; SEC-180 to SEC-183 ticked
+- [x] Browser review: phone and desktop, light and dark, English and Arabic
+- [ ] Real check by the user in Edge or Chrome with a microphone
 
 ## Phase 22 - Collaboration: Comments and Activity
 

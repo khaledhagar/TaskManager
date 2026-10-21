@@ -25,7 +25,7 @@ export function AssigneePicker({ card, members, actions }: Props) {
         <label key={m.user_id} className={css.assigneeOption}>
           <input type="checkbox" checked={card.assignee_ids.includes(m.user_id)} onChange={() => toggle(m.user_id)} />
           <span className={css.assigneeAvatar} aria-hidden="true">
-            {(m.email ?? '?').slice(0, 1).toUpperCase()}
+            {(m.email ?? t('members.youName')).slice(0, 1).toUpperCase()}
           </span>
           {/* Only a guest has no email, and a guest is alone on their own board. */}
           <span className={css.assigneeEmail} dir="ltr" title={m.email ?? ''}>

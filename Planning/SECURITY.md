@@ -157,10 +157,10 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## 15. Voice input (Phase 21)
 
-- [ ] `Permissions-Policy: microphone=(self)`: only this site may use the microphone; camera and geolocation stay blocked (SEC-180)
-- [ ] The microphone starts only when the user presses the button and stops when pressed again or after a pause; it is never on in the background (SEC-181)
-- [ ] Users are told, before first use, that the browser's speech service receives the audio (SEC-182)
-- [ ] Spoken text goes through the same paths as typed text (same length limits, plain text, AI actions still need confirmation); the server stores no audio (SEC-183)
+- [x] `Permissions-Policy: microphone=(self)`: only this site may use the microphone; camera and geolocation stay blocked (SEC-180)
+- [x] The microphone starts only when the user presses the button and stops when pressed again or after a pause; it is never on in the background (SEC-181)
+- [x] Users are told, before first use, that the browser's speech service receives the audio (SEC-182)
+- [x] Spoken text goes through the same paths as typed text (same length limits, plain text, AI actions still need confirmation); the server stores no audio (SEC-183)
 
 ## 17. Further features (Phases 22-25)
 

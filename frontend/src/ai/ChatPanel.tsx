@@ -5,6 +5,8 @@ import type { Board } from '../api/boards'
 import type { BoardActions } from '../board/useBoard'
 import { useI18n } from '../i18n/context'
 import ui from '../ui/ui.module.css'
+import { MicButton } from '../voice/MicButton'
+import voice from '../voice/voice.module.css'
 import css from './ai.module.css'
 import { applyAction, describeAction } from './chatActions'
 import { useAiRequest } from './useAiRequest'
@@ -122,6 +124,7 @@ export function ChatPanel({ open, board, actions, onClose }: Props) {
         <label className="visually-hidden" htmlFor={inputId}>
           {t('chat.message')}
         </label>
+        <div className={voice.withMic}>
         <textarea
           id={inputId}
           dir="auto"
@@ -138,6 +141,8 @@ export function ChatPanel({ open, board, actions, onClose }: Props) {
             }
           }}
         />
+        <MicButton value={draft} onChange={setDraft} maxLength={2000} />
+        </div>
         <button className={`${ui.button} ${ui.primary}`} disabled={!draft.trim() || request.busy}>
           {t('chat.send')}
         </button>

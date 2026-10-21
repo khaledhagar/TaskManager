@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useI18n } from '../i18n/context'
 import ui from '../ui/ui.module.css'
+import { MicButton } from '../voice/MicButton'
+import voice from '../voice/voice.module.css'
 import css from './cardWindow.module.css'
 import { Markdown } from './Markdown'
 
@@ -30,6 +32,7 @@ export function DescriptionEditor({ details, onSave }: { details: string; onSave
         </div>
       </div>
       {mode === 'write' ? (
+        <div className={voice.withMic}>
         <textarea
           aria-label={t('description.title')}
           dir="auto"
@@ -42,6 +45,8 @@ export function DescriptionEditor({ details, onSave }: { details: string; onSave
             if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && dirty) onSave(draft)
           }}
         />
+        <MicButton value={draft} onChange={setDraft} maxLength={10000} />
+        </div>
       ) : draft.trim() ? (
         <Markdown text={draft} />
       ) : (
