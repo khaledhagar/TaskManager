@@ -33,6 +33,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 20 - Public Boards, Assignment and Meeting Link | 7 / 7 | Done |
 | Phase 21 - Voice Input | 0 / 6 | Not started |
 | Phase 22 - Deployment (Vercel) | 0 / 14 | Not started |
+| Phase 23 - Documentation (Word files) | 0 / 8 | Not started |
 
 ## Stack
 
@@ -94,6 +95,7 @@ The app will be published, so two companion checklists are part of every phase:
 36. Member permissions set by the admin in a members panel: Viewer (default), Can update tasks, Full access; one selected per member; a Viewer who tries to edit sees "ask the admin" with a Request access button that emails the admin (approved 2026-10-21)
 37. Public boards: anyone with the link can view read-only without signing in; a signed-in visitor can join as a Viewer (approved 2026-10-21)
 38. Assign cards to board members; "Assigned to me" filter (approved 2026-10-21)
+41. Project documentation as Word files (Phase 23, after Deployment; requested 2026-10-21)
 40. Voice input for people who cannot type: a microphone button on the main text fields and the AI chat, in English and Arabic (approved for planning 2026-10-21; build after the user checks the plan)
 39. Meeting link on the board (Zoom, Google Meet, Teams or any https link): Start meeting opens it (Zoom links open the Zoom app); the admin can email the link to all members (approved 2026-10-21)
 30. Pomodoro focus timer on the board, opt-in: off by default and turned on with a "Focus timer" button; 25 / 5 or 50 / 10 minutes, start, pause, reset focus, reset break, skip; chip with time left, chime and optional notification
@@ -314,6 +316,23 @@ Goal: someone who cannot type can fill in the app's text fields and drive the bo
 - **Errors (translated):** microphone blocked ("Allow the microphone in your browser to use voice input"), no speech heard, no network.
 - **Security headers:** `Permissions-Policy` changes from `microphone=()` to `microphone=(self)` (this site only; camera and geolocation stay off). No CSP change.
 - **Tests:** speech is faked in unit tests and in Playwright (an init script installs a fake `SpeechRecognition` that returns chosen words), so tests never need a real microphone.
+
+## Documentation Design (Phase 23)
+
+Eight Word (`.docx`) files in a new `Documentation/` folder, written after Deployment so they describe the finished, live app (real address, final features, final test results). English, the app's name "Task Manager" on every title page, consistent styling (title page, table of contents for long files, headings, page numbers), the project colors from `CLAUDE.md`, and no secrets (no `.env` values, keys, passwords or personal emails).
+
+| # | File | Contents |
+|---|------|----------|
+| 1 | `01_Overview.docx` | App name, a short description (one or two sentences) and a long description (about one page) |
+| 2 | `02_Documentation.docx` | What the app is for, target audience, every feature grouped by area (boards and cards, sharing and permissions, public boards, AI, files, focus timer, languages, voice input, accounts and security), how to use each one, limits, supported browsers and devices |
+| 3 | `03_Test_Plan.docx` | Testing approach (unit, integration, end-to-end, accessibility, performance, security), every test from `TEST_PLAN.md` with its ID and status, every test file with what it covers, how to run the tests, and the final results (counts, coverage, Lighthouse) |
+| 4 | `04_Project_Plan.docx` | `PLAN.md` as a document: scope, stack, design sections, data model, API, every phase with its tasks and status |
+| 5 | `05_Security.docx` | `SECURITY.md` as a document: every security and non-functional item with its ID, how it is met, and how it is tested |
+| 6 | `06_User_Flows.docx` | Step-by-step flows with simple diagrams: guest start, sign up and verify, Google sign-in, forgot password, create a board, cards and drag and drop, invite and accept, permissions and request access, public board and join, assign cards, meeting link, AI chat actions, voice input, files, focus timer, language switch, delete account |
+| 7 | `07_Pages.docx` | Every page and main window of the app with a screenshot (light theme, desktop; phone and Arabic examples) and what each part does |
+| 8 | `08_Build_Prompts.docx` | Only the phases, each written as a ready-to-use prompt for an AI coding assistant to rebuild the project from scratch (goal, requirements, tasks, success criteria, tests) |
+
+How they are made: a script in `Documentation/build/` (run with `uv run`) reads `PLAN.md`, `TEST_PLAN.md`, `SECURITY.md` and the test files, and writes the Word files with `python-docx`; screenshots and flow diagrams are made with Playwright against the running app. Re-running the script refreshes the documents.
 
 ## Phase 1 - Scaffolding
 
@@ -554,3 +573,14 @@ Goal: someone who cannot type can fill in the app's text fields and drive the bo
 - [ ] File storage provider chosen (Cloudflare R2, or Supabase Storage if the database is Supabase); `S3Storage` added with `uv add boto3`; upload, download and delete verified on the deployed URL; uploads stay under Vercel's 4.5 MB limit
 - [ ] Playwright smoke suite passes against the deployed URL
 - [ ] Security headers, Secure cookie and HSTS verified on the deployed URL
+
+## Phase 23 - Documentation (Word files)
+
+- [ ] `Documentation/build/` script with shared styles (title page, contents, headings, page numbers, colors)
+- [ ] `01_Overview.docx`: name, short and long description
+- [ ] `02_Documentation.docx`: features, target audience, how to use, limits, browsers and devices
+- [ ] `03_Test_Plan.docx`: approach, all tests with status, all test files, how to run, final results
+- [ ] `04_Project_Plan.docx` from `PLAN.md` and `05_Security.docx` from `SECURITY.md`
+- [ ] `06_User_Flows.docx` with flow diagrams and `07_Pages.docx` with screenshots
+- [ ] `08_Build_Prompts.docx`: every phase as a prompt
+- [ ] Tests T-620 to T-627 pass; every file opened and checked by the user

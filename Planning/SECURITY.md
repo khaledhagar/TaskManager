@@ -162,6 +162,10 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [ ] Users are told, before first use, that the browser's speech service receives the audio (SEC-182)
 - [ ] Spoken text goes through the same paths as typed text (same length limits, plain text, AI actions still need confirmation); the server stores no audio (SEC-183)
 
+## 16. Documentation (Phase 23)
+
+- [ ] Documents and screenshots contain no secrets or personal data: no `.env` values, keys, tokens, passwords or real user emails (screenshots use test accounts) (SEC-190)
+
 ## Performance
 
 - [x] Board with 500 cards loads from the API in under 300 ms locally (NFR-01)

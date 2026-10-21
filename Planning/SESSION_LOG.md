@@ -13,7 +13,7 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 |------|-------|
 | Yes | 1 Scaffolding to 20 Public boards / assignment / meeting link |
 | Next | 21 Voice input (planned; waiting for the user's check) |
-| Later | 22 Deployment (Vercel) |
+| Later | 22 Deployment (Vercel), 23 Documentation (Word files) |
 
 ## How we work (the user's preferences)
 
@@ -113,6 +113,7 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 ## Waiting on the user
 
 - **Voice input (Phase 21): planned, waiting for the user's check.** Design in "Voice Input Design" in PLAN.md, tests T-600 to T-614, security SEC-180 to SEC-183. Key point: the server's `Permissions-Policy` currently blocks the microphone (`microphone=()`); the phase changes it to `microphone=(self)`. Do not start until the user approves the plan.
+- **Documentation (Phase 23, after Deployment): planned, waiting for the user's check.** Eight Word files in `Documentation/` (overview with short and long description, full documentation with features and target audience, test plan and test files, project plan, security, user flows, pages with screenshots, phases as build prompts). Design in "Documentation Design" in PLAN.md; tests T-620 to T-627; SEC-190. My calls (tell the user): made after Deployment so they describe the live app; English only; the test document lists every test file and its tests rather than printing all test code. Use the `anthropic-skills:docx` skill when building.
 - Optional: 10 OpenRouter credits would raise the AI limit from 50 to 1,000 requests per day.
 - **First Phase 22 (Deployment) task:** delete `backend/taskmanager.db` and `backend/storage/` (stop the server first), only with the user's OK. On 2026-10-21 the user asked to remove their test accounts: all 3 users (and their boards) were deleted through the ORM; the database file itself is still there, empty.
 - The free AI quota is 50 requests per day for the whole account; Phase 12 used 1 for the live check.

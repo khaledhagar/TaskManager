@@ -380,6 +380,17 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [ ] T-613 E2E: microphone buttons at phone width, dark mode, Arabic; no axe violations
 - [ ] T-614 Full regression passes (backend, frontend, Playwright, Lighthouse, audits)
 
+### E6. Documentation (Phase 23)
+
+- [ ] T-620 The build script writes all 8 `.docx` files and each one opens (read back with `python-docx`)
+- [ ] T-621 Every file has a title page with "Task Manager", headings, and page numbers; long files have a table of contents
+- [ ] T-622 `01_Overview.docx` has a short description (at most 2 sentences) and a long description
+- [ ] T-623 `03_Test_Plan.docx` lists every test ID in `TEST_PLAN.md` and every test file in the repository
+- [ ] T-624 `04_Project_Plan.docx` lists every phase and `05_Security.docx` every SEC and NFR item
+- [ ] T-625 `07_Pages.docx` has a screenshot for every page; `06_User_Flows.docx` covers every flow in the design
+- [ ] T-626 `08_Build_Prompts.docx` has one prompt per phase, each with goal, tasks and success criteria
+- [ ] T-627 No document contains secrets: no `.env` values, API keys, tokens, passwords or personal email addresses (SEC-190)
+
 ## D. Release checks
 
 - [x] T-400 `uv run pytest --cov` passes with 90% or more coverage (NFR-40)
