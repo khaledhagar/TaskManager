@@ -8,6 +8,7 @@ from sqlmodel import Session, select
 
 from app import limits, ratelimit
 from app.access import board_for, full_board_options, not_found
+from app.activity import record
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.i18n import tr
@@ -49,6 +50,7 @@ def set_visibility(
         token = secrets.token_urlsafe(32)
         session.add(PublicLink(board_id=board_id, token=token))
         link = public_url(request.app.state.settings.app_url, token)
+    record(session, board_id, user, "visibility.public" if body.public else "visibility.private")
     session.commit()
     return VisibilityOut(public=body.public, link=link)
 
@@ -100,5 +102,6 @@ def join_public_board(
         )
         member = BoardMember(board_id=board.id, user_id=user.id, role=Role.viewer)
         session.add(member)
+        record(session, board.id, user, "member.joined", email=user.email)
         session.commit()
     return board_summary(board, member.role)

@@ -7,6 +7,7 @@ from pydantic import BaseModel, field_validator
 
 from app import ratelimit
 from app.access import board_for
+from app.activity import record
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.i18n import tr
@@ -51,6 +52,7 @@ def set_meeting(
         session.flush()
     if body.url:
         session.add(MeetingLink(board_id=board_id, url=body.url))
+    record(session, board_id, user, "meeting.set" if body.url else "meeting.removed")
     session.commit()
     return MeetingOut(url=body.url)
 

@@ -123,6 +123,7 @@ class CardOut(BaseModel):
     checklist: list[ItemOut]
     attachments: list[AttachmentOut]
     assignee_ids: list[int]
+    comment_count: int = 0
 
 
 class ColumnOut(BaseModel):
@@ -185,7 +186,7 @@ class PublicBoardOut(BaseModel):
     background: BackgroundOut
 
 
-def card_out(card: Card) -> CardOut:
+def card_out(card: Card, comments: int = 0) -> CardOut:
     return CardOut(
         id=card.id,
         title=card.title,
@@ -198,15 +199,16 @@ def card_out(card: Card) -> CardOut:
         checklist=[ItemOut.model_validate(i) for i in card.checklist],
         attachments=[AttachmentOut.model_validate(a) for a in card.attachments],
         assignee_ids=sorted(u.id for u in card.assignees),
+        comment_count=comments,
     )
 
 
-def column_out(column: BoardColumn) -> ColumnOut:
+def column_out(column: BoardColumn, counts: dict[int, int] | None = None) -> ColumnOut:
     return ColumnOut(
         id=column.id,
         title=column.title,
         position=column.position,
-        cards=[card_out(c) for c in column.cards],
+        cards=[card_out(c, (counts or {}).get(c.id, 0)) for c in column.cards],
     )
 
 
@@ -218,14 +220,16 @@ def public_url(app_url: str, token: str) -> str:
     return f"{app_url}/p/{token}"
 
 
-def board_out(board: Board, role: Role, app_url: str) -> BoardOut:
+def board_out(
+    board: Board, role: Role, app_url: str, comment_counts: dict[int, int] | None = None
+) -> BoardOut:
     """The full board; only the admin gets the public link."""
     link = board.public_link
     return BoardOut(
         id=board.id,
         title=board.title,
         labels=[LabelOut.model_validate(lbl) for lbl in board.labels],
-        columns=[column_out(c) for c in board.columns],
+        columns=[column_out(c, comment_counts) for c in board.columns],
         background=background_out(board),
         role=role,
         public=link is not None,

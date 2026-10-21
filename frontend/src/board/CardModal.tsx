@@ -1,6 +1,8 @@
 import { Check, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
-import type { Board, Card, Label, Priority } from '../api/boards'
+import type { Board, Card, Label, Priority, Role } from '../api/boards'
+import { ActivityList } from '../collab/ActivityList'
+import { CommentsSection } from '../collab/CommentsSection'
 import { AttachmentsSection } from '../files/AttachmentsSection'
 import { useI18n } from '../i18n/context'
 import { Dialog } from '../ui/Dialog'
@@ -15,10 +17,20 @@ import { PRIORITIES, priorityLabel } from './display'
 import { LabelPicker } from './LabelPicker'
 import type { BoardActions } from './useBoard'
 
-type Props = { card: Card; labels: Label[]; members: Board['members']; actions: BoardActions; onClose: () => void }
+type Props = {
+  card: Card
+  labels: Label[]
+  members: Board['members']
+  actions: BoardActions
+  onClose: () => void
+  boardId: number
+  role: Role
+  userId: number
+}
 
 /** Card details: content first, properties at the end side. Every change saves at once. */
-export function CardModal({ card, labels, members, actions, onClose }: Props) {
+export function CardModal({ card, labels, members, actions, onClose, boardId, role, userId }: Props) {
+  const myEmail = members.find((m) => m.user_id === userId)?.email ?? null
   const { t } = useI18n()
   const update = (changes: Parameters<BoardActions['updateCard']>[1]) =>
     actions.updateCard(card.id, changes)
@@ -31,6 +43,18 @@ export function CardModal({ card, labels, members, actions, onClose }: Props) {
           <DescriptionEditor details={card.details} onSave={(details) => update({ details })} />
           <ChecklistEditor card={card} actions={actions} />
           <AttachmentsSection card={card} actions={actions} />
+          <CommentsSection
+            cardId={card.id}
+            members={members}
+            role={role}
+            userId={userId}
+            onCountChange={(count) => actions.setCommentCount(card.id, count)}
+          />
+          <section className={css.section}>
+            <h3 className={css.sectionTitle}>{t('history.title')}</h3>
+            {/* Reloads when the card changes, so the newest change shows. */}
+            <ActivityList boardId={boardId} cardId={card.id} myEmail={myEmail} pageSize={10} reload={card} />
+          </section>
         </div>
         <aside className={css.modalSide}>
           <button

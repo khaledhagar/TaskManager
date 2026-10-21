@@ -2,6 +2,8 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import type { Card } from '../api/boards'
+
+vi.mock('../api/collab', () => ({ collab: { comments: vi.fn(async () => []), activity: vi.fn(async () => []) } }))
 import { CardModal } from './CardModal'
 import type { BoardActions } from './useBoard'
 
@@ -46,7 +48,9 @@ beforeEach(() => {
 })
 
 function open(overrides: Partial<Card> = {}, onClose = vi.fn()) {
-  render(<CardModal card={{ ...card, ...overrides }} labels={labels} members={members} actions={actions} onClose={onClose} />)
+  render(
+    <CardModal card={{ ...card, ...overrides }} labels={labels} members={members} actions={actions} onClose={onClose} boardId={1} role="admin" userId={1} />,
+  )
   return screen.getByRole('dialog', { name: overrides.title ?? card.title })
 }
 

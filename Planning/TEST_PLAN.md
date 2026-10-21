@@ -382,22 +382,22 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 
 ### E7. Comments and activity (Phase 22)
 
-- [ ] T-640 Alembic: the baseline migration matches the models; upgrading an existing database keeps its data
-- [ ] T-641 Add, list, edit and delete comments; order newest last
-- [ ] T-642 Viewers read comments but cannot write; "Can update tasks" and above can (SEC-200)
-- [ ] T-643 Authors edit or delete their own comments; the admin can delete any; others get 403
-- [ ] T-644 Comment text over 5,000 characters is refused; Markdown shows without raw HTML (SEC-200)
+- [x] T-640 Alembic: the baseline migration matches the models; upgrading an existing database keeps its data
+- [x] T-641 Add, list, edit and delete comments; order newest last
+- [x] T-642 Viewers read comments but cannot write; "Can update tasks" and above can (SEC-200)
+- [x] T-643 Authors edit or delete their own comments; the admin can delete any; others get 403
+- [x] T-644 Comment text over 5,000 characters is refused; Markdown shows without raw HTML (SEC-200)
 - [ ] T-645 @mention of a member creates a notification; text that names a non-member does nothing (SEC-201)
-- [ ] T-646 Non-members get 404 on every comment endpoint
-- [ ] T-647 Every board change writes one activity entry with actor, kind and summary
-- [ ] T-648 Activity holds no card descriptions or comment text; only members can read it (SEC-205)
-- [ ] T-649 Only the newest 1,000 activity entries per board are kept
-- [ ] T-650 Card window shows comments and History; board Activity panel lists recent changes
-- [ ] T-651 @ suggests board members while typing (keyboard and screen reader friendly)
-- [ ] T-652 Comments and activity in Arabic, RTL, dark mode, phone width
-- [ ] T-653 E2E: two members comment on a card; a mention shows up for the other
-- [ ] T-654 E2E: activity shows a card moved by another member
-- [ ] T-655 Accessibility: no axe violations in comments, History and Activity
+- [x] T-646 Non-members get 404 on every comment endpoint
+- [x] T-647 Every board change writes one activity entry with actor, kind and summary
+- [x] T-648 Activity holds no card descriptions or comment text; only members can read it (SEC-205)
+- [x] T-649 Only the newest 1,000 activity entries per board are kept
+- [x] T-650 Card window shows comments and History; board Activity panel lists recent changes
+- [x] T-651 @ suggests board members while typing (keyboard and screen reader friendly)
+- [x] T-652 Comments and activity in Arabic, RTL, dark mode, phone width
+- [x] T-653 E2E: two members comment on a card; a mention shows up for the other
+- [x] T-654 E2E: activity shows a card moved by another member
+- [x] T-655 Accessibility: no axe violations in comments, History and Activity
 
 ### E8. Notifications and reminders (Phase 23)
 

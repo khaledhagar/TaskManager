@@ -7,6 +7,7 @@ from sqlmodel import Session, func, select
 
 from app import files, ratelimit
 from app.access import card_for, require
+from app.activity import record
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.i18n import tr
@@ -91,6 +92,7 @@ async def upload_attachment(
         storage_key=key,
     )
     session.add(attachment)
+    record(session, card.column.board_id, user, "attachment.added", card, file=name)
     session.commit()
     return AttachmentOut.model_validate(attachment)
 
@@ -122,7 +124,12 @@ def download_attachment(
 
 @router.delete("/attachments/{attachment_id}", status_code=204)
 def delete_attachment(attachment_id: int, user: CurrentUser, session: SessionDep) -> None:
-    session.delete(attachment_for(session, user, attachment_id, Role.editor))
+    attachment = attachment_for(session, user, attachment_id, Role.editor)
+    card = attachment.card
+    record(
+        session, card.column.board_id, user, "attachment.deleted", card, file=attachment.filename
+    )
+    session.delete(attachment)
     session.commit()
 
 

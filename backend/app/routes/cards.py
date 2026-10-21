@@ -5,6 +5,7 @@ from sqlmodel import func, select
 
 from app import limits
 from app.access import board_labels, card_for, column_for, item_for, not_found, renumber
+from app.activity import record
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.models import BoardColumn, BoardMember, Card, ChecklistItem, Role, User
@@ -36,6 +37,7 @@ def add_card(column_id: int, body: CardCreate, user: CurrentUser, session: Sessi
     )
     card = Card(**body.model_dump(), position=len(column.cards))
     column.cards.append(card)
+    record(session, column.board_id, user, "card.added", card, column=column.title)
     session.commit()
     return card_out(card)
 
@@ -45,9 +47,16 @@ def update_card(card_id: int, body: CardUpdate, user: CurrentUser, session: Sess
     changes = body.model_dump(exclude_unset=True)
     need = Role.updater if set(changes) <= {"completed"} else Role.editor
     card = card_for(session, user, card_id, need)
+    if "completed" in changes and changes["completed"] is not None:
+        kind, extra = ("card.completed" if changes["completed"] else "card.reopened"), {}
+    elif changes.get("title") and changes["title"] != card.title:
+        kind, extra = "card.renamed", {"old": card.title}
+    else:
+        kind, extra = "card.edited", {"fields": sorted(changes)}
     for field, value in changes.items():
         if value is not None or field == "due_date":
             setattr(card, field, value)
+    record(session, card.column.board_id, user, kind, card, **extra)
     session.commit()
     return card_out(card)
 
@@ -56,6 +65,7 @@ def update_card(card_id: int, body: CardUpdate, user: CurrentUser, session: Sess
 def delete_card(card_id: int, user: CurrentUser, session: SessionDep) -> None:
     card = card_for(session, user, card_id, Role.editor)
     column = card.column
+    record(session, column.board_id, user, "card.deleted", title=card.title)
     session.delete(card)
     session.flush()
     session.refresh(column)
@@ -76,6 +86,7 @@ def move_card(card_id: int, body: CardMove, user: CurrentUser, session: SessionD
     dest.insert(min(body.position, len(dest)), card)
     card.column_id = target.id
     renumber(dest)
+    record(session, target.board_id, user, "card.moved", card, column=target.title)
     session.commit()
     session.refresh(card)
     return card_out(card)
@@ -87,6 +98,7 @@ def set_card_labels(
 ) -> CardOut:
     card = card_for(session, user, card_id, Role.editor)
     card.labels = board_labels(session, card.column.board_id, body.label_ids)
+    record(session, card.column.board_id, user, "card.labels", card)
     session.commit()
     return card_out(card)
 
@@ -102,6 +114,7 @@ def set_assignees(
     if not ids <= set(session.exec(stmt)):
         raise not_found()
     card.assignees = list(session.exec(select(User).where(User.id.in_(ids))))
+    record(session, card.column.board_id, user, "card.assigned", card, people=len(ids))
     session.commit()
     return card_out(card)
 
@@ -116,6 +129,7 @@ def add_item(card_id: int, body: ItemCreate, user: CurrentUser, session: Session
     )
     item = ChecklistItem(text=body.text, position=len(card.checklist))
     card.checklist.append(item)
+    record(session, card.column.board_id, user, "checklist.added", card, item=body.text)
     session.commit()
     return ItemOut.model_validate(item)
 
@@ -125,8 +139,13 @@ def update_item(item_id: int, body: ItemUpdate, user: CurrentUser, session: Sess
     changes = body.model_dump(exclude_unset=True, exclude_none=True)
     need = Role.updater if set(changes) <= {"done"} else Role.editor
     item = item_for(session, user, item_id, need)
+    if "done" in changes:
+        kind = "checklist.checked" if changes["done"] else "checklist.unchecked"
+    else:
+        kind = "checklist.edited"
     for field, value in changes.items():
         setattr(item, field, value)
+    record(session, item.card.column.board_id, user, kind, item.card, item=item.text)
     session.commit()
     return ItemOut.model_validate(item)
 
@@ -135,6 +154,7 @@ def update_item(item_id: int, body: ItemUpdate, user: CurrentUser, session: Sess
 def delete_item(item_id: int, user: CurrentUser, session: SessionDep) -> None:
     item = item_for(session, user, item_id, Role.editor)
     card = item.card
+    record(session, card.column.board_id, user, "checklist.deleted", card, item=item.text)
     session.delete(item)
     session.flush()
     session.refresh(card)

@@ -5,19 +5,20 @@ from typing import Annotated
 
 from fastapi import Depends, Request
 from sqlalchemy import Engine, event
-from sqlmodel import Session, SQLModel, create_engine
+from sqlmodel import Session, create_engine
 
 from app import file_cleanup, models  # noqa: F401  (registers tables and file cleanup hooks)
+from app.migrate import migrate
 
 
 def make_engine(url: str) -> Engine:
-    """Create the engine and tables; SQLite gets foreign keys and WAL enabled."""
+    """Create the engine and bring the tables up to date; SQLite gets foreign keys and WAL."""
     if not url.startswith("sqlite"):
         engine = create_engine(url, pool_pre_ping=True)
     else:
         engine = create_engine(url, connect_args={"check_same_thread": False})
         event.listen(engine, "connect", _sqlite_pragmas)
-    SQLModel.metadata.create_all(engine)
+    migrate(engine)
     return engine
 
 

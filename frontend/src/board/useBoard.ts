@@ -232,6 +232,8 @@ export function useBoard(boardId: number) {
     /** Public link and meeting link, after the admin changed them in the members panel. */
     setBoardInfo: (changes: Partial<Pick<Board, 'public' | 'public_link' | 'meeting_url'>>) =>
       commit({ ...ref.current!, ...changes }),
+    setCommentCount: (cardId: number, count: number) =>
+      commit(logic.updateCard(ref.current!, cardId, { comment_count: count })),
     setAssignees: (cardId: number, userIds: number[]) =>
       allowed('editor') &&
       mutate(

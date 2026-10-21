@@ -1,4 +1,4 @@
-import { AlignLeft, CalendarDays, Check, ListChecks, Paperclip } from 'lucide-react'
+import { AlignLeft, CalendarDays, Check, ListChecks, MessageSquare, Paperclip } from 'lucide-react'
 import { memo, type ButtonHTMLAttributes, type ReactNode, type Ref } from 'react'
 import type { Board, Card, Label } from '../api/boards'
 import { useI18n } from '../i18n/context'
@@ -94,6 +94,13 @@ export const CardItem = memo(function CardItem({ card, labels, members = [], rea
               <Paperclip size={12} aria-hidden="true" />
               <span className="visually-hidden">{t('card.attachments')} </span>
               {card.attachments.length}
+            </span>
+          ) : null}
+          {card.comment_count ? (
+            <span className={css.metaItem}>
+              <MessageSquare size={12} className="flip-rtl" aria-hidden="true" />
+              <span className="visually-hidden">{t('comments.count')} </span>
+              {card.comment_count}
             </span>
           ) : null}
           {card.details.trim() ? (

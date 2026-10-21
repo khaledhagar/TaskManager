@@ -30,6 +30,8 @@ export type Card = {
   checklist: ChecklistItem[]
   attachments: Attachment[]
   assignee_ids: number[]
+  /** Sent with the board; 0 when a single card comes back. */
+  comment_count?: number
 }
 export type Column = { id: number; title: string; position: number; cards: Card[] }
 export type Board = {

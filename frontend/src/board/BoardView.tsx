@@ -7,6 +7,7 @@ import { BackgroundPicker } from '../files/BackgroundPicker'
 import { useI18n } from '../i18n/context'
 import { useLocation } from '../lib/router'
 import { MembersPanel } from '../sharing/MembersPanel'
+import { ActivityPanel } from '../collab/ActivityList'
 import { InlineText } from '../ui/InlineText'
 import ui from '../ui/ui.module.css'
 import css from './board.module.css'
@@ -33,6 +34,7 @@ export function BoardView({ boardId, userId, isGuest, onRenamed, onDeleted }: Pr
   const { params } = useLocation()
   // The access-request email links here with ?members=1 so the admin lands on the panel.
   const [members, setMembers] = useState(params.get('members') === '1')
+  const [activity, setActivity] = useState(false)
   const { t } = useI18n()
   const [filters, setFilters] = useState(EMPTY_FILTERS)
   const [openCardId, setOpenCardId] = useState<number | null>(null)
@@ -82,6 +84,7 @@ export function BoardView({ boardId, userId, isGuest, onRenamed, onDeleted }: Pr
         onBackground={() => setPicking(true)}
         onChat={() => setChatting(true)}
         onMembers={() => setMembers(true)}
+        onActivity={() => setActivity(true)}
       />
       <FilterBar
         filters={filters}
@@ -120,10 +123,19 @@ export function BoardView({ boardId, userId, isGuest, onRenamed, onDeleted }: Pr
           members={board.members}
           actions={actions}
           onClose={() => setOpenCardId(null)}
+          boardId={board.id}
+          role={board.role}
+          userId={userId}
         />
       ) : null}
       <ShortcutsHelp open={help} onClose={() => setHelp(false)} />
       <ChatPanel open={chatting} board={board} actions={actions} onClose={() => setChatting(false)} />
+      <ActivityPanel
+        open={activity}
+        onClose={() => setActivity(false)}
+        boardId={board.id}
+        myEmail={board.members.find((m) => m.user_id === userId)?.email ?? null}
+      />
       <MembersPanel
         open={members}
         onClose={() => setMembers(false)}

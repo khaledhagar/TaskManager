@@ -5,14 +5,14 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 ## Where the project stands (2026-10-21)
 
 - Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
-- Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Phase 21 (Voice input) is done and pushed, except the user's real-microphone check. Next: Phase 22 (Collaboration).** The user trimmed the plan (2026-10-21) and asked to build Phases 21-25 back to back without asking: finish each, test everything, push, update this log, then start the next. Stop before Phase 26 (Deployment). Order: 21 Voice input; 22 Collaboration (Alembic, comments, @mentions, activity); 23 Notifications and reminders; 24 Organize (archive, duplicates, templates, stars, WIP, auto-complete, covers, focus sessions on cards); 25 List view, export and full regression; 26 Deployment (starts by asking before deleting local test data); 27 Documentation (Word files). Deferred features are listed under "Deferred" in PLAN.md.
-- Tests: backend 390 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 292 passing; Playwright 81 passing (Edge full suite, Firefox and WebKit smoke). Lint, format, type checks and both audits are clean.
-- Checklists: 323 tests ticked in `Planning/TEST_PLAN.md` (open: T-640 to T-714 for Phases 22-25, T-620 to T-627 for Phase 27), 130 items ticked in `Planning/SECURITY.md`.
+- Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Phases 21 (voice) and 22 (comments, activity, Alembic) are done and pushed; Phase 21 waits only for the user's real-microphone check. Next: Phase 23 (Notifications and reminders).** The user trimmed the plan (2026-10-21) and asked to build Phases 21-25 back to back without asking: finish each, test everything, push, update this log, then start the next. Stop before Phase 26 (Deployment). Order: 21 Voice input; 22 Collaboration (Alembic, comments, @mentions, activity); 23 Notifications and reminders; 24 Organize (archive, duplicates, templates, stars, WIP, auto-complete, covers, focus sessions on cards); 25 List view, export and full regression; 26 Deployment (starts by asking before deleting local test data); 27 Documentation (Word files). Deferred features are listed under "Deferred" in PLAN.md.
+- Tests: backend 432 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 302 passing; Playwright 86 passing (Edge full suite, Firefox and WebKit smoke). Lint, format, type checks and both audits are clean.
+- Checklists: 338 tests ticked in `Planning/TEST_PLAN.md` (open: T-645 and T-660 to T-714 for Phases 23-25, T-620 to T-627 for Phase 27), 133 items ticked in `Planning/SECURITY.md`.
 
 | Done | Phase |
 |------|-------|
 | Yes | 1 Scaffolding to 20 Public boards / assignment / meeting link |
-| Next | 22 Collaboration, then 23-25 (approved, building back to back) |
+| Next | 23 Notifications, then 24-25 (approved, building back to back) |
 | Later | 26 Deployment (Vercel), 27 Documentation (Word files) |
 
 ## How we work (the user's preferences)
@@ -193,6 +193,17 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 - Server: `Permissions-Policy: camera=(), microphone=(self), geolocation=()`.
 - Tests: unit tests with `src/test/fakeSpeech.ts` (`installFakeSpeech`, `FakeRecognition.last.say(...)`); E2E `frontend/e2e/voice.spec.ts` installs a fake engine with `addInitScript` that "hears" `window.__words` and records `window.__speechLang`.
 - Watch: once, in a full parallel Playwright run, `a11y.spec.ts` "T-336 Arabic (light)" failed; it passed 6 times alone and in the next full run. Not explained yet (possibly an animation caught mid-way under load); if it recurs, capture the axe output before changing anything.
+
+## Collaboration (Phase 22): how it works
+
+- **Alembic** (`backend/migrations/`, no `alembic.ini`; `app/migrate.py` runs at startup from `make_engine`): an empty database gets `create_all` and is stamped at head; a database without `alembic_version` (made before Phase 22) is stamped `0001_baseline` and upgraded; an up-to-date one is left alone. The migration scripts are read once per process (reading them took 200 ms per new test database and slowed the suite by a minute). The user's local database was upgraded this way on 2026-10-21 (now at `0002_comments_activity`).
+- **New migration:** change the models, then generate against a scratch database at head:
+  `uv run python -c "from alembic import command; from sqlalchemy import create_engine; from app.migrate import alembic_config; e=create_engine('sqlite:///<scratch>/m.db'); c=e.begin().__enter__(); cfg=alembic_config(c); command.upgrade(cfg,'head'); command.revision(cfg, message='...', autogenerate=True, rev_id='0003_...')"`. Review the file; `tests/test_migrations.py` checks migrations build exactly the models. Long lines in `migrations/versions/*` are allowed.
+- **Tables** (`app/models_collab.py`, imported at the end of `models.py` to keep files short): `comments` (card, author, text up to 5,000, created, edited) and `activity` (board, card SET NULL, actor SET NULL, kind, JSON data, created).
+- **Activity:** `app/activity.record(session, board_id, actor, kind, card=None, **data)` before each commit, in every changing endpoint (boards, columns, labels, cards, moves, labels, assignees, checklist, comments, attachments, background, members, invites, visibility, public join, meeting). Data holds titles, column and file names, member emails, roles; never descriptions or comment text (SEC-205). Newest `KEEP = 1000` kept per board. `GET /boards/{id}/activity?card_id=&before=&limit=` (members).
+- **Comments:** `routes/comments.py`: list (viewer), add (updater), edit (author who can still comment), delete (author who can comment, or admin). Board cards carry `comment_count`. `app/comments.mentioned_members()` finds `@email` of board members (not the author); Phase 23 turns them into notifications.
+- **Frontend:** `collab/CommentsSection.tsx` and `MentionInput.tsx` (combobox with member suggestions, arrows / Enter / Tab / Escape, click; Ctrl/Cmd+Enter sends; has the microphone), `ActivityList.tsx` (card History with Show more; `ActivityPanel` from the board menu "Activity"), `activityText.ts` (sentences from `activity.<kind>` keys, "You" / "Someone", translated roles; `timeAgo` with `Intl.RelativeTimeFormat`). Comment count icon on cards.
+- A board loaded before someone joined has a stale member list until the board reloads (tab focus or reload); mention suggestions use that list.
 
 ## Earlier next steps (Phases 17-20, done)
 

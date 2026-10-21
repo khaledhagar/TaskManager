@@ -20,10 +20,11 @@ type Props = {
   onBackground: () => void
   onChat: () => void
   onMembers: () => void
+  onActivity: () => void
 }
 
 /** Board title (click to rename), completion progress and board options. */
-export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, onChat, onMembers }: Props) {
+export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, onChat, onMembers, onActivity }: Props) {
   const { t } = useI18n()
   const [confirming, setConfirming] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -31,6 +32,7 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, o
   const admin = board.role === 'admin'
   const items: MenuItem[] = [
     { kind: 'action', label: t('board.members'), onSelect: onMembers },
+    { kind: 'action', label: t('board.activity'), onSelect: onActivity },
     ...(admin ? [{ kind: 'action' as const, label: t('board.changeBackground'), onSelect: onBackground }] : []),
     { kind: 'action', label: t('board.shortcuts'), onSelect: onHelp },
     ...(admin

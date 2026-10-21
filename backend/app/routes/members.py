@@ -10,6 +10,7 @@ from sqlmodel import Session, select
 
 from app import ratelimit
 from app.access import RANK, board_for, board_role, not_found
+from app.activity import record
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.i18n import tr
@@ -122,6 +123,7 @@ def change_role(
         )
     member.role = body.role
     _drop_request(session, board_id, user_id)
+    record(session, board_id, user, "member.role", email=member.user.email, role=body.role)
     session.commit()
     return member_out(member)
 
@@ -148,6 +150,8 @@ def remove_member(board_id: int, user_id: int, user: CurrentUser, session: Sessi
     )
     for row in session.exec(assigned):
         session.delete(row)
+    kind = "member.left" if user_id == user.id else "member.removed"
+    record(session, board_id, user, kind, email=member.user.email)
     session.delete(member)
     session.commit()
 
@@ -195,6 +199,7 @@ def approve_request(
     access = _admin_request(session, user, request_id)
     member = membership(session, access.board_id, access.user_id)
     member.role = body.role
+    record(session, access.board_id, user, "member.role", email=member.user.email, role=body.role)
     session.delete(access)
     session.commit()
     return member_out(member)

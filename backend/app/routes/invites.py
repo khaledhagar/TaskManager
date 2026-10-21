@@ -7,6 +7,7 @@ from pydantic import BaseModel, EmailStr
 
 from app import limits, ratelimit
 from app.access import board_for, not_found
+from app.activity import record
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.i18n import tr
@@ -54,6 +55,7 @@ def _send(request: Request, session, invite: BoardInvite, inviter: User) -> Invi
     """Give the invite a fresh link, email it, and return it for Copy and WhatsApp."""
     raw = new_invite_token(invite)
     session.add(invite)
+    record(session, invite.board_id, inviter, "invite.sent", email=invite.email)
     session.commit()
     link = invite_link(request.app.state.settings.app_url, raw)
     board = session.get(Board, invite.board_id)
@@ -151,6 +153,7 @@ def accept_invite(body: TokenIn, user: CurrentUser, session: SessionDep) -> Boar
         limits.check(member_count(session, invite.board_id), limits.MEMBERS_PER_BOARD, MEMBER_LIMIT)
         member = BoardMember(board_id=invite.board_id, user_id=user.id, role=Role.viewer)
         session.add(member)
+        record(session, invite.board_id, user, "member.joined", email=user.email)
     invite.used_at = datetime.now(UTC)
     session.commit()
     return board_summary(session.get(Board, invite.board_id), member.role)

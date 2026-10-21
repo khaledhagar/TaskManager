@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Request, Response, UploadFile, sta
 
 from app import files, ratelimit
 from app.access import board_for
+from app.activity import record
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.file_cleanup import discard
@@ -28,8 +29,11 @@ def _clear_image(session: SessionDep, board: Board) -> None:
     board.background_size = 0
 
 
-def _save(session: SessionDep, board: Board) -> BackgroundOut:
+def _save(
+    session: SessionDep, board: Board, user, kind: str = "background.changed"
+) -> BackgroundOut:
     board.background_version += 1
+    record(session, board.id, user, kind)
     session.commit()
     return background_out(board)
 
@@ -47,7 +51,7 @@ async def upload_background(
     _clear_image(session, board)
     board.background_kind, board.background_preset = "image", None
     board.background_key, board.background_size = key, len(data)
-    return _save(session, board)
+    return _save(session, board, user)
 
 
 @router.put("/{board_id}/background/preset")
@@ -57,7 +61,7 @@ def set_preset(
     board = board_for(session, user, board_id, Role.admin)
     _clear_image(session, board)
     board.background_kind, board.background_preset = "preset", body.preset
-    return _save(session, board)
+    return _save(session, board, user)
 
 
 @router.delete("/{board_id}/background", status_code=204)
@@ -65,7 +69,7 @@ def remove_background(board_id: int, user: CurrentUser, session: SessionDep) -> 
     board = board_for(session, user, board_id, Role.admin)
     _clear_image(session, board)
     board.background_kind, board.background_preset = "none", None
-    _save(session, board)
+    _save(session, board, user, "background.removed")
 
 
 @router.get("/{board_id}/background")

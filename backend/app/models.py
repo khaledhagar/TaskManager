@@ -269,3 +269,7 @@ class Label(SQLModel, table=True):
 
     board: Board = Relationship(back_populates="labels")
     cards: list[Card] = Relationship(back_populates="labels", link_model=CardLabel)
+
+
+# Collaboration tables (Phase 22) live in their own module to keep this one short.
+from app.models_collab import Activity, Comment  # noqa: E402, F401
