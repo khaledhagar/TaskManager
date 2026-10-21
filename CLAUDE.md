@@ -49,6 +49,7 @@
 - Public boards (read-only link, no sign-in needed; signed-in visitors can join as Viewer)
 - Assign cards to members; meeting link (Zoom, Meet, Teams) with Start meeting and Email to members
 - Voice input: microphone buttons on the main text fields and the AI chat (browser speech recognition, English and Arabic)
+- Further features (Phases 22-28): comments and @mentions, activity log, notifications and reminders, live updates, archive, duplicates, own templates, stars, WIP limits, auto-complete, card covers, list and calendar views, stats, export, focus sessions on cards, recurring cards, dependencies, automation rules, swimlanes, Trello import, AI weekly summary, installable app with offline viewing
 - Documentation: 8 Word files in `Documentation/` (overview, documentation, tests, plan, security, user flows, pages, build prompts), made last
 
 ## Start Here (new session)
@@ -61,7 +62,7 @@ The full plan with phases and success criteria is in `Planning/PLAN.md`. Keep it
 
 - Stack: FastAPI + SQLModel/SQLite, pwdlib + PyJWT cookie auth, LiteLLM, React + TypeScript + Vite, dnd-kit
 - Tests: pytest, vitest, Playwright
-- Phases: scaffolding, database, auth, board API, AI backend, account security, frontend foundation, board UI, files, focus timer, languages, AI UI, polish, hardening, integration testing, done, password strength, board sharing (backend, UI), public boards / assignment / meeting link, voice input, deployment, documentation (Word files)
+- Phases: scaffolding, database, auth, board API, AI backend, account security, frontend foundation, board UI, files, focus timer, languages, AI UI, polish, hardening, integration testing, done, password strength, board sharing (backend, UI), public boards / assignment / meeting link, voice input, collaboration, notifications and live updates, organize, views and insights, planning tools, automation and swimlanes, import / AI summary / installable app, deployment, documentation (Word files)
 - Deferred enhancements (N9-N14 in the plan) are not built unless the user approves them
 - Also: delete account (needed for a published site)
 - Continue with Google (no password needed), email verification for email + password accounts, forgot / reset password by email, change password; Google-only users can add a password

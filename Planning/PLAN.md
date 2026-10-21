@@ -32,8 +32,15 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 19 - Board Sharing (UI) | 7 / 7 | Done |
 | Phase 20 - Public Boards, Assignment and Meeting Link | 7 / 7 | Done |
 | Phase 21 - Voice Input | 0 / 6 | Not started |
-| Phase 22 - Deployment (Vercel) | 0 / 14 | Not started |
-| Phase 23 - Documentation (Word files) | 0 / 8 | Not started |
+| Phase 22 - Collaboration: Comments and Activity | 0 / 6 | Not started |
+| Phase 23 - Notifications, Reminders and Live Updates | 0 / 5 | Not started |
+| Phase 24 - Organize: Archive, Copies, Templates, Stars, WIP, Auto-complete, Covers | 0 / 5 | Not started |
+| Phase 25 - Views and Insights | 0 / 5 | Not started |
+| Phase 26 - Planning Tools | 0 / 4 | Not started |
+| Phase 27 - Automation Rules and Swimlanes | 0 / 3 | Not started |
+| Phase 28 - Import, AI Summary and Installable App | 0 / 5 | Not started |
+| Phase 29 - Deployment (Vercel) | 0 / 14 | Not started |
+| Phase 30 - Documentation (Word files) | 0 / 8 | Not started |
 
 ## Stack
 
@@ -95,7 +102,8 @@ The app will be published, so two companion checklists are part of every phase:
 36. Member permissions set by the admin in a members panel: Viewer (default), Can update tasks, Full access; one selected per member; a Viewer who tries to edit sees "ask the admin" with a Request access button that emails the admin (approved 2026-10-21)
 37. Public boards: anyone with the link can view read-only without signing in; a signed-in visitor can join as a Viewer (approved 2026-10-21)
 38. Assign cards to board members; "Assigned to me" filter (approved 2026-10-21)
-41. Project documentation as Word files (Phase 23, after Deployment; requested 2026-10-21)
+42. Further features, requested 2026-10-21 (Phases 22-28, before Deployment; build only after the user checks the plan): comments with @mentions, activity log, notifications, due-date reminders, live updates, archive and restore, duplicate cards and boards, own templates, starred boards, WIP limits, auto-complete in the last column, card covers, list view, calendar view, board stats, export, focus sessions on cards, recurring cards, card dependencies, automation rules, swimlanes, Trello import, AI weekly summary, installable app with offline viewing
+41. Project documentation as Word files (Phase 30, after Deployment; requested 2026-10-21)
 40. Voice input for people who cannot type: a microphone button on the main text fields and the AI chat, in English and Arabic (approved for planning 2026-10-21; build after the user checks the plan)
 39. Meeting link on the board (Zoom, Google Meet, Teams or any https link): Start meeting opens it (Zoom links open the Zoom app); the admin can email the link to all members (approved 2026-10-21)
 30. Pomodoro focus timer on the board, opt-in: off by default and turned on with a "Focus timer" button; 25 / 5 or 50 / 10 minutes, start, pause, reset focus, reset break, skip; chip with time left, chime and optional notification
@@ -317,7 +325,54 @@ Goal: someone who cannot type can fill in the app's text fields and drive the bo
 - **Security headers:** `Permissions-Policy` changes from `microphone=()` to `microphone=(self)` (this site only; camera and geolocation stay off). No CSP change.
 - **Tests:** speech is faked in unit tests and in Playwright (an init script installs a fake `SpeechRecognition` that returns chosen words), so tests never need a real microphone.
 
-## Documentation Design (Phase 23)
+## Further Features Design (Phases 22-28)
+
+All of these follow the existing rules: membership and role checks on every endpoint (Viewer reads; "Can update tasks" moves, completes and comments; Full access edits; Admin manages), English and Arabic, light and dark, phone to desktop, keyboard and screen readers, optimistic updates, translated server messages.
+
+**Database changes from Phase 22 on.** Alembic (planned for Deployment) moves to the start of Phase 22: every later phase adds a migration, so local and production databases update without a reset. Deployment then only runs the migrations against Postgres.
+
+**Phase 22 - Collaboration: comments and activity**
+- Comments on cards (`comments`: card, author, text up to 5,000 characters, created, edited). Shown newest last in the card window, written in Markdown with the existing safe renderer. "Can update tasks" and above can comment; Viewers read. Authors edit or delete their own; the admin can delete any.
+- @mentions: typing `@` suggests board members; a mention creates a notification (Phase 23).
+- Activity log (`activity`: board, card, actor, kind, short summary, time): written by every change (card created, moved, completed, edited, assigned, commented, member joined, and so on). Shown as "History" in the card window and as a board "Activity" panel. The newest 1,000 entries per board are kept.
+
+**Phase 23 - Notifications, reminders and live updates**
+- Notifications (`notifications`: user, kind, board, card, actor, created, read): assigned to a card, mentioned, a card you are assigned to is due tomorrow or overdue. A bell in the header with an unread count and a list; clicking opens the card; "Mark all as read".
+- Email: assignment and mention emails right away; a daily reminder email for cards due tomorrow and overdue cards (one email per user per day). Every email has a link to turn emails off; a setting in the account menu (`notification_settings` table).
+- The daily job is a plain function `send_reminders()`: run by `POST /api/cron/reminders` (protected by `CRON_SECRET`, scheduled by Vercel Cron at Deployment) or locally with `uv run python -m app.jobs reminders`.
+- Live updates: while a board is open and the tab is visible, the app asks every 15 seconds for the board's version (the newest activity id) and reloads the board when it changed and nothing is being edited; the same call returns the unread notification count. Instant updates (WebSockets) are not used: Vercel's serverless functions do not keep connections open.
+
+**Phase 24 - Organize: archive, copies, templates, stars, WIP, auto-complete, covers**
+- Archive instead of delete: cards and boards get `archived_at`. Archived cards leave the board (and the 100-card limit) and appear in an "Archived" panel with Restore and Delete; archived boards appear under "Archived" in the board switcher. Delete with Undo stays.
+- Duplicate a card (title, details, labels, checklist, priority, due date; not comments or files) or a whole board (columns, cards, labels, checklists; not members, comments or files). Board limits apply.
+- Save a board as your own template (`user_templates`, up to 20 per user, private); they appear in the New board dialog.
+- Star boards (`board_stars`): starred boards come first in the switcher.
+- WIP limit per column (`columns.wip_limit`, 1-100, optional): the column count shows "4 / 3" in a warning color when over; it warns, it does not block.
+- Auto-complete: a board setting (admin) so moving a card into the last column marks it complete (and moving it out marks it open).
+- Card cover: an attached image can be made the card's cover (`cards.cover_attachment_id`), shown at the top of the card.
+
+**Phase 25 - Views and insights**
+- View switch in the board header: Board / List / Calendar (kept in the URL, `?view=`).
+- List view: one table of all cards (title, column, priority, due date, assignees, labels, done), sortable, filtered by the same filters; clicking a row opens the card.
+- Calendar view: month grid with cards on their due dates; dragging a card to another day changes its due date (Full access); cards without a date listed beside it.
+- Board stats panel: cards completed per week (last 8 weeks, from the activity log), open and overdue counts, open cards per member and per column; simple bar charts drawn with SVG (no chart library).
+- Export: download the board as CSV (opens in Excel) or JSON (any member).
+
+**Phase 26 - Planning tools**
+- Focus sessions on cards: the focus timer can be pointed at a card; each finished focus period is saved (`focus_sessions`: card, user, minutes up to 60) and the card shows "3 focus sessions, 75 min".
+- Recurring cards (`card_recurrence`: daily, weekly or monthly): completing a recurring card creates the next copy with the next due date.
+- Dependencies (`card_links`: card is blocked by another card on the same board): a "Blocked by" badge while the blocker is open; moving a blocked card into the last column shows a warning (not a block). Cycles are refused.
+
+**Phase 27 - Automation rules and swimlanes**
+- Automation rules (admin, up to 20 per board, `automation_rules`): when a card moves into a column / is completed / becomes overdue, then mark complete / assign a member / add a label / move to a column / set priority. Rules run on the server in the same request; a rule's change never triggers other rules (no loops). The activity log says "by automation".
+- Swimlanes as a "Group by" choice on the Board view: None, Priority, Assignee or Label. Each group is a row across the columns; dragging a card to another row changes that field (needs Full access). Nothing new is stored.
+
+**Phase 28 - Import, AI summary and installable app**
+- Import a Trello board: upload Trello's JSON export (up to 4 MB) to create a new board with its lists, cards (title, description, due date, labels, checklists; closed cards arrive archived). Board and card limits apply; nothing is fetched from Trello's servers.
+- AI weekly summary: a "Summarize this week" action in the AI chat panel sends the last 7 days of activity (titles, columns, dates; no emails) and shows a short summary. It uses the normal AI limits (one request).
+- Installable app (PWA): a web app manifest and icons so phones and desktops can install it, and a service worker that caches the app files and the boards the user opened, so they can be viewed offline (read-only, with an "Offline" banner). The cache is cleared on sign out. CSP gains `worker-src 'self'` and `manifest-src 'self'`.
+
+## Documentation Design (Phase 30)
 
 Eight Word (`.docx`) files in a new `Documentation/` folder, written after Deployment so they describe the finished, live app (real address, final features, final test results). English, the app's name "Task Manager" on every title page, consistent styling (title page, table of contents for long files, headings, page numbers), the project colors from `CLAUDE.md`, and no secrets (no `.env` values, keys, passwords or personal emails).
 
@@ -557,13 +612,67 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 - [ ] Tests T-600 to T-614 pass; SEC-180 to SEC-183 ticked
 - [ ] Browser review: phone and desktop, light and dark, English and Arabic; real check by the user in Edge or Chrome with a microphone
 
-## Phase 22 - Deployment (Vercel)
+## Phase 22 - Collaboration: Comments and Activity
+
+- [ ] Alembic set up (moved from Deployment) with a baseline migration of the current tables; startup runs migrations; the local database upgrades without a reset
+- [ ] Comments: model, API (list, add, edit own, delete own or as admin), Markdown, permissions
+- [ ] @mentions with member suggestions while typing
+- [ ] Activity log written by every change; card "History" and board "Activity" panel; newest 1,000 kept per board
+- [ ] UI in both languages, phone to desktop, light and dark
+- [ ] Tests T-640 to T-655 pass; SEC-200, SEC-201, SEC-205 ticked
+
+## Phase 23 - Notifications, Reminders and Live Updates
+
+- [ ] Notifications model and API; header bell with unread count, list, open card, mark all read
+- [ ] Emails for assignment and mention; daily reminder email; turn-off link and account setting
+- [ ] `send_reminders()` job, `POST /api/cron/reminders` with `CRON_SECRET`, `uv run python -m app.jobs reminders`
+- [ ] Live updates: 15-second version check while the tab is visible; reload when changed and idle
+- [ ] Tests T-660 to T-675 pass; SEC-202 to SEC-204, SEC-206 ticked
+
+## Phase 24 - Organize: Archive, Copies, Templates, Stars, WIP, Auto-complete, Covers
+
+- [ ] Archive and restore cards and boards; Archived panel and switcher section
+- [ ] Duplicate card and board; save board as own template; templates in the New board dialog
+- [ ] Starred boards first in the switcher
+- [ ] WIP limit per column with warning; auto-complete setting for the last column; card cover image
+- [ ] Tests T-680 to T-695 pass; SEC-207 ticked
+
+## Phase 25 - Views and Insights
+
+- [ ] Board / List / Calendar switch (URL `?view=`)
+- [ ] List view (sortable, filtered) and Calendar view (drag to change due date)
+- [ ] Board stats panel with SVG charts
+- [ ] Export CSV and JSON
+- [ ] Tests T-700 to T-713 pass; SEC-208 ticked
+
+## Phase 26 - Planning Tools
+
+- [ ] Focus sessions linked to cards and shown on cards
+- [ ] Recurring cards (daily, weekly, monthly)
+- [ ] Card dependencies with "Blocked by" badge, warning and cycle check
+- [ ] Tests T-720 to T-731 pass; SEC-213, SEC-214 ticked
+
+## Phase 27 - Automation Rules and Swimlanes
+
+- [ ] Automation rules: editor for the admin, run on the server, no loops, activity "by automation"
+- [ ] Group by Priority / Assignee / Label as swimlanes; drag between lanes changes the field
+- [ ] Tests T-740 to T-751 pass; SEC-210 ticked
+
+## Phase 28 - Import, AI Summary and Installable App
+
+- [ ] Trello JSON import
+- [ ] AI weekly summary in the chat panel
+- [ ] PWA: manifest, icons, service worker, offline read-only boards, cache cleared on sign out, CSP update
+- [ ] Full regression (backend, frontend, Playwright in all browsers, Lighthouse, audits) after Phases 22-28
+- [ ] Tests T-760 to T-773 pass; SEC-209, SEC-211, SEC-212 ticked
+
+## Phase 29 - Deployment (Vercel)
 
 - [ ] FIRST TASK (remind the user, do it only with their OK): delete the local test data `backend/taskmanager.db` and `backend/storage/`
 - [ ] Use a dedicated Gmail account for the app's emails (sender shows as "Task Manager")
 - [ ] Choose Postgres provider (Neon or Supabase); add Postgres driver with `uv add`
 - [ ] Full backend test suite passes against Postgres
-- [ ] Alembic set up with an initial migration
+- [ ] Alembic migrations (set up in Phase 22) run against Postgres
 - [ ] Redis rate-limit store (Upstash) behind the same interface; tests pass for both stores
 - [ ] `POST /api/cron/cleanup` protected by `CRON_SECRET`, scheduled in `vercel.json`
 - [ ] `vercel.json`: frontend served from Vercel's CDN, `/api/*` routed to FastAPI
@@ -574,7 +683,7 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 - [ ] Playwright smoke suite passes against the deployed URL
 - [ ] Security headers, Secure cookie and HSTS verified on the deployed URL
 
-## Phase 23 - Documentation (Word files)
+## Phase 30 - Documentation (Word files)
 
 - [ ] `Documentation/build/` script with shared styles (title page, contents, headings, page numbers, colors)
 - [ ] `01_Overview.docx`: name, short and long description
