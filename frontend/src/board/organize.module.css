@@ -57,3 +57,14 @@
   color: var(--text);
   font-size: var(--text-sm);
 }
+
+.archiveGroup {
+  margin-block-end: 16px;
+}
+
+.archiveHeading {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}

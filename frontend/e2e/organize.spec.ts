@@ -23,11 +23,11 @@ test('T-690 archive a card and restore it @smoke', async ({ page }) => {
   await expect(card(page, 'Old card')).toHaveCount(0)
   await expect(page.getByText('Card archived')).toBeVisible()
 
-  await boardMenu(page, 'Archived cards')
-  const panel = page.getByRole('dialog', { name: 'Archived cards' })
+  await boardMenu(page, 'Archived cards and columns')
+  const panel = page.getByRole('dialog', { name: 'Archived cards and columns' })
   await expect(panel.getByText('From To Do')).toBeVisible()
   await panel.getByRole('button', { name: 'Restore Old card' }).click()
-  await expect(panel.getByText(/No archived cards/)).toBeVisible()
+  await expect(panel.getByText(/Nothing is archived/)).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(column(page, 'To Do').getByRole('button', { name: /^Old card/ })).toBeVisible()
 })
@@ -100,8 +100,8 @@ test('T-693 T-694 new panels in Arabic, right to left, dark, at phone width; no 
   expect(await page.evaluate(() => document.documentElement.dir)).toBe('rtl')
   const found: string[] = []
 
-  await boardMenu(page, 'البطاقات المؤرشفة', 'خيارات اللوحة')
-  await expect(page.getByRole('dialog', { name: 'البطاقات المؤرشفة' })).toBeVisible()
+  await boardMenu(page, 'البطاقات والأعمدة المؤرشفة', 'خيارات اللوحة')
+  await expect(page.getByRole('dialog', { name: 'البطاقات والأعمدة المؤرشفة' })).toBeVisible()
   found.push(...(await violations(page)))
   await page.keyboard.press('Escape')
 

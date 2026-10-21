@@ -1,4 +1,4 @@
-"""Organize tables (Phase 24): starred boards, own templates, focus sessions on cards."""
+"""Organize tables: starred boards, own templates, focus sessions (Phase 24), workspaces (26)."""
 
 from datetime import datetime
 
@@ -6,6 +6,17 @@ from sqlalchemy import JSON, Column
 from sqlmodel import Field, SQLModel
 
 from app.models import utcnow
+
+
+class Workspace(SQLModel, table=True):
+    """A named group of the owner's related boards; private to the owner."""
+
+    __tablename__ = "workspaces"
+
+    id: int | None = Field(default=None, primary_key=True)
+    owner_id: int = Field(foreign_key="users.id", ondelete="CASCADE", index=True)
+    name: str
+    created_at: datetime = Field(default_factory=utcnow)
 
 
 class BoardStar(SQLModel, table=True):

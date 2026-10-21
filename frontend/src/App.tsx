@@ -35,9 +35,10 @@ export default function App() {
   }, [userId])
 
   // After signing in, go back to an invitation the user opened while signed out.
-  const signedIn = useCallback((next: User) => {
+  // A new guest or a just-verified account opens its demo board; others see the start screen.
+  const signedIn = useCallback((next: User, landing = '/') => {
     setUser(next)
-    navigate(savedInvite() ? '/invite' : (takeReturn() ?? '/'), { replace: true })
+    navigate(savedInvite() ? '/invite' : (takeReturn() ?? landing), { replace: true })
   }, [])
 
   useEffect(() => {

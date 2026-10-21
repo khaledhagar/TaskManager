@@ -23,6 +23,7 @@ from app.sharing import (
     pending_invites,
     valid_invite,
 )
+from app.watch import drop_invited, invitation_used, invited
 
 router = APIRouter(prefix="/api", tags=["invites"])
 
@@ -56,9 +57,10 @@ def _send(request: Request, session, invite: BoardInvite, inviter: User) -> Invi
     raw = new_invite_token(invite)
     session.add(invite)
     record(session, invite.board_id, inviter, "invite.sent", email=invite.email)
+    board = session.get(Board, invite.board_id)
+    invited(session, invite, inviter, board, f"/invite#token={raw}")
     session.commit()
     link = invite_link(request.app.state.settings.app_url, raw)
-    board = session.get(Board, invite.board_id)
     request.app.state.mailer.send(invite_email(invite.email, inviter.email, board.title, link))
     return InviteCreated(id=invite.id, email=invite.email, expires_at=invite.expires_at, link=link)
 
@@ -109,7 +111,9 @@ def resend_invite(
 
 @router.delete("/invites/{invite_id}", status_code=204)
 def cancel_invite(invite_id: int, user: CurrentUser, session: SessionDep) -> None:
-    session.delete(_admin_invite(session, user, invite_id))
+    invite = _admin_invite(session, user, invite_id)
+    drop_invited(session, invite)
+    session.delete(invite)
     session.commit()
 
 
@@ -155,5 +159,6 @@ def accept_invite(body: TokenIn, user: CurrentUser, session: SessionDep) -> Boar
         session.add(member)
         record(session, invite.board_id, user, "member.joined", email=user.email)
     invite.used_at = datetime.now(UTC)
+    invitation_used(session, invite.board_id, user)
     session.commit()
     return board_summary(session.get(Board, invite.board_id), member.role)

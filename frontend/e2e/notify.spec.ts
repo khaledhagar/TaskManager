@@ -25,7 +25,8 @@ test('T-673 an assignment shows in the other member\'s bell and email; it opens 
   const bell = bob.page.getByRole('button', { name: 'Notifications, 1 unread' })
   await expect(bell).toBeVisible()
   await bell.click()
-  await bob.page.getByRole('button', { name: /assigned you to "Fix checkout"/ }).click()
+  // The same notification is also in What's new on the start page; use the bell's list.
+  await bob.page.getByRole('dialog', { name: 'Notifications' }).getByRole('button', { name: /assigned you to "Fix checkout"/ }).click()
   await expect(bob.page.getByRole('dialog', { name: 'Fix checkout' })).toBeVisible()
   await expect(bob.page.getByRole('button', { name: 'Notifications, 0 unread' })).toBeVisible()
 })

@@ -6,7 +6,7 @@ from datetime import UTC, date, datetime
 from fastapi import APIRouter, Header, HTTPException, Request, status
 from pydantic import BaseModel
 from sqlalchemy.orm import selectinload
-from sqlmodel import func, select
+from sqlmodel import func, or_, select
 
 from app.access import not_found
 from app.auth import CurrentUser
@@ -46,10 +46,11 @@ class TokenIn(Strict):
 
 
 def _mine(user):
-    """The user's notifications on boards they still belong to (SEC-202)."""
+    """The user's notifications on boards they still belong to (SEC-202), and invitations."""
     member = select(BoardMember.board_id).where(BoardMember.user_id == user.id)
     return select(Notification).where(
-        Notification.user_id == user.id, Notification.board_id.in_(member)
+        Notification.user_id == user.id,
+        or_(Notification.board_id.in_(member), Notification.kind == "invited"),
     )
 
 

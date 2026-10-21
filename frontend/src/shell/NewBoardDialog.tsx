@@ -2,6 +2,7 @@ import { Sparkles, X } from 'lucide-react'
 import { useEffect, useId, useState, type FormEvent } from 'react'
 import { ai } from '../api/ai'
 import { boards, type BoardSummary, type Template, type UserTemplate } from '../api/boards'
+import type { Workspace } from '../api/workspaces'
 import { templates } from '../api/templates'
 import aiCss from '../ai/ai.module.css'
 import { useAiRequest } from '../ai/useAiRequest'
@@ -11,11 +12,20 @@ import { Dialog } from '../ui/Dialog'
 import dialog from '../ui/dialog.module.css'
 import { Field } from '../ui/Field'
 import ui from '../ui/ui.module.css'
+import { BlankBoardFields } from '../workspaces/BlankBoardFields'
+import { cleanColumns, defaultColumns } from '../workspaces/columns'
 import { MicButton } from '../voice/MicButton'
 import voice from '../voice/voice.module.css'
 import css from './shell.module.css'
 
-type Props = { open: boolean; onClose: () => void; onCreated: (board: BoardSummary) => void }
+type Props = {
+  open: boolean
+  onClose: () => void
+  onCreated: (board: BoardSummary) => void
+  workspaces?: Workspace[]
+  /** Chosen when the dialog opens from a workspace's Add board. */
+  workspaceId?: number | null
+}
 /** A built-in template, the AI, or the id of one of the user's own templates. */
 type Choice = Template | 'ai' | number
 
@@ -27,17 +37,17 @@ const CHOICES: { value: Choice; label: Key; hint: Key }[] = [
   { value: 'ai', label: 'newBoard.ai', hint: 'newBoard.aiHint' },
 ]
 
-/** Start a board: blank, from a template, or built by the AI from a description. */
-export function NewBoardDialog({ open, onClose, onCreated }: Props) {
+/** Start a board: blank with chosen columns, from a template, or built by the AI from a description. */
+export function NewBoardDialog({ open, onClose, onCreated, workspaces = [], workspaceId = null }: Props) {
   const { t } = useI18n()
   return (
     <Dialog open={open} onClose={onClose} title={t('shell.newBoard')}>
-      <NewBoardForm onClose={onClose} onCreated={onCreated} />
+      {open ? <NewBoardForm onClose={onClose} onCreated={onCreated} workspaces={workspaces} workspaceId={workspaceId} /> : null}
     </Dialog>
   )
 }
 
-function NewBoardForm({ onClose, onCreated }: Omit<Props, 'open'>) {
+function NewBoardForm({ onClose, onCreated, workspaces = [], workspaceId: startWorkspace = null }: Omit<Props, 'open'>) {
   const { t } = useI18n()
   const request = useAiRequest()
   const id = useId()
@@ -48,6 +58,8 @@ function NewBoardForm({ onClose, onCreated }: Omit<Props, 'open'>) {
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [own, setOwn] = useState<UserTemplate[]>([])
+  const [columns, setColumns] = useState(defaultColumns)
+  const [workspaceId, setWorkspaceId] = useState(startWorkspace)
   const hint = typeof choice === 'number' ? 'newBoard.templateHint' : CHOICES.find((c) => c.value === choice)!.hint
 
   useEffect(() => {
@@ -80,7 +92,9 @@ function NewBoardForm({ onClose, onCreated }: Omit<Props, 'open'>) {
       done(
         await (typeof choice === 'number'
           ? boards.createFromTemplate(title.trim(), choice)
-          : boards.create(title.trim(), choice)),
+          : choice === 'blank'
+            ? boards.createWithColumns(title.trim(), cleanColumns(columns), workspaceId)
+            : boards.create(title.trim(), choice)),
       )
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
@@ -98,6 +112,7 @@ function NewBoardForm({ onClose, onCreated }: Omit<Props, 'open'>) {
 
   return (
     <form onSubmit={submit} noValidate style={{ display: 'grid', gap: 14 }}>
+      <p className={ui.notice}>{t('start.boardHint')}</p>
       {shownError ? (
         <p className={ui.alert} role="alert">
           {shownError}
@@ -193,6 +208,17 @@ function NewBoardForm({ onClose, onCreated }: Omit<Props, 'open'>) {
           hint={t(hint)}
         />
       )}
+      {choice === 'blank' ? (
+        <BlankBoardFields
+          title={title}
+          columns={columns}
+          onColumns={setColumns}
+          workspaces={workspaces}
+          workspaceId={workspaceId}
+          onWorkspace={setWorkspaceId}
+          onMissingTitle={() => setFieldError(t('newBoard.nameMissing'))}
+        />
+      ) : null}
 
       {request.busy ? (
         <div className={aiCss.row}>

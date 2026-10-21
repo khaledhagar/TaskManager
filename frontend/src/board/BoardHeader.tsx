@@ -129,8 +129,13 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, o
         <Menu
           label={t('board.options')}
           align="end"
-          triggerClassName={ui.iconButton}
-          trigger={<MoreHorizontal size={18} aria-hidden="true" />}
+          triggerClassName={`${ui.button} ${ui.secondary} ${aiCss.askButton}`}
+          trigger={
+            <>
+              <MoreHorizontal size={16} aria-hidden="true" />
+              <span className={aiCss.askLabel}>{t('board.options')}</span>
+            </>
+          }
           items={items}
         />
       </div>

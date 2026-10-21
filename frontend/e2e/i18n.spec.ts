@@ -8,11 +8,11 @@ test('T-327 Arabic: right-to-left, Arabic texts, kept after reload and on sign-i
   await toArabic(page)
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
   await expect(page.locator('html')).toHaveAttribute('lang', 'ar')
-  await expect(page.getByRole('button', { name: 'لوحة جديدة' })).toBeVisible()
+  await expect(page.getByRole('banner').getByRole('button', { name: 'لوحة جديدة' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'English' })).toBeVisible()
   await page.reload()
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
-  await expect(page.getByRole('button', { name: 'لوحة جديدة' })).toBeVisible()
+  await expect(page.getByRole('banner').getByRole('button', { name: 'لوحة جديدة' })).toBeVisible()
 
   // A fresh browser takes the language saved on the account when signing in.
   const other = await (await browser.newContext()).newPage()
@@ -21,7 +21,7 @@ test('T-327 Arabic: right-to-left, Arabic texts, kept after reload and on sign-i
   await other.getByLabel('Email').fill(email)
   await other.getByLabel('Password', { exact: true }).fill(PASSWORD)
   await other.getByRole('button', { name: 'Sign in', exact: true }).click()
-  await expect(other.getByRole('button', { name: 'لوحة جديدة' })).toBeVisible()
+  await expect(other.getByRole('heading', { name: 'عملك', level: 1 })).toBeVisible()
   await expect(other.locator('html')).toHaveAttribute('dir', 'rtl')
 })
 

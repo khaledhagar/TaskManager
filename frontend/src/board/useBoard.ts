@@ -234,7 +234,7 @@ export function useBoard(boardId: number) {
       ),
     setBackground: (background: Background) => commit({ ...ref.current!, background }),
     /** Public link and meeting link, after the admin changed them in the members panel. */
-    setBoardInfo: (changes: Partial<Pick<Board, 'public' | 'public_link' | 'meeting_url' | 'archived'>>) =>
+    setBoardInfo: (changes: Partial<Pick<Board, 'public' | 'public_link' | 'meeting_url' | 'archived' | 'workspace_id'>>) =>
       commit({ ...ref.current!, ...changes }),
     setCommentCount: (cardId: number, count: number) =>
       commit(logic.updateCard(ref.current!, cardId, { comment_count: count })),

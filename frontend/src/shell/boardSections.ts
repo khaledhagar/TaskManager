@@ -1,17 +1,21 @@
 import type { BoardSummary } from '../api/boards'
+import type { Workspace } from '../api/workspaces'
 
-/** Starred boards, then your boards, then boards shared with you; archived boards last. */
-export function boardSections(boards: BoardSummary[]) {
+/** Starred, then each workspace, then your other boards, then shared ones; archived boards last. */
+export function boardSections(boards: BoardSummary[], workspaces: Workspace[] = []) {
   const active = boards.filter((b) => !b.archived)
+  const rest = active.filter((b) => !b.starred)
+  const inWorkspace = (b: BoardSummary) => workspaces.some((p) => p.id === b.workspace_id)
   return {
     starred: active.filter((b) => b.starred),
-    own: active.filter((b) => !b.starred && b.role === 'admin'),
-    shared: active.filter((b) => !b.starred && b.role !== 'admin'),
+    workspaces: workspaces.map((workspace) => ({ workspace, boards: rest.filter((b) => b.workspace_id === workspace.id) })),
+    own: rest.filter((b) => b.role === 'admin' && !inWorkspace(b)),
+    shared: rest.filter((b) => b.role !== 'admin' && !inWorkspace(b)),
     archived: boards.filter((b) => b.archived),
   }
 }
 
-/** The board to open when none is chosen: the first one in the switcher. */
+/** The board to open for a new guest or account: the first one in the switcher. */
 export function firstBoard(boards: BoardSummary[]): BoardSummary | undefined {
   const s = boardSections(boards)
   return [...s.starred, ...s.own, ...s.shared, ...s.archived][0]

@@ -82,17 +82,18 @@ def test_callback_with_bad_state_is_rejected(gclient, settings):
 def test_callback_creates_verified_user(gclient, identity, settings):
     r = callback(gclient)
     assert r.status_code == 302
-    assert r.headers["location"] == f"{settings.app_url}/"
+    assert r.headers["location"] == f"{settings.app_url}/?open=first"
     me = gclient.get("/api/auth/me").json()
     assert me["email"] == "alice@example.com"
     assert me["email_verified"] and me["google_linked"] and not me["has_password"]
     assert first_board(gclient)["title"] == "Website Launch"
 
 
-def test_callback_signs_in_existing_google_user(gclient, identity):
+def test_callback_signs_in_existing_google_user(gclient, identity, settings):
     callback(gclient)
     gclient.cookies.clear()
-    callback(gclient)
+    r = callback(gclient)
+    assert r.headers["location"] == f"{settings.app_url}/"
     assert gclient.get("/api/auth/me").status_code == 200
     assert len(users(gclient)) == 1
 

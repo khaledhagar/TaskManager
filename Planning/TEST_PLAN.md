@@ -450,27 +450,46 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-712 Accessibility: no axe violations in the list view
 - [x] T-713 List view stays fast with 100 cards
 
-### E11. Projects, start screen and full regression (Phase 26)
+### E11. Workspaces, start page and full regression (Phase 26)
 
-- [ ] T-720 Create, rename and delete a project; deleting it keeps its boards as boards on their own
-- [ ] T-721 Projects are private: another user's project gives 404 for reading, renaming, deleting and adding a board (SEC-215)
-- [ ] T-722 Limits: 20 projects per user, names 1-100 characters, at most 10 boards per new project, 1-20 columns per board; the board limit still applies (SEC-215)
-- [ ] T-723 Create a project with several boards in one request; each board has the given columns and no cards
-- [ ] T-724 Create a board with chosen columns and an optional project; move a board into and out of a project (board admin and project owner only) (SEC-215)
-- [ ] T-725 AI column suggestion: 3-8 names per board, at most 40 characters, plain text, in the request language, never cards; `max_tokens` set; input limited (SEC-216)
-- [ ] T-726 AI suggestion falls back to To Do, In Progress, Done when the model fails or the daily limit is reached; AI rate limits apply (SEC-216)
-- [ ] T-727 Start screen lists starred boards, projects with their boards, boards on their own, shared boards and archived boards
-- [ ] T-728 With no boards and no projects the start screen shows only "New project" and "New board" with their explanations
-- [ ] T-729 After sign-in the start screen shows; a new guest lands on the demo board; "All boards" returns to the start screen
-- [ ] T-730 New project dialog: add and remove boards, suggest columns, edit them, summary message, create
-- [ ] T-731 New board dialog: suggest columns from the name, edit the chips, choose a project
-- [ ] T-732 E2E: create a project with two boards and AI columns (faked model); open a board: its columns are there and empty; add a card
-- [ ] T-733 E2E: an empty account shows only the two choices; create a board; the start screen then lists it
-- [ ] T-734 Start screen and new dialogs in Arabic, right to left, dark, at phone, tablet and desktop widths
-- [ ] T-735 Accessibility: no axe violations on the start screen and the new dialogs; the whole flow works with the keyboard
-- [ ] T-736 Migration adds `projects` and `boards.project_id` to an existing database
-- [ ] T-737 Board switcher groups boards by project; "Move to project" updates the switcher and the start screen
-- [ ] T-714 Full regression after Phases 21-26: backend, frontend, Playwright in all browsers, axe, Lighthouse, audits
+- [x] T-720 Create, rename and delete a workspace; deleting it keeps its boards as boards without a workspace
+- [x] T-721 Workspaces are private: another user's workspace gives 404 for reading, renaming, deleting, members and adding a board (SEC-215)
+- [x] T-722 Limits: 20 workspaces per user, names 1-100 characters, at most 10 boards per new workspace, 1-20 columns per board; the board limit still applies (SEC-215)
+- [x] T-723 Create a workspace with several boards in one request; each board has the given columns and no cards
+- [x] T-724 Create a board with chosen columns and an optional workspace; move a board into and out of a workspace (board admin and workspace owner only) (SEC-215)
+- [x] T-725 AI column suggestion: 3-8 names per board, at most 40 characters, plain text, in the request language, never cards; `max_tokens` set; input limited (SEC-216)
+- [x] T-726 AI suggestion falls back to To Do, In Progress, Done when the model fails or the daily limit is reached; AI rate limits apply (SEC-216)
+- [x] T-727 Start page middle: starred, each workspace with its boards, then boards without a workspace, shared boards, archived folded
+- [x] T-728 With no boards and no workspaces the start page shows only "New workspace" and "New board" with their explanations
+- [x] T-729 After sign-in the start page shows; a new guest lands on the demo board; "All boards" returns to the start page
+- [x] T-730 New workspace dialog: add and remove boards, suggest columns, edit them, summary message, create
+- [x] T-731 New board dialog: suggest columns from the name, edit the chips, choose a workspace
+- [x] T-732 E2E: create a workspace with two boards and AI columns (faked model); open a board: its columns are there and empty; add a card
+- [x] T-733 E2E: an empty account shows only the two start cards; create a board; the start page then lists it
+- [x] T-734 Start page and new dialogs in Arabic, right to left, dark, at phone, tablet and desktop widths
+- [x] T-735 Accessibility: no axe violations on the start page and the new dialogs; the whole flow works with the keyboard
+- [x] T-736 Migration adds `workspaces` and `boards.workspace_id` to an existing database
+- [x] T-737 Board switcher grouped by workspace; "Move to workspace" updates the switcher and the start page
+- [x] T-738 Left panel: each workspace's Boards button lists its boards and opens the chosen one; Members shows its members by board
+- [x] T-739 Workspace members list: everyone on the workspace's boards with their permission, owner only (404 otherwise) (SEC-217)
+- [x] T-740 Left panel on phone and tablet opens from a menu button, closes after a choice, works with keyboard and screen reader
+- [x] T-741 An invitation to an existing account creates an in-app notification that opens the invitation
+- [x] T-742 Changes by others to a card assigned to you notify you in the app; your own changes never do; one entry per card and person within 10 minutes (SEC-217)
+- [x] T-743 Removed members and people no longer assigned get no card notifications (SEC-217)
+- [x] T-744 What's new on the start page shows the latest notifications (unread first, up to 5); each opens its card; See all opens the list
+- [x] T-745 E2E: a second person is invited and assigned; the start page shows both notifications and opens them
+- [x] T-714 Full regression after Phases 21-26: backend, frontend, Playwright in all browsers, axe, Lighthouse, audits
+
+### E12. Fixes from the user's check (2026-10-21, Phase 26)
+
+- [x] T-750 Messages (toasts) shown while a window is open appear inside it and their buttons (Undo, Dismiss) work
+- [x] T-751 A blocked microphone says how to allow it again, inside the card window too, every time it is pressed
+- [x] T-752 A column moves with Move left / Move right in its menu (mirrored in Arabic); the order is saved
+- [x] T-753 The server the user runs serves every feature built so far (restarted after each phase); export, auto-complete and archive checked on it
+- [x] T-754 Archive a whole column with its cards (Undo); restore it from the Archived panel; its cards do not count toward the limit
+- [x] T-755 Board options next to Ask AI is a labeled button; the Board / List switch has icons and a clear selected state
+- [x] T-756 Saved templates show on the start page and start a board in one click
+- [x] T-757 The guest bar says "Sign up to save your boards" and opens the sign-up form
 
 ### E6. Documentation (Phase 28)
 

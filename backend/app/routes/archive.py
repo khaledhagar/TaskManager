@@ -1,17 +1,17 @@
-"""Archive, restore and duplicate cards and boards (T-680 to T-683)."""
+"""Archive, restore and duplicate cards, columns and boards (T-680 to T-683, T-754)."""
 
 from fastapi import APIRouter
 from sqlmodel import func, select
 
 from app import limits
-from app.access import board_for, board_full_for, card_for, renumber
+from app.access import board_for, board_full_for, card_for, column_for, renumber
 from app.activity import record
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.models import Board, BoardColumn, Card, Role, utcnow
 from app.organize import board_to_data, check_card_limit, copy_card, copy_title
-from app.schemas import BoardSummary, CardOut, board_summary, card_out
-from app.schemas_organize import ArchivedCardOut
+from app.schemas import BoardSummary, CardOut, ColumnOut, board_summary, card_out, column_out
+from app.schemas_organize import ArchivedCardOut, ArchivedColumnOut
 from app.seed import build_from_data
 
 router = APIRouter(prefix="/api", tags=["organize"])
@@ -60,6 +60,50 @@ def archived_cards(board_id: int, user: CurrentUser, session: SessionDep) -> lis
             archived_at=card.archived_at,
         )
         for card, column_title in rows
+    ]
+
+
+@router.post("/columns/{column_id}/archive", status_code=204)
+def archive_column(column_id: int, user: CurrentUser, session: SessionDep) -> None:
+    """The column and its cards leave the board, its limits and its order."""
+    column = column_for(session, user, column_id, Role.editor)
+    board = column.board
+    column.archived_at = utcnow()
+    record(session, board.id, user, "column.archived", column=column.title)
+    session.flush()
+    session.refresh(board)
+    renumber(board.columns)
+    session.commit()
+
+
+@router.post("/columns/{column_id}/restore")
+def restore_column(column_id: int, user: CurrentUser, session: SessionDep) -> ColumnOut:
+    """Back at the end of the board, if the board has room for it and its cards."""
+    column = column_for(session, user, column_id, Role.editor)
+    board = column.board
+    if column.archived_at is not None:
+        limits.check(
+            len(board.columns),
+            limits.COLUMNS_PER_BOARD,
+            "Limit reached: at most {cap} columns per board",
+        )
+        if column.cards:
+            check_card_limit(session, board.id, len(column.cards))
+        column.position = len(board.columns)
+        column.archived_at = None
+        record(session, board.id, user, "column.restored", column=column.title)
+        session.commit()
+    return column_out(column)
+
+
+@router.get("/boards/{board_id}/archived-columns")
+def archived_columns(
+    board_id: int, user: CurrentUser, session: SessionDep
+) -> list[ArchivedColumnOut]:
+    board = board_for(session, user, board_id)
+    return [
+        ArchivedColumnOut(id=c.id, title=c.title, cards=len(c.cards), archived_at=c.archived_at)
+        for c in sorted(board.archived_columns, key=lambda c: c.archived_at, reverse=True)
     ]
 
 

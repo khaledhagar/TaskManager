@@ -11,15 +11,16 @@ TEMPLATES_PER_USER = 20
 CARD_LIMIT = "Maximum cards in a board is {cap}. Delete a card to add a new one."
 
 
-def check_card_limit(session: Session, board_id: int) -> None:
-    """Archived cards do not count toward the card limit."""
+def check_card_limit(session: Session, board_id: int, new: int = 1) -> None:
+    """Room for `new` more cards; archived cards and columns do not count."""
     stmt = (
         select(func.count())
         .select_from(Card)
         .join(BoardColumn)
         .where(BoardColumn.board_id == board_id, Card.archived_at == None)  # noqa: E711
+        .where(BoardColumn.archived_at == None)  # noqa: E711
     )
-    limits.check(session.exec(stmt).one(), limits.CARDS_PER_BOARD, CARD_LIMIT)
+    limits.check(session.exec(stmt).one() + new - 1, limits.CARDS_PER_BOARD, CARD_LIMIT)
 
 
 def own_template(session: Session, user: User, template_id: int) -> UserTemplate:

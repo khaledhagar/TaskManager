@@ -31,6 +31,7 @@ def send_reminders(session: Session, mailer: Mailer, settings: Settings, today: 
         .join(BoardColumn, BoardColumn.id == Card.column_id)
         .join(Board, Board.id == BoardColumn.board_id)
         .where(Card.archived_at == None, Board.archived_at == None)  # noqa: E711
+        .where(BoardColumn.archived_at == None)  # noqa: E711
         .where(Card.completed == False, Card.due_date != None)  # noqa: E711, E712
         .where(Card.due_date <= today + timedelta(days=1))
         .order_by(Card.due_date)

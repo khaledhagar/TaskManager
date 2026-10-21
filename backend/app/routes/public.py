@@ -13,14 +13,8 @@ from app.auth import CurrentUser
 from app.db import SessionDep
 from app.i18n import tr
 from app.models import Board, BoardMember, PublicLink, Role
-from app.schemas import (
-    BoardSummary,
-    PublicBoardOut,
-    Strict,
-    board_summary,
-    public_board_out,
-    public_url,
-)
+from app.schemas import BoardSummary, Strict, board_summary, public_url
+from app.schemas_public import PublicBoardOut, public_board_out
 from app.sharing import member_count, membership
 
 router = APIRouter(prefix="/api", tags=["public"])

@@ -86,3 +86,27 @@ def test_organize_columns_are_added_to_existing_boards(tmp_path):
     with engine.connect() as conn:
         row = conn.execute(text("SELECT archived_at, auto_complete FROM boards")).one()
     assert tuple(row) == (None, 0)
+
+
+def test_workspaces_are_added_to_an_existing_database(tmp_path):
+    """T-736: boards made before Phase 26 keep working, with no workspace."""
+    engine = create_engine(f"sqlite:///{tmp_path / 'p25.db'}")
+    with engine.begin() as conn:
+        command.upgrade(alembic_config(conn), "0004_organize")
+        conn.execute(
+            text(
+                "INSERT INTO users (email, is_guest, email_verified, token_version, language,"
+                " created_at) VALUES ('old@example.com', 0, 1, 0, 'en', '2026-10-01')"
+            )
+        )
+        conn.execute(
+            text(
+                "INSERT INTO boards (owner_id, title, created_at, background_kind,"
+                " background_size, background_version, auto_complete)"
+                " VALUES (1, 'Old', '2026-10-01', 'none', 0, 0, 0)"
+            )
+        )
+    migrate(engine)
+    assert "workspaces" in inspect(engine).get_table_names()
+    with engine.connect() as conn:
+        assert conn.execute(text("SELECT workspace_id FROM boards")).scalar_one() is None

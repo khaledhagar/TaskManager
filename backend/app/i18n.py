@@ -72,6 +72,7 @@ AR: dict[str, str] = {
     "Order must list every column once": "يجب أن يتضمن الترتيب كل عمود مرة واحدة",
     "Limit reached: at most {cap} boards": "تم بلوغ الحد: {cap} لوحة كحد أقصى",
     "Limit reached: at most {cap} templates": "تم بلوغ الحد: {cap} قالب كحد أقصى",
+    "Limit reached: at most {cap} workspaces": "تم بلوغ الحد: {cap} مساحة عمل كحد أقصى",
     " (copy)": " (نسخة)",
     "Only an image can be a cover": "يمكن استخدام صورة فقط كغلاف",
     "Limit reached: at most {cap} columns per board": "تم بلوغ الحد: {cap} عمود كحد أقصى لكل لوحة",

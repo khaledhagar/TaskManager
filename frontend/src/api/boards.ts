@@ -13,6 +13,10 @@ export type BoardSummary = {
   role: Role
   archived?: boolean
   starred?: boolean
+  /** Only when the workspace is the user's own. */
+  workspace_id?: number | null
+  cards?: number
+  done?: number
 }
 export type Label = { id: number; name: string; color: LabelColor }
 export type ChecklistItem = { id: number; text: string; done: boolean; position: number }
@@ -44,6 +48,7 @@ export type Card = {
   focus_minutes?: number
 }
 export type Column = { id: number; title: string; position: number; wip_limit?: number | null; cards: Card[] }
+export type ArchivedColumn = { id: number; title: string; cards: number; archived_at: string }
 export type ArchivedCard = { id: number; title: string; column_id: number; column_title: string; archived_at: string }
 export type UserTemplate = { id: number; name: string; created_at: string }
 export type FocusStats = { focus_count: number; focus_minutes: number }
@@ -61,6 +66,7 @@ export type Board = {
   members: { user_id: number; email: string | null }[]
   archived?: boolean
   auto_complete?: boolean
+  workspace_id?: number | null
 }
 export type CardPatch = Partial<
   Pick<Card, 'title' | 'details' | 'completed' | 'priority' | 'due_date'>
@@ -74,6 +80,10 @@ export const boards = {
   get: (id: number) => api<Board>(`/boards/${id}`),
   create: (title: string, template: Template = 'blank') =>
     api<BoardSummary>('/boards', { body: { title, template } }),
+  /** A board that starts with these columns and no cards, optionally in a workspace. */
+  createWithColumns: (title: string, columns: string[], workspaceId: number | null) =>
+    api<BoardSummary>('/boards', { body: { title, columns, workspace_id: workspaceId } }),
+  setWorkspace: (id: number, workspaceId: number | null) => patch<BoardSummary>(`/boards/${id}`, { workspace_id: workspaceId }),
   createFromTemplate: (title: string, templateId: number) =>
     api<BoardSummary>('/boards', { body: { title, template_id: templateId } }),
   setAutoComplete: (id: number, on: boolean) => patch<BoardSummary>(`/boards/${id}`, { auto_complete: on }),
@@ -82,6 +92,9 @@ export const boards = {
   duplicate: (id: number) => api<BoardSummary>(`/boards/${id}/duplicate`, { method: 'POST' }),
   star: (id: number, on: boolean) => api<void>(`/boards/${id}/star`, { method: on ? 'PUT' : 'DELETE' }),
   archived: (id: number) => api<ArchivedCard[]>(`/boards/${id}/archived`),
+  archivedColumns: (id: number) => api<ArchivedColumn[]>(`/boards/${id}/archived-columns`),
+  archiveColumn: (id: number) => api<void>(`/columns/${id}/archive`, { method: 'POST' }),
+  restoreColumn: (id: number) => api<Column>(`/columns/${id}/restore`, { method: 'POST' }),
   rename: (id: number, title: string) => patch<BoardSummary>(`/boards/${id}`, { title }),
   remove: (id: number) => del(`/boards/${id}`),
 

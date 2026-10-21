@@ -15,7 +15,18 @@ def user(client):
 def test_list_boards(user):
     boards = user.get("/api/boards").json()
     assert [b["title"] for b in boards] == ["Website Launch"]
-    assert set(boards[0]) == {"id", "title", "created_at", "role", "archived", "starred"}
+    keys = {
+        "id",
+        "title",
+        "created_at",
+        "role",
+        "archived",
+        "starred",
+        "workspace_id",
+        "cards",
+        "done",
+    }
+    assert set(boards[0]) == keys
     assert boards[0]["role"] == "admin"
 
 
@@ -135,3 +146,12 @@ def test_column_cap(user, monkeypatch):
 )
 def test_board_title_validation(user, body):
     assert user.post("/api/boards", json=body).status_code == 422
+
+
+def test_list_shows_card_progress(user):
+    """Start screen tiles (T-727): active cards and how many are done."""
+    summary = user.get("/api/boards").json()[0]
+    board = user.get(f"/api/boards/{summary['id']}").json()
+    cards = [c for col in board["columns"] for c in col["cards"]]
+    assert summary["cards"] == len(cards)
+    assert summary["done"] == sum(c["completed"] for c in cards)

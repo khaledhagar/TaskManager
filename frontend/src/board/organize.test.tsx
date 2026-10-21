@@ -14,6 +14,10 @@ vi.mock('../api/boards', () => ({
     removeCard: vi.fn(async () => undefined),
     duplicateCard: vi.fn(),
     archived: vi.fn(async () => []),
+    archivedColumns: vi.fn(async () => []),
+    archiveColumn: vi.fn(async () => undefined),
+    restoreColumn: vi.fn(async () => ({})),
+    reorderColumns: vi.fn(async () => undefined),
     setWipLimit: vi.fn(async () => ({})),
     setAutoComplete: vi.fn(async () => ({})),
     moveCard: vi.fn(async () => ({})),
@@ -100,8 +104,8 @@ describe('archive and restore cards (T-680)', () => {
       { id: 9, title: 'Old idea', column_id: 1, column_title: 'To Do', archived_at: '2026-10-20T10:00:00Z' },
     ])
     await renderBoard()
-    await menu('Archived cards')
-    const panel = screen.getByRole('dialog', { name: 'Archived cards' })
+    await menu('Archived cards and columns')
+    const panel = screen.getByRole('dialog', { name: 'Archived cards and columns' })
     expect(await within(panel).findByText('From To Do')).toBeInTheDocument()
     await userEvent.click(within(panel).getByRole('button', { name: 'Restore Old idea' }))
     expect(boards.restoreCard).toHaveBeenCalledWith(9)

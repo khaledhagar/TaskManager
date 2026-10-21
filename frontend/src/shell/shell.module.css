@@ -41,9 +41,14 @@
   font-weight: 600;
 }
 
-/* The switcher gives up width first: a long board name is cut with an ellipsis. */
+/* The switcher gives up width first: a long board name is cut with an ellipsis, but it stays
+   wide enough to tap (WCAG 2.5.8). */
 .switcherMenu {
-  min-width: 0;
+  min-width: 48px;
+}
+
+.switcher {
+  min-width: 48px;
 }
 
 /* The account button never shrinks. */
@@ -152,6 +157,11 @@
 @media (max-width: 640px) {
   .header {
     gap: 4px;
+  }
+
+  /* No room on phones: "All boards" is the first item of the board switcher instead. */
+  .allBoards {
+    display: none;
   }
 
   .logo {

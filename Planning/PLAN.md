@@ -36,7 +36,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 23 - Notifications and Reminders | 4 / 4 | Done |
 | Phase 24 - Organize: Archive, Copies, Templates, Stars, WIP, Auto-complete, Covers, Focus Sessions | 6 / 6 | Done |
 | Phase 25 - List View and Export | 3 / 3 | Done |
-| Phase 26 - Projects, Start Screen and Full Regression | 0 / 8 | Not started |
+| Phase 26 - Workspaces, Start Page and Full Regression | 10 / 10 | Done |
 | Phase 27 - Deployment (Vercel) | 0 / 14 | Not started |
 | Phase 28 - Documentation (Word files) | 0 / 8 | Not started |
 
@@ -102,7 +102,7 @@ The app will be published, so two companion checklists are part of every phase:
 38. Assign cards to board members; "Assigned to me" filter (approved 2026-10-21)
 42. Further features (Phases 22-25, before Deployment; trimmed by the user on 2026-10-21): comments with @mentions, activity log, notifications with emails and a daily reminder, archive and restore, duplicate cards and boards, own templates, starred boards, WIP limits, auto-complete in the last column, card covers, focus sessions on cards, list view, export
 41. Project documentation as Word files (Phase 28, after Deployment; requested 2026-10-21)
-43. Projects that group related boards, a start screen after sign-in, and AI-suggested columns from a board's name with no demo cards (Phase 26, before Deployment; requested 2026-10-21)
+43. Workspaces that group related boards, a start page after sign-in (left panel with each workspace's boards and members, boards by workspace in the middle, What's new notifications), notifications for invitations and for changes to your assigned cards, and AI-suggested columns from a board's name with no demo cards (Phase 26, before Deployment; requested 2026-10-21)
 40. Voice input for people who cannot type: a microphone button on the main text fields and the AI chat, in English and Arabic (approved for planning 2026-10-21; build after the user checks the plan)
 39. Meeting link on the board (Zoom, Google Meet, Teams or any https link): Start meeting opens it (Zoom links open the Zoom app); the admin can email the link to all members (approved 2026-10-21)
 30. Pomodoro focus timer on the board, opt-in: off by default and turned on with a "Focus timer" button; 25 / 5 or 50 / 10 minutes, start, pause, reset focus, reset break, skip; chip with time left, chime and optional notification
@@ -369,22 +369,28 @@ All of these follow the existing rules: membership and role checks on every endp
 - Export: download the board as CSV (opens in Excel) or JSON (any member).
 - The full regression of Phases 21-26 runs at the end of Phase 26.
 
-## Projects and Start Screen Design (Phase 26)
+## Workspaces and Start Page Design (Phase 26)
 
-Requested by the user on 2026-10-21. Too large for Phase 25 (a new table, a new screen and a new AI request), so it is its own phase before Deployment. The full regression moves from Phase 25 to the end of this phase, so it runs right before Deployment.
+Requested by the user on 2026-10-21 (first as "projects"; renamed "workspaces" and given a left panel the same day). Everything here is on the **start page**, the first page after sign-in; board pages stay as they are. The full regression runs at the end of this phase, right before Deployment.
 
-- **Project:** a named group of related boards (`projects`: owner, name up to 100 characters, created; `boards.project_id`, optional, so a board is in at most one project). Projects are private to their owner, up to 20 each. A board shared with you shows under "Shared with you", never inside someone else's project. Deleting a project keeps its boards: they become boards on their own.
-- **Start screen** (`/` with no board chosen): shown after sign-in and from an "All boards" button in the header. Two buttons at the top, "New project" and "New board", then: Starred, each project (its name and its boards as tiles with progress), Boards (not in a project), Shared with you, Archived (folded). With no boards and no projects it shows only the two choices, as two large cards with their explanations. A new guest still lands on the demo board (the original requirement: the app opens with demo data); the start screen is one click away.
-- **Messages that tell the two apart** (on the two choice cards and at the top of each dialog):
-  - New project: "A project groups related boards. For example, "Website relaunch" with boards for Design, Development and Marketing."
-  - New board: "A board is one workspace with columns and cards. Keep it on its own or add it to a project."
-  - Before creating a project: "Creates the project "{name}" with {count} boards." (singular and plural, English and Arabic)
-- **New project dialog:** project name, then board names ("Add another board", up to 10, each removable). "Suggest columns with AI" fills an editable list of column names for every board in one AI request. Every board starts with its columns and no cards; cards are added with each column's "Add card". Without AI (daily limit reached, model error or offline) each board starts with To Do, In Progress, Done and a short note says so.
-- **New board dialog:** a new first option "Name it, AI suggests columns": board name, "Suggest columns" (3 to 8 editable column chips: rename, remove, add), and a Project select (none or one of your projects). The board starts with those columns and no cards. The existing templates (built-in and your own) and "Describe it to AI" stay as other options.
-- **Move to project:** board menu item for the board's admin; lists the admin's projects and "No project".
-- **AI column suggestion:** `POST /api/ai/columns` with up to 10 board names (and the project name): for each board 3 to 8 column names, each at most 40 characters, plain text, in the user's language, never cards. `max_tokens` is set; the AI rate limits and the free-tier fallback apply; the reply is validated and cut to the limits.
-- **Board switcher:** boards grouped by project (Starred first, archived last), so the switcher and the start screen agree.
-- **API:** `GET/POST /api/projects` (POST takes the name and up to 10 boards, each with a title and 1 to 20 columns), `PATCH/DELETE /api/projects/{id}`, `POST /api/boards` takes optional `columns` and `project_id`, `PATCH /api/boards/{id}` takes `project_id` (null removes), `BoardSummary` gains `project_id`.
+- **Workspace:** a named group of related boards (`workspaces`: owner, name up to 100 characters, created; `boards.workspace_id`, optional, so a board is in at most one workspace). Private to the owner, up to 20 each. A board shared with you shows under "Shared with you", never inside someone else's workspace. Deleting a workspace keeps its boards: they move to "Boards without a workspace".
+- **Start page** (`/` with no board chosen), shown after sign-in and from an "All boards" button in the header. A new guest or a just-verified account still opens its demo board (the original requirement); the start page is one click away.
+  - **Left panel:** each workspace by name with two buttons: **Boards** (expands the list of its boards; choosing one opens it) and **Members** (everyone on the workspace's boards, grouped by board with their permission). Below: "Boards without a workspace" and "Shared with you", each with the same Boards button (and Members for your own boards). "New workspace" at the bottom. On phones and tablets the panel opens from a menu button and closes after a choice.
+  - **Middle:** the two start cards ("New workspace", "New board") with their explanations; a **What's new** strip with the latest notifications (unread first, up to 5, each opens its board or card; "See all" opens the bell list); Starred; each workspace as a heading with its board tiles (name, progress); then "Boards without a workspace"; then "Shared with you"; Archived folded at the bottom.
+  - **Empty account:** only the two start cards with their explanations.
+- **Messages that tell the two apart** (start cards and dialogs):
+  - New workspace: "A workspace groups related boards. For example, "Website relaunch" with boards for Design, Development and Marketing."
+  - New board: "A board is one stream of work, with columns and cards. Keep it on its own or add it to a workspace."
+  - Before creating a workspace: "Creates the workspace "{name}" with {count} boards." (singular and plural, English and Arabic)
+- **New workspace dialog:** workspace name, then board names ("Add another board", up to 10). "Suggest columns with AI" fills an editable list of column names for every board in one AI request. Every board starts with its columns and no cards. Without AI each board starts with To Do, In Progress, Done and a short note says so.
+- **New board dialog:** Blank shows the column chips, "Suggest columns with AI" from the name, and a Workspace select. Templates and "Describe it to AI" stay.
+- **Move to workspace:** board menu item for the board's admin.
+- **Notifications (extends Phase 23), shown in the bell and in What's new:**
+  - `invited`: someone invited you to a board (when your account exists); opens the invitation. The email stays.
+  - `card_changed`: someone else moved, completed, reopened, edited, commented on or changed the due date of a card you are assigned to. In the app only (no email, to avoid noise); one entry per card and person within 10 minutes; never for your own changes.
+- **AI column suggestion:** `POST /api/ai/columns` with up to 10 board names and the workspace name; 3 to 8 plain column names per board, at most 40 characters, in the user's language, never cards; `max_tokens` set; AI rate limits and the free-tier fallback apply.
+- **Board switcher:** grouped by workspace (Starred first, archived last).
+- **API:** `GET/POST /api/workspaces` (POST takes the name and up to 10 boards, each with 1 to 20 columns), `PATCH/DELETE /api/workspaces/{id}`, `GET /api/workspaces/{id}/members` and `GET /api/workspaces/none/members` (your boards without a workspace) listing members per board (owner only), `POST /api/boards` takes `columns` and `workspace_id`, `PATCH /api/boards/{id}` takes `workspace_id`, `BoardSummary` and `BoardOut` gain `workspace_id` (own workspaces only), `cards` and `done`.
 
 ## Documentation Design (Phase 28)
 
@@ -658,16 +664,18 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 - [x] Export CSV and JSON
 - [x] Tests T-700 to T-713 pass; SEC-208 ticked
 
-## Phase 26 - Projects, Start Screen and Full Regression
+## Phase 26 - Workspaces, Start Page and Full Regression
 
-- [ ] `projects` table and `boards.project_id` with a migration; project API with ownership checks
-- [ ] Boards created with chosen columns and no cards; boards move into and out of projects
-- [ ] AI column suggestion endpoint with validation and fallback
-- [ ] Start screen after sign-in; empty state with only "New project" and "New board" and their explanations
-- [ ] New project dialog (several boards, AI columns, summary message) and New board dialog (AI columns, project)
-- [ ] Board switcher grouped by project; "Move to project" in the board menu
-- [ ] Full regression after Phases 21-26 (backend, frontend, Playwright in all browsers, axe, Lighthouse, audits)
-- [ ] Tests T-714 and T-720 to T-737 pass; SEC-215, SEC-216 ticked
+- [x] `workspaces` table and `boards.workspace_id` with a migration; workspace API with ownership checks; workspace members list
+- [x] Boards created with chosen columns and no cards; boards move into and out of workspaces
+- [x] AI column suggestion endpoint with validation and fallback
+- [x] Start page: left panel (workspaces with Boards and Members, boards without a workspace, shared), middle (start cards, What's new, boards by workspace, then boards without a workspace); empty state with only the two start cards
+- [x] New workspace dialog (several boards, AI columns, summary message) and New board dialog (AI columns, workspace)
+- [x] Notifications for invitations and for changes to cards assigned to you; What's new on the start page
+- [x] Board switcher grouped by workspace; "Move to workspace" in the board menu
+- [x] Fixes from the user's check on 2026-10-21: messages and Undo work inside open windows (voice errors were hidden), clear blocked-microphone message, Move left / Move right for columns, archive a whole column, labeled Board options button, clearer Board / List switch, saved templates on the start page, "Sign up to save your boards"; the running server is restarted after every phase (it was still on pre-Phase 23 code, which is why export, auto-complete and archive failed)
+- [x] Full regression after Phases 21-26 (backend, frontend, Playwright in all browsers, axe, Lighthouse, audits)
+- [x] Tests T-714, T-720 to T-745 and T-750 to T-757 pass; SEC-215 to SEC-217 ticked
 
 ## Phase 27 - Deployment (Vercel)
 

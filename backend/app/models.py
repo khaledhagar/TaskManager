@@ -87,13 +87,25 @@ class Board(SQLModel, table=True):
     background_size: int = 0
     background_version: int = 0
     archived_at: datetime | None = None
+    workspace_id: int | None = Field(default=None, foreign_key="workspaces.id", ondelete="SET NULL")
     auto_complete: bool = Field(default=False, sa_column_kwargs={"server_default": false()})
 
     owner: User = Relationship(back_populates="boards")
+    # Only columns that are not archived; archived ones are still deleted with the board.
     columns: list["BoardColumn"] = Relationship(
         back_populates="board",
         cascade_delete=True,
-        sa_relationship_kwargs={"order_by": "BoardColumn.position"},
+        sa_relationship_kwargs={
+            "order_by": "BoardColumn.position",
+            "primaryjoin": "and_(Board.id == BoardColumn.board_id, BoardColumn.archived_at == None)",  # noqa: E501
+        },
+    )
+    archived_columns: list["BoardColumn"] = Relationship(
+        cascade_delete=True,
+        sa_relationship_kwargs={
+            "primaryjoin": "and_(Board.id == BoardColumn.board_id, BoardColumn.archived_at != None)",  # noqa: E501
+            "overlaps": "columns,board",
+        },
     )
     labels: list["Label"] = Relationship(back_populates="board", cascade_delete=True)
     members: list["BoardMember"] = Relationship(
@@ -107,26 +119,6 @@ class Board(SQLModel, table=True):
     meeting_link: "MeetingLink" = Relationship(
         cascade_delete=True, sa_relationship_kwargs={"uselist": False}
     )
-
-
-class PublicLink(SQLModel, table=True):
-    """A board is public while it has this row; its token is the read-only link."""
-
-    __tablename__ = "public_links"
-
-    id: int | None = Field(default=None, primary_key=True)
-    board_id: int = Field(foreign_key="boards.id", ondelete="CASCADE", unique=True)
-    token: str = Field(unique=True, index=True)
-
-
-class MeetingLink(SQLModel, table=True):
-    """The board's https meeting link (Zoom, Meet, Teams or any other)."""
-
-    __tablename__ = "meeting_links"
-
-    id: int | None = Field(default=None, primary_key=True)
-    board_id: int = Field(foreign_key="boards.id", ondelete="CASCADE", unique=True)
-    url: str
 
 
 class BoardMember(SQLModel, table=True):
@@ -181,6 +173,7 @@ class BoardColumn(SQLModel, table=True):
     title: str
     position: int
     wip_limit: int | None = None
+    archived_at: datetime | None = None
 
     board: Board = Relationship(back_populates="columns")
     # Only cards that are not archived: archived ones leave the board, its limit and its order.
@@ -291,5 +284,6 @@ class Label(SQLModel, table=True):
 
 # Collaboration tables (Phase 22) live in their own module to keep this one short.
 from app.models_collab import Activity, Comment  # noqa: E402, F401
+from app.models_links import MeetingLink, PublicLink  # noqa: E402, F401
 from app.models_notify import Notification, NotificationSetting  # noqa: E402, F401
-from app.models_organize import BoardStar, FocusSession, UserTemplate  # noqa: E402, F401
+from app.models_organize import BoardStar, FocusSession, UserTemplate, Workspace  # noqa: E402, F401

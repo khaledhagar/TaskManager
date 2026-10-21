@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { Columns3, List, Plus } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { boards, type BoardSummary } from '../api/boards'
 import { ChatPanel } from '../ai/ChatPanel'
@@ -12,6 +12,7 @@ import { InlineText } from '../ui/InlineText'
 import { useToast } from '../ui/toastContext'
 import ui from '../ui/ui.module.css'
 import css from './board.module.css'
+import type { Workspace } from '../api/workspaces'
 import { ArchivedPanel } from './ArchivedPanel'
 import { BoardColumns } from './BoardColumns'
 import { BoardHeader } from './BoardHeader'
@@ -20,6 +21,7 @@ import { CardModal } from './CardModal'
 import { FilterBar } from './FilterBar'
 import list from './list.module.css'
 import { ListView } from './ListView'
+import { MoveWorkspaceDialog } from './MoveWorkspaceDialog'
 import { EMPTY_FILTERS, filtersActive, findCard, matchesFilters } from './logic'
 import { ShortcutsHelp } from './ShortcutsHelp'
 import { TemplateDialog } from './TemplateDialog'
@@ -31,6 +33,8 @@ type Props = {
   userId: number
   isGuest: boolean
   starred?: boolean
+  /** The user's workspaces, for "Move to workspace". */
+  workspaces?: Workspace[]
   onRenamed: (id: number, title: string) => void
   onDeleted: (id: number) => void
   onUpdated?: (id: number, changes: Partial<BoardSummary>) => void
@@ -38,7 +42,7 @@ type Props = {
 }
 
 /** The interactive board: header, filters, columns with drag and drop, card details. */
-export function BoardView({ boardId, userId, isGuest, starred = false, onRenamed, onDeleted, onUpdated = () => {}, onCreated = () => {} }: Props) {
+export function BoardView({ boardId, userId, isGuest, starred = false, workspaces = [], onRenamed, onDeleted, onUpdated = () => {}, onCreated = () => {} }: Props) {
   const { board, loadError, actions } = useBoard(boardId)
   const { params } = useLocation()
   // The access-request email links here with ?members=1 so the admin lands on the panel.
@@ -68,6 +72,7 @@ export function BoardView({ boardId, userId, isGuest, starred = false, onRenamed
   const [chatting, setChatting] = useState(false)
   const [archivedOpen, setArchivedOpen] = useState(false)
   const [templating, setTemplating] = useState(false)
+  const [moving, setMoving] = useState(false)
   const toast = useToast()
   const searchRef = useRef<HTMLInputElement>(null)
 
@@ -98,6 +103,7 @@ export function BoardView({ boardId, userId, isGuest, starred = false, onRenamed
     onCreated,
     openArchived: () => setArchivedOpen(true),
     openTemplate: () => setTemplating(true),
+    openMove: workspaces.length ? () => setMoving(true) : undefined,
   })
 
   return (
@@ -138,11 +144,15 @@ export function BoardView({ boardId, userId, isGuest, starred = false, onRenamed
         me={userId}
       />
       <div className={list.views} role="group" aria-label={t('view.label')}>
-        {(['board', 'list'] as const).map((v) => (
-          <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)}>
-            {t(v === 'board' ? 'view.board' : 'view.list')}
-          </button>
-        ))}
+        {(['board', 'list'] as const).map((v) => {
+          const Icon = v === 'board' ? Columns3 : List
+          return (
+            <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)}>
+              <Icon size={16} aria-hidden="true" />
+              {t(v === 'board' ? 'view.board' : 'view.list')}
+            </button>
+          )
+        })}
       </div>
       {board.columns.length === 0 ? <p className={css.noResults}>{t('board.noColumns')}</p> : null}
       {filtering && shown === 0 ? (
@@ -183,6 +193,14 @@ export function BoardView({ boardId, userId, isGuest, starred = false, onRenamed
       ) : null}
       <ShortcutsHelp open={help} onClose={() => setHelp(false)} />
       <ArchivedPanel open={archivedOpen} onClose={() => setArchivedOpen(false)} boardId={board.id} actions={actions} />
+      <MoveWorkspaceDialog
+        open={moving}
+        onClose={() => setMoving(false)}
+        boardTitle={board.title}
+        workspaces={workspaces}
+        current={workspaces.some((p) => p.id === board.workspace_id) ? (board.workspace_id ?? null) : null}
+        onMove={organize.moveToWorkspace}
+      />
       <TemplateDialog open={templating} onClose={() => setTemplating(false)} boardId={board.id} boardTitle={board.title} />
       <ChatPanel open={chatting} board={board} actions={actions} onClose={() => setChatting(false)} />
       <ActivityPanel

@@ -1,7 +1,8 @@
 import { X } from 'lucide-react'
-import { useEffect, useId, useRef, type ReactNode } from 'react'
+import { useContext, useEffect, useId, useRef, type ReactNode } from 'react'
 import { useI18n } from '../i18n/context'
 import css from './dialog.module.css'
+import { ToastHostContext } from './toastContext'
 
 type Props = {
   open: boolean
@@ -17,6 +18,11 @@ export function Dialog({ open, onClose, title, children, hideTitle = false, wide
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
   const { t } = useI18n()
+  const registerToastHost = useContext(ToastHostContext)
+
+  useEffect(() => {
+    if (open && ref.current) return registerToastHost(ref.current)
+  }, [open, registerToastHost])
 
   useEffect(() => {
     const dialog = ref.current

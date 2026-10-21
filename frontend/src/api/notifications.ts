@@ -2,11 +2,12 @@ import { api } from './client'
 
 export type Notice = {
   id: number
-  kind: 'assigned' | 'mentioned' | 'due_soon' | 'overdue'
+  kind: 'assigned' | 'mentioned' | 'due_soon' | 'overdue' | 'invited' | 'card_changed'
   board_id: number
   card_id: number | null
   actor_email: string | null
-  data: { title?: string; board?: string }
+  /** `change` is the activity kind for card_changed; `path` opens an invitation. */
+  data: { title?: string; board?: string; change?: string; path?: string }
   created_at: string
   read: boolean
 }

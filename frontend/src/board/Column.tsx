@@ -24,10 +24,13 @@ type Props = {
   composing: boolean
   onCompose: (open: boolean) => void
   onOpenCard: (id: number) => void
+  /** Move one place earlier (-1) or later (1): the menu's Move left and Move right. */
+  onMove?: (step: -1 | 1) => void
+  canMove?: { back: boolean; forward: boolean }
 }
 
 /** One column: drag handle, inline title, card list, and the add-card composer. */
-export function Column({ column, cards, labels, members, actions, dragDisabled, filtering, composing, onCompose, onOpenCard }: Props) {
+export function Column({ column, cards, labels, members, actions, dragDisabled, filtering, composing, onCompose, onOpenCard, onMove, canMove }: Props) {
   const { setNodeRef, setActivatorNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
     id: columnKey(column.id),
     data: { type: 'column', columnId: column.id },
@@ -35,6 +38,18 @@ export function Column({ column, cards, labels, members, actions, dragDisabled, 
   })
   const { t } = useI18n()
   const [settingWip, setSettingWip] = useState(false)
+  // Left is earlier in English and later in Arabic (right to left).
+  const rtl = document.documentElement.dir === 'rtl'
+  const moves = onMove && canMove
+    ? [
+        ...((rtl ? canMove.forward : canMove.back)
+          ? [{ kind: 'action' as const, label: t('column.moveLeft'), onSelect: () => onMove(rtl ? 1 : -1) }]
+          : []),
+        ...((rtl ? canMove.back : canMove.forward)
+          ? [{ kind: 'action' as const, label: t('column.moveRight'), onSelect: () => onMove(rtl ? -1 : 1) }]
+          : []),
+      ]
+    : []
   const limit = column.wip_limit
   const over = limit ? cards.length > limit : false
   const countLabel = over
@@ -82,6 +97,8 @@ export function Column({ column, cards, labels, members, actions, dragDisabled, 
           items={[
             { kind: 'action', label: t('column.addCard'), onSelect: () => onCompose(true) },
             { kind: 'action', label: t('column.wipLimit'), onSelect: () => setSettingWip(true) },
+            ...moves,
+            { kind: 'action', label: t('column.archive'), onSelect: () => actions.archiveColumn(column.id) },
             { kind: 'action', label: t('column.delete'), danger: true, onSelect: () => actions.deleteColumn(column.id) },
           ]}
         />

@@ -21,11 +21,18 @@ def record(
     card: Card | None = None,
     **data: object,
 ) -> None:
-    """Add an entry for a change; call it before the endpoint commits."""
+    """Add an entry for a change; call it before the endpoint commits.
+
+    Also tells the people assigned to the card about someone else's change (Phase 26).
+    """
     if card is not None:
         if card.id is None:
             session.flush()
         data.setdefault("title", card.title)
+        if actor is not None:
+            from app.watch import card_changed
+
+            card_changed(session, board_id, actor, kind, card)
     session.add(
         Activity(
             board_id=board_id,

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { boards, type ArchivedCard } from '../api/boards'
+import { boards, type ArchivedCard, type ArchivedColumn } from '../api/boards'
 import { useI18n } from '../i18n/context'
 import { Dialog } from '../ui/Dialog'
 import { useToast } from '../ui/toastContext'
@@ -9,7 +9,7 @@ import type { BoardActions } from './useBoard'
 
 type Props = { open: boolean; onClose: () => void; boardId: number; actions: BoardActions }
 
-/** Board menu "Archived cards": restore a card to its column or delete it for good. */
+/** Board menu "Archived cards and columns": restore them, or delete a card for good. */
 export function ArchivedPanel({ open, onClose, boardId, actions }: Props) {
   const { t } = useI18n()
   return (
@@ -23,12 +23,24 @@ function ArchivedList({ boardId, actions }: Omit<Props, 'open' | 'onClose'>) {
   const { t } = useI18n()
   const toast = useToast()
   const [cards, setCards] = useState<ArchivedCard[] | null>(null)
+  const [columns, setColumns] = useState<ArchivedColumn[]>([])
   const [confirmId, setConfirmId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const load = useCallback(
-    () => boards.archived(boardId).then(setCards, (e: Error) => setError(e.message)),
+    () =>
+      Promise.all([boards.archived(boardId), boards.archivedColumns(boardId)]).then(([c, cols]) => {
+        setCards(c)
+        setColumns(cols)
+      }, (e: Error) => setError(e.message)),
     [boardId],
   )
+
+  async function restoreColumn(id: number) {
+    if (await actions.restoreColumn(id)) {
+      toast({ message: t('archive.columnRestored') })
+      load()
+    }
+  }
 
   useEffect(() => {
     load()
@@ -55,8 +67,33 @@ function ArchivedList({ boardId, actions }: Omit<Props, 'open' | 'onClose'>) {
       </p>
     )
   if (!cards) return null
-  if (cards.length === 0) return <p className={ui.hint}>{t('archive.empty')}</p>
+  if (cards.length === 0 && columns.length === 0) return <p className={ui.hint}>{t('archive.empty')}</p>
   return (
+    <>
+    {columns.length ? (
+      <section className={css.archiveGroup}>
+        <h3 className={css.archiveHeading}>{t('archive.columns')}</h3>
+        <ul className={css.list}>
+          {columns.map((c) => (
+            <li key={c.id} className={css.row}>
+              <span className={css.rowText}>
+                <span dir="auto">{c.title}</span>
+                <span className={ui.hint}>{t('column.cardCount', { count: c.cards })}</span>
+              </span>
+              <button
+                type="button"
+                className={`${ui.button} ${ui.secondary}`}
+                aria-label={t('archive.restoreColumn', { title: c.title })}
+                onClick={() => restoreColumn(c.id)}
+              >
+                {t('archive.restore')}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ) : null}
+    {cards.length ? <h3 className={css.archiveHeading}>{t('archive.cards')}</h3> : null}
     <ul className={css.list}>
       {cards.map((c) => (
         <li key={c.id} className={css.row}>
@@ -98,5 +135,6 @@ function ArchivedList({ boardId, actions }: Omit<Props, 'open' | 'onClose'>) {
         </li>
       ))}
     </ul>
+    </>
   )
 }

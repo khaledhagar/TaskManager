@@ -1,18 +1,20 @@
 import { ChevronDown } from 'lucide-react'
 import type { BoardSummary } from '../api/boards'
+import type { Workspace } from '../api/workspaces'
 import { useI18n } from '../i18n/context'
+import { navigate } from '../lib/router'
 import { Menu } from '../ui/Menu'
 import { boardSections } from './boardSections'
 import css from './shell.module.css'
 
-type Props = { boards: BoardSummary[]; selectedId?: number; onSelect: (id: number) => void }
+type Props = { boards: BoardSummary[]; workspaces?: Workspace[]; selectedId?: number; onSelect: (id: number) => void }
 
 /** Current board name; opens a list of all boards. */
-export function BoardSwitcher({ boards, selectedId, onSelect }: Props) {
+export function BoardSwitcher({ boards, workspaces = [], selectedId, onSelect }: Props) {
   const current = boards.find((b) => b.id === selectedId)
   const { t } = useI18n()
   const title = current?.title ?? t('shell.boards')
-  const { starred, own, shared, archived } = boardSections(boards)
+  const { starred, workspaces: groups, own, shared, archived } = boardSections(boards, workspaces)
   const section = (label: string, list: BoardSummary[]) =>
     list.length ? [{ kind: 'note' as const, label }, ...list.map(item)] : []
   const item = (b: BoardSummary) => ({
@@ -34,7 +36,11 @@ export function BoardSwitcher({ boards, selectedId, onSelect }: Props) {
         </>
       }
       items={[
+        // The start page, also reachable here on phones where the header has no room for its button.
+        { kind: 'action', label: t('shell.allBoards'), checked: selectedId === undefined, onSelect: () => navigate('/') },
+        { kind: 'separator' },
         ...section(t('shell.starred'), starred),
+        ...groups.flatMap((g) => section(g.workspace.name, g.boards)),
         ...section(t('shell.yourBoards'), own),
         ...section(t('shell.sharedBoards'), shared),
         ...section(t('shell.archivedBoards'), archived),

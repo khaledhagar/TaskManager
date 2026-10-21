@@ -15,7 +15,7 @@ import { emailError, newPasswordError, passwordError } from './validation'
 type Errors = { email?: string | null; password?: string | null }
 
 /** Sign in at /signin, sign up at /signup; Google and guest are offered on both. */
-export function AuthScreen({ onSignedIn }: { onSignedIn: (user: User) => void }) {
+export function AuthScreen({ onSignedIn }: { onSignedIn: (user: User, landing?: string) => void }) {
   const { path, params } = useLocation()
   const { t, rich } = useI18n()
   const signup = path === '/signup'
@@ -63,7 +63,8 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: (user: User) => void })
   async function continueAsGuest() {
     setBusy(true)
     try {
-      onSignedIn(await auth.guest())
+      // A new guest opens the demo board, not the start page.
+      onSignedIn(await auth.guest(), '/?open=first')
     } catch (error) {
       setFormError(error instanceof Error ? error.message : String(error))
       setBusy(false)

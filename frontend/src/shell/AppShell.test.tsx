@@ -18,7 +18,7 @@ vi.mock('../api/auth', async (original) => {
     },
   }
 })
-vi.mock('../api/boards', () => ({ boards: { list: vi.fn(), create: vi.fn(), get: vi.fn() } }))
+vi.mock('../api/boards', () => ({ boards: { list: vi.fn(), create: vi.fn(), createWithColumns: vi.fn(), get: vi.fn() } }))
 
 const member: User = {
   id: 1,
@@ -65,8 +65,10 @@ beforeEach(() => {
 })
 
 describe('app shell', () => {
-  test('opens the first board and switches boards', async () => {
+  test('opens the start page; a board opens from it; the switcher changes boards (T-729)', async () => {
     renderShell()
+    expect(await screen.findByRole('heading', { name: 'Your work', level: 1 })).toBeInTheDocument()
+    await userEvent.click(screen.getAllByRole('link', { name: /^Website Launch/ })[0])
     expect(await screen.findByRole('heading', { name: 'Website Launch' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Website Launch, switch board' }))
     await userEvent.click(screen.getByRole('menuitemradio', { name: 'Personal' }))
@@ -75,14 +77,15 @@ describe('app shell', () => {
   })
 
   test('creates a new board and opens it', async () => {
-    vi.mocked(boards.create).mockResolvedValue({ id: 3, title: 'Q4 Roadmap', created_at: '', role: 'admin' as const })
+    vi.mocked(boards.createWithColumns).mockResolvedValue({ id: 3, title: 'Q4 Roadmap', created_at: '', role: 'admin' as const })
+    history.replaceState(null, '', '/?open=first')
     renderShell()
     await screen.findByRole('heading', { name: 'Website Launch' })
     await userEvent.click(screen.getByRole('button', { name: 'New board' }))
     const dialog = screen.getByRole('dialog', { name: 'New board' })
     await userEvent.type(within(dialog).getByLabelText('Board name'), 'Q4 Roadmap')
     await userEvent.click(within(dialog).getByRole('button', { name: 'Create board' }))
-    expect(boards.create).toHaveBeenCalledWith('Q4 Roadmap', 'blank')
+    expect(boards.createWithColumns).toHaveBeenCalledWith('Q4 Roadmap', ['To Do', 'In Progress', 'Done'], null)
     expect(location.search).toBe('?board=3')
   })
 
@@ -150,8 +153,8 @@ describe('account menu password options (T-220)', () => {
     expect(screen.getByText(/guest boards are removed after 7 days/i)).toBeInTheDocument()
     const menu = await openAccountMenu()
     expect(within(menu).queryByRole('menuitem', { name: /password/i })).toBeNull()
-    await userEvent.click(within(menu).getByRole('menuitem', { name: 'Save your boards' }))
-    const dialog = screen.getByRole('dialog', { name: 'Save your boards' })
+    await userEvent.click(within(menu).getByRole('menuitem', { name: 'Sign up to save your boards' }))
+    const dialog = screen.getByRole('dialog', { name: 'Sign up to save your boards' })
     await userEvent.type(within(dialog).getByLabelText('Email'), 'g@example.com')
     await userEvent.type(within(dialog).getByLabelText('Password'), 'correct-horse')
     await userEvent.click(within(dialog).getByRole('button', { name: 'Create account' }))

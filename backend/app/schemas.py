@@ -29,6 +29,9 @@ class BoardCreate(Strict):
     title: Title | None = None
     template: Template = "blank"
     template_id: int | None = None
+    # Chosen column names: the board starts with them and no cards (Phase 26).
+    columns: list[Title] | None = Field(default=None, min_length=1, max_length=20)
+    workspace_id: int | None = None
 
 
 class TitleUpdate(Strict):
@@ -145,6 +148,10 @@ class BoardSummary(BaseModel):
     role: Role
     archived: bool = False
     starred: bool = False
+    workspace_id: int | None = None
+    # Progress for the start screen: active cards and how many are done.
+    cards: int = 0
+    done: int = 0
 
 
 class BoardOut(BaseModel):
@@ -160,39 +167,12 @@ class BoardOut(BaseModel):
     members: list["MemberBrief"]
     archived: bool
     auto_complete: bool
+    workspace_id: int | None = None
 
 
 class MemberBrief(BaseModel):
     user_id: int
     email: str | None
-
-
-class PublicCardOut(BaseModel):
-    """A card on a public board: no attachments, no assignees."""
-
-    id: int
-    title: str
-    details: str
-    completed: bool
-    priority: Priority
-    due_date: date | None
-    label_ids: list[int]
-    checklist: list[ItemOut]
-
-
-class PublicColumnOut(BaseModel):
-    id: int
-    title: str
-    cards: list[PublicCardOut]
-
-
-class PublicBoardOut(BaseModel):
-    """What anyone with the link sees: no board id, members, files or AI."""
-
-    title: str
-    labels: list[LabelOut]
-    columns: list[PublicColumnOut]
-    background: BackgroundOut
 
 
 def card_out(card: Card, comments: int = 0) -> CardOut:
@@ -225,7 +205,10 @@ def column_out(column: BoardColumn, counts: dict[int, int] | None = None) -> Col
     )
 
 
-def board_summary(board: Board, role: Role, starred: bool = False) -> BoardSummary:
+def board_summary(
+    board: Board, role: Role, starred: bool = False, workspace_id: int | None = None
+) -> BoardSummary:
+    """`workspace_id` only when the workspace is the viewer's own (workspaces are private)."""
     return BoardSummary(
         id=board.id,
         title=board.title,
@@ -233,6 +216,7 @@ def board_summary(board: Board, role: Role, starred: bool = False) -> BoardSumma
         role=role,
         archived=board.archived_at is not None,
         starred=starred,
+        workspace_id=workspace_id,
     )
 
 
@@ -258,34 +242,6 @@ def board_out(
         members=[MemberBrief(user_id=m.user_id, email=m.user.email) for m in board.members],
         archived=board.archived_at is not None,
         auto_complete=board.auto_complete,
-    )
-
-
-def public_board_out(board: Board) -> PublicBoardOut:
-    return PublicBoardOut(
-        title=board.title,
-        labels=[LabelOut.model_validate(lbl) for lbl in board.labels],
-        columns=[
-            PublicColumnOut(
-                id=col.id,
-                title=col.title,
-                cards=[
-                    PublicCardOut(
-                        id=c.id,
-                        title=c.title,
-                        details=c.details,
-                        completed=c.completed,
-                        priority=c.priority,
-                        due_date=c.due_date,
-                        label_ids=sorted(lbl.id for lbl in c.labels),
-                        checklist=[ItemOut.model_validate(i) for i in c.checklist],
-                    )
-                    for c in col.cards
-                ],
-            )
-            for col in board.columns
-        ],
-        background=background_out(board),
     )
 
 

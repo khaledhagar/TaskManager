@@ -154,10 +154,17 @@ export function BoardColumns({ board, actions, filters, dragDisabled, composingC
     >
       <div className={css.columns}>
         <SortableContext items={shown.columns.map((c) => columnKey(c.id))} strategy={horizontalListSortingStrategy}>
-          {shown.columns.map((column) => (
+          {shown.columns.map((column, index) => (
             <Column
               key={column.id}
               column={column}
+              onMove={(step) => {
+                const ids = board.columns.map((c) => c.id)
+                ids.splice(index, 1)
+                ids.splice(index + step, 0, column.id)
+                actions.reorderColumns(ids)
+              }}
+              canMove={{ back: index > 0, forward: index < shown.columns.length - 1 }}
               cards={column.cards.filter((c) => matchesFilters(c, filters))}
               labels={shown.labels}
               members={shown.members}

@@ -50,11 +50,12 @@ describe('app routing', () => {
     ).toBeInTheDocument()
   })
 
-  test('signed-in users see their board, even when opening /signin', async () => {
+  test('signed-in users see the start page with their boards, even when opening /signin (T-729)', async () => {
     history.replaceState(null, '', '/signin')
     vi.mocked(auth.me).mockResolvedValue(member)
     renderApp()
-    expect(await screen.findByRole('heading', { name: 'Website Launch' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Your work', level: 1 })).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: /^Website Launch/ }).length).toBeGreaterThan(0)
     expect(location.pathname).toBe('/')
   })
 

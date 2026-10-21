@@ -5,16 +5,25 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 ## Where the project stands (2026-10-21)
 
 - Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
-- Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Phases 21-25 (voice; comments, activity, Alembic; notifications and reminders; organize; list view and export) are done and pushed; Phase 21 waits only for the user's real-microphone check. Next: Phase 26 (projects, start screen, AI column suggestions, full regression).** The user asked (2026-10-21) to build through Phase 26 without asking: finish each, test everything, push, update this log, then start the next. Stop before Phase 27 (Deployment). Phase 28 is Documentation (Word files). Deferred features are listed under "Deferred" in PLAN.md.
-- Tests at the end of Phase 25: backend 488 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 336 passing; Playwright 101 passing (Edge full suite, Firefox and WebKit smoke). Lint, format and type checks are clean.
-- Checklists: open tests are T-714 and T-720 to T-737 (Phase 26), T-620 to T-627 (Phase 28).
+- Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Phases 21-26 are done and pushed** (21 voice, waiting only for the user's real-microphone check; 22 comments, activity, Alembic; 23 notifications and reminders; 24 organize; 25 list view and export; 26 workspaces, start page, AI column suggestions, the user's bug list and the full regression). **Next: Phase 27 (Deployment), which starts by asking the user before deleting local test data. Do not start it without the user.** Phase 28 is Documentation (Word files). Deferred features are listed under "Deferred" in PLAN.md.
+- Tests at the end of Phase 26 (full regression, T-714): backend 520 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 356 passing; Playwright 118 passing (Edge full suite, Firefox and WebKit smoke); Lighthouse performance 92-95 and accessibility 100 on sign-in, start page and board; `npm audit --omit=dev` and `pip-audit` clean; ruff, oxlint and tsc clean.
+- Checklists: every test up to T-757 is ticked except T-620 to T-627 (Phase 28); open security items are only Deployment and Documentation ones.
 
 | Done | Phase |
 |------|-------|
 | Yes | 1 Scaffolding to 20 Public boards / assignment / meeting link |
-| Yes | 21 Voice (waits for the mic check), 22 Collaboration, 23 Notifications, 24 Organize, 25 List view and export |
-| Next | 26 Projects, start screen and full regression (approved, building without asking) |
-| Later | 27 Deployment (Vercel), 28 Documentation (Word files) |
+| Yes | 21 Voice (waits for the mic check), 22 Collaboration, 23 Notifications, 24 Organize, 25 List view and export, 26 Workspaces and start page |
+| Next | 27 Deployment (Vercel): ask the user first |
+| Later | 28 Documentation (Word files) |
+
+## Phase 26 notes (workspaces, start page, the user's bug list)
+
+- **Workspaces** (renamed from "projects" at the user's request): `workspaces` table, `boards.workspace_id` (FK `fk_boards_workspace_id`, ON DELETE SET NULL), migration `0005_workspaces`; `app/workspaces.py`, `app/routes/workspaces.py` (CRUD, `GET /api/workspaces/{id}/members` and `/api/workspaces/none/members`, owner only). Boards created with chosen columns and no cards (`POST /api/boards` with `columns`, `workspace_id`); `PATCH /api/boards/{id}` moves a board between workspaces. `BoardSummary` has `workspace_id`, `cards`, `done`; `BoardOut.workspace_id` only for the owner.
+- **AI column names:** `app/columns_ai.py`, `POST /api/ai/columns`; falls back to To Do / In Progress / Done (`ai: false`) on 429/502 or when the user's AI limit is reached.
+- **Start page** (`src/workspaces/`): `StartScreen` (start cards with the workspace/board explanations, What's new, Starred, workspaces, boards without a workspace, shared, your templates, archived), `WorkspacePanel` (left panel; a "Workspaces and boards" toggle under 1024 px), `MembersDialog`, `WhatsNew`, `TemplateTiles`, `NewWorkspaceDialog`, `ColumnsEditor`, `BlankBoardFields`; styles in `start.module.css`, `panel.module.css`, `editor.module.css`. Landing: returning sign-ins see the start page; a new guest, a just-verified account and a brand-new Google account open `/?open=first` (their demo board). "All boards" is a header icon (hidden on phones) and the first item of the board switcher.
+- **Notifications:** `app/watch.py` adds `invited` (opens `/invite#token=...`; replaced on resend, removed on cancel or accept) and `card_changed` (others' changes to cards you are assigned to; one entry per card and person within 10 minutes; hooked into `activity.record`). Texts in `src/shell/notices.ts`, shared by the bell and What's new.
+- **The user's bug list (2026-10-21), all fixed and tested (T-750 to T-757):** the port-8000 server was still running pre-Phase 23 code, so export, auto-complete and archive returned 404 (restart after every phase now; see memory); toasts now render inside the open dialog (a modal makes the rest of the page inert), so voice errors and Undo show and work in the card window; clearer blocked-microphone message; Move left / Move right in the column menu (mirrored in RTL); archive a whole column (`columns.archived_at`, migration `0006_column_archive`, filtered relationship plus `Board.archived_columns` cascade); labeled "Board options" button; Board / List switch with icons; saved templates on the start page; "Sign up to save your boards".
+- **Gotchas:** importing `app.models_notify` before `app.models` in a test causes a circular import (import `Notification` from `app.models`); `[class*=columns]` now also matches the lucide `Columns3` icon (use `div[class*="_columns_"]`); OneDrive may refuse to delete an emptied folder (remove it from the shell later); generated migrations need `ruff format`.
 
 ## How we work (the user's preferences)
 

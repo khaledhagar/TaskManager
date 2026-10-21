@@ -1,0 +1,116 @@
+/* New workspace and new board dialogs: board rows and column chips (Phase 26). */
+/* New project and new board dialogs. */
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+.boards {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.boardRow {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+}
+
+.boardName {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.boardName > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.columns legend {
+  margin-block-end: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface-sunken);
+}
+
+.chipInput {
+  width: 9.5em;
+  min-width: 0;
+  min-height: 32px;
+  padding: 0 4px 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+}
+
+.chipRemove,
+.chipAdd {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.chipRemove {
+  min-width: 32px;
+  justify-content: center;
+  border-radius: 999px;
+}
+
+.chipAdd {
+  padding: 0 10px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 999px;
+}
+
+.chipRemove:hover,
+.chipAdd:hover {
+  color: var(--ink);
+}
+
+.summary {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+@media (pointer: coarse) {
+  .chipInput,
+    .chipRemove,
+    .chipAdd {
+      min-height: 40px;
+    }
+
+  .chipRemove {
+      min-width: 40px;
+    }
+}

@@ -112,3 +112,44 @@ def test_duplicate_board_copies_columns_cards_labels_and_checklists(alice, board
 def test_duplicate_board_respects_the_board_limit(alice, board, monkeypatch):
     monkeypatch.setattr(limits, "BOARDS_PER_USER", 1)
     assert alice.post(f"/api/boards/{board['id']}/duplicate").status_code == 400
+
+
+def test_archived_column_leaves_the_board_with_its_cards_and_comes_back_last(alice, board):
+    """T-754: archive a whole column; restore puts it back at the end."""
+    first = board["columns"][0]
+    assert alice.post(f"/api/columns/{first['id']}/archive").status_code == 204
+    after = get(alice, board["id"])
+    assert first["title"] not in [c["title"] for c in after["columns"]]
+    assert [c["position"] for c in after["columns"]] == list(range(len(after["columns"])))
+    listed = alice.get(f"/api/boards/{board['id']}/archived-columns").json()
+    assert listed[0]["id"] == first["id"] and listed[0]["cards"] == len(first["cards"])
+    r = alice.post(f"/api/columns/{first['id']}/restore")
+    assert r.status_code == 200 and r.json()["position"] == len(after["columns"])
+    back = get(alice, board["id"])["columns"][-1]
+    assert back["title"] == first["title"] and len(back["cards"]) == len(first["cards"])
+    assert alice.get(f"/api/boards/{board['id']}/archived-columns").json() == []
+
+
+def test_cards_in_an_archived_column_do_not_count(alice, board, monkeypatch):
+    total = sum(len(c["cards"]) for c in board["columns"])
+    monkeypatch.setattr(limits, "CARDS_PER_BOARD", total)
+    first, second = board["columns"][0], board["columns"][1]
+    alice.post(f"/api/columns/{first['id']}/archive")
+    r = alice.post(f"/api/columns/{second['id']}/cards", json={"title": "x"})
+    assert r.status_code == 201
+    assert alice.post(f"/api/columns/{first['id']}/restore").status_code == 400
+
+
+def test_restoring_a_column_respects_the_column_limit(alice, board, monkeypatch):
+    first = board["columns"][0]
+    alice.post(f"/api/columns/{first['id']}/archive")
+    monkeypatch.setattr(limits, "COLUMNS_PER_BOARD", len(board["columns"]) - 1)
+    assert alice.post(f"/api/columns/{first['id']}/restore").status_code == 400
+
+
+def test_deleting_a_board_removes_files_in_archived_columns(alice, board):
+    card_id = board["columns"][0]["cards"][0]["id"]
+    upload(alice, card_id, "a.png", png(), "image/png")
+    alice.post(f"/api/columns/{board['columns'][0]['id']}/archive")
+    alice.delete(f"/api/boards/{board['id']}")
+    assert list(storage(alice).root.iterdir()) == []

@@ -15,6 +15,8 @@ type Options = {
   onCreated: (board: BoardSummary) => void
   openArchived: () => void
   openTemplate: () => void
+  /** Only when the user has workspaces. */
+  openMove?: () => void
 }
 
 /** The server sends the file as an attachment, so the page stays where it is. */
@@ -26,7 +28,7 @@ function download(boardId: number, kind: 'csv' | 'json') {
 }
 
 /** Board menu items, star, archived note, focus sessions and export (Phases 24-25). */
-export function boardOrganize({ board, actions, starred, toast, onUpdated, onCreated, openArchived, openTemplate }: Options) {
+export function boardOrganize({ board, actions, starred, toast, onUpdated, onCreated, openArchived, openTemplate, openMove }: Options) {
   const admin = board.role === 'admin'
   const failed = (e: Error) => toast({ message: e.message, tone: 'error' })
 
@@ -61,6 +63,7 @@ export function boardOrganize({ board, actions, starred, toast, onUpdated, onCre
     { kind: 'action', label: t('board.saveTemplate'), onSelect: () => actions.allowed('editor') && openTemplate() },
     { kind: 'action', label: t('board.exportCsv'), onSelect: () => download(board.id, 'csv') },
     { kind: 'action', label: t('board.exportJson'), onSelect: () => download(board.id, 'json') },
+    ...(admin && openMove ? [{ kind: 'action' as const, label: t('board.moveWorkspace'), onSelect: openMove }] : []),
     ...(admin
       ? [
           {
@@ -79,6 +82,12 @@ export function boardOrganize({ board, actions, starred, toast, onUpdated, onCre
 
   return {
     menuItems,
+    moveToWorkspace: (workspaceId: number | null) =>
+      boards.setWorkspace(board.id, workspaceId).then(() => {
+        actions.setBoardInfo({ workspace_id: workspaceId })
+        onUpdated(board.id, { workspace_id: workspaceId })
+        toast({ message: t('move.moved') })
+      }, failed),
     star: () => boards.star(board.id, !starred).then(() => onUpdated(board.id, { starred: !starred }), failed),
     onFocusDone: (cardId: number, minutes: number) =>
       boards.addFocus(cardId, minutes).then((stats) => {

@@ -86,7 +86,7 @@ test('T-335 touch drag and drop on a phone; a quick swipe still scrolls', async 
   expect((await placed()).flat()).toContain('T1')
 
   // A quick swipe (no hold) scrolls the columns back instead of dragging a card.
-  const columns = page.locator('[class*=columns]').first()
+  const columns = page.locator('div[class*="_columns_"]').first()
   const before = await columns.evaluate((el) => el.scrollLeft)
   const box = (await columns.boundingBox())!
   const [sx, sy] = [100, box.y + 60]

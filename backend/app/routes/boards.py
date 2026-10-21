@@ -1,6 +1,7 @@
 """Board, column and label routes."""
 
 from fastapi import APIRouter, HTTPException, Request, status
+from sqlalchemy import case
 from sqlmodel import func, select
 
 from app import limits
@@ -8,7 +9,7 @@ from app.access import board_for, board_full_for, board_role, column_for, label_
 from app.activity import record
 from app.auth import CurrentUser
 from app.db import SessionDep
-from app.i18n import tr
+from app.i18n import current_language, tr
 from app.models import Board, BoardColumn, BoardMember, BoardStar, Card, Comment, Label, Role
 from app.organize import own_template
 from app.schemas import (
@@ -26,6 +27,8 @@ from app.schemas import (
 )
 from app.schemas_organize import BoardUpdate, ColumnUpdate
 from app.seed import build_board, build_from_data
+from app.templates import TEMPLATES
+from app.workspaces import board_with_columns, check_board_room, own_workspace, own_workspace_ids
 
 router = APIRouter(prefix="/api", tags=["boards"])
 
@@ -39,21 +42,47 @@ def list_boards(user: CurrentUser, session: SessionDep) -> list[BoardSummary]:
         .order_by(Board.created_at, Board.id)
     )
     starred = set(session.exec(select(BoardStar.board_id).where(BoardStar.user_id == user.id)))
-    return [board_summary(b, role, b.id in starred) for b, role in session.exec(stmt)]
+    mine = own_workspace_ids(session, user)
+    counts = card_counts(session, user)
+    out = []
+    for b, role in session.exec(stmt):
+        summary = board_summary(
+            b, role, b.id in starred, b.workspace_id if b.workspace_id in mine else None
+        )
+        summary.cards, summary.done = counts.get(b.id, (0, 0))
+        out.append(summary)
+    return out
+
+
+def card_counts(session, user) -> dict[int, tuple[int, int]]:
+    """Active cards and done cards per board the user belongs to, in one query."""
+    stmt = (
+        select(BoardColumn.board_id, func.count(), func.sum(case((Card.completed, 1), else_=0)))
+        .join(Card, Card.column_id == BoardColumn.id)
+        .join(BoardMember, BoardMember.board_id == BoardColumn.board_id)
+        .where(BoardMember.user_id == user.id, Card.archived_at == None)  # noqa: E711
+        .where(BoardColumn.archived_at == None)  # noqa: E711
+        .group_by(BoardColumn.board_id)
+    )
+    return {board_id: (total, done) for board_id, total, done in session.exec(stmt)}
 
 
 @router.post("/boards", status_code=201)
 def create_board(body: BoardCreate, user: CurrentUser, session: SessionDep) -> BoardSummary:
-    count = session.exec(select(func.count()).where(Board.owner_id == user.id)).one()
-    limits.check(count, limits.BOARDS_PER_USER, "Limit reached: at most {cap} boards")
-    if body.template_id is not None:
+    check_board_room(session, user)
+    if body.workspace_id is not None:
+        own_workspace(session, user, body.workspace_id)
+    if body.columns:
+        title = body.title or TEMPLATES[current_language()]["blank"]["title"]
+        board = board_with_columns(session, user, title, body.columns, body.workspace_id)
+    elif body.template_id is not None:
         data = own_template(session, user, body.template_id).data
         board = build_from_data(session, user.id, data, body.title)
     else:
         board = build_board(session, user.id, body.template, body.title)
     record(session, board.id, user, "board.created", board=board.title)
     session.commit()
-    return board_summary(board, Role.admin)
+    return board_summary(board, Role.admin, workspace_id=board.workspace_id)
 
 
 @router.get("/boards/{board_id}")
@@ -68,15 +97,22 @@ def get_board(board_id: int, request: Request, user: CurrentUser, session: Sessi
         .group_by(Comment.card_id)
     )
     comment_counts = dict(session.exec(counts).all())
-    return board_out(board, role, request.app.state.settings.app_url, comment_counts)
+    out = board_out(board, role, request.app.state.settings.app_url, comment_counts)
+    # Workspaces are private: only the owner sees which one the board is in.
+    out.workspace_id = board.workspace_id if board.owner_id == user.id else None
+    return out
 
 
 @router.patch("/boards/{board_id}")
 def update_board(
     board_id: int, body: BoardUpdate, user: CurrentUser, session: SessionDep
 ) -> BoardSummary:
-    """Rename, or turn auto-complete on or off (admin)."""
+    """Rename, turn auto-complete on or off, or move into or out of a workspace (admin)."""
     board = board_for(session, user, board_id, Role.admin)
+    if "workspace_id" in body.model_fields_set:
+        if body.workspace_id is not None:
+            own_workspace(session, user, body.workspace_id)
+        board.workspace_id = body.workspace_id
     if body.title is not None:
         record(session, board_id, user, "board.renamed", board=body.title, old=board.title)
         board.title = body.title
@@ -84,7 +120,7 @@ def update_board(
         board.auto_complete = body.auto_complete
         record(session, board_id, user, "board.autocomplete", on=body.auto_complete)
     session.commit()
-    return board_summary(board, Role.admin)
+    return board_summary(board, Role.admin, workspace_id=board.workspace_id)
 
 
 @router.delete("/boards/{board_id}", status_code=204)

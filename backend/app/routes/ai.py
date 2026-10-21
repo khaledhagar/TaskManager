@@ -1,12 +1,12 @@
-"""AI routes: checklist suggestions, board starter and chat."""
+"""AI routes: checklist suggestions, board starter, column names and chat."""
 
 from typing import Literal
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 from sqlmodel import func, select
 
-from app import ai, assistant, limits, ratelimit
+from app import ai, assistant, columns_ai, limits, ratelimit
 from app.access import board_full_for, card_for
 from app.auth import CurrentUser
 from app.db import SessionDep
@@ -23,6 +23,22 @@ class Suggestions(BaseModel):
 
 class BoardPrompt(Strict):
     description: text(500)
+
+
+class ColumnsPrompt(Strict):
+    boards: list[text(200)] = Field(min_length=1, max_length=10)
+    workspace: text(100) | None = None
+
+
+class BoardColumns(BaseModel):
+    title: str
+    columns: list[str]
+
+
+class ColumnSuggestions(BaseModel):
+    boards: list[BoardColumns]
+    # False when the defaults were used because the AI was busy, failing or out of quota.
+    ai: bool
 
 
 class ChatMessage(Strict):
@@ -68,6 +84,19 @@ def board_starter(
     draft = ai.complete(messages, assistant.BoardDraft, _key(request, user))
     board = build_from_data(session, user.id, assistant.clean_board(draft))
     return board_summary(board, Role.admin)
+
+
+@router.post("/columns")
+def suggest_columns(body: ColumnsPrompt, request: Request, user: CurrentUser) -> ColumnSuggestions:
+    """Column names for each board name; never cards (T-725, T-726)."""
+    try:
+        messages = columns_ai.columns_messages(body.boards, body.workspace)
+        draft = ai.complete(messages, columns_ai.ColumnsDraft, _key(request, user))
+    except HTTPException as exc:
+        if exc.status_code not in (429, 502):
+            raise
+        return ColumnSuggestions(boards=columns_ai.suggestions(body.boards, None), ai=False)
+    return ColumnSuggestions(boards=columns_ai.suggestions(body.boards, draft), ai=True)
 
 
 @router.post("/chat")

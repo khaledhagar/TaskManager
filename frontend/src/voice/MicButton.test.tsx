@@ -60,7 +60,7 @@ describe('voice input (T-600 to T-605)', () => {
   })
 
   test.each([
-    ['not-allowed', 'Allow the microphone in your browser to use voice input.'],
+    ['not-allowed', 'The microphone is blocked for this site. Click the lock icon next to the web address, allow Microphone, then press the microphone button again.'],
     ['no-speech', 'No speech was heard. Try again.'],
     ['network', 'Voice input needs an internet connection.'],
     ['audio-capture', 'Voice input stopped. Try again.'],

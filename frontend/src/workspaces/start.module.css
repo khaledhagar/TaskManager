@@ -1,0 +1,283 @@
+/* Start page: layout, start cards, What's new, board tiles, templates (Phase 26). */
+/* Start screen, projects and the new-board column editor (Phase 26). */
+.start {
+  display: grid;
+  gap: 20px;
+  max-width: 1100px;
+}
+
+.startTitle {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--text-xl);
+}
+
+.choiceCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.choiceCard {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  align-items: start;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: border-color 150ms var(--ease);
+}
+
+.choiceCard:hover {
+  border-color: var(--primary);
+}
+
+.choiceIcon {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-control);
+  background: var(--surface-sunken);
+  color: var(--primary);
+}
+
+.choiceTitle {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.choiceHint {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.group {
+  display: grid;
+  gap: 10px;
+}
+
+.groupHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.groupTitle {
+  margin: 0;
+  min-width: 0;
+  color: var(--ink);
+  font-size: var(--text-md);
+  font-weight: 600;
+}
+
+details > .groupTitle {
+  cursor: pointer;
+}
+
+.groupTitleButton {
+  max-width: 100%;
+  padding: 2px 6px;
+  margin-inline-start: -6px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  overflow-wrap: anywhere;
+  cursor: text;
+}
+
+.groupTitleButton:hover {
+  background: var(--surface-sunken);
+}
+
+.groupHead > :nth-child(3) {
+  margin-inline-start: auto;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tile {
+  display: grid;
+  gap: 8px;
+  height: 100%;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.tile:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--lift);
+}
+
+.tileTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.tileStar {
+  flex: none;
+  color: var(--ink);
+  fill: var(--accent);
+}
+
+.tileBar {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--border);
+}
+
+.tileBar > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+/* Start page: left panel beside the boards on laptops and desktops; a button that expands it above
+   the boards on phones and tablets. */
+.startLayout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.startLayout[data-empty] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.panelSlot {
+  position: sticky;
+  top: 16px;
+  min-width: 0;
+}
+
+.panelToggle {
+  display: none;
+}
+
+.news {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-inline-start: 3px solid var(--accent);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+}
+
+.newsHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.newsHead .groupTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.newsList {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.newsItem {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+  text-align: start;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.newsItem:hover {
+  background: var(--surface-sunken);
+}
+
+.newsItem[data-unread] {
+  font-weight: 600;
+}
+
+.templateTile {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.templateTile > button {
+  justify-self: start;
+}
+
+@media (max-width: 1023px) {
+  .startLayout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+  .panelSlot {
+      position: static;
+    }
+
+  .panelToggle {
+      display: inline-flex;
+    }
+
+  .panelWrap {
+      display: none;
+      margin-block-start: 8px;
+    }
+
+  .panelWrap[data-open] {
+      display: block;
+    }
+}
+
+/* A workspace name keeps its width; the count and buttons wrap after it instead. */
+.groupHead > .groupTitle {
+  flex: 0 1 auto;
+  min-width: min(100%, 12em);
+}

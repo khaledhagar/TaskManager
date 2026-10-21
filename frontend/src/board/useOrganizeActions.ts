@@ -28,8 +28,37 @@ export function useOrganizeActions({ boardId, ref, commit, mutate, create, allow
     )
   }
 
+  function restoreColumn(columnId: number) {
+    if (!allowed('editor')) return Promise.resolve(false)
+    return boards.restoreColumn(columnId).then(
+      () => reload().then(() => true),
+      (e) => {
+        fail(e)
+        return false
+      },
+    )
+  }
+
   return {
     restoreCard,
+    restoreColumn,
+    archiveColumn: (columnId: number) => {
+      if (!allowed('editor')) return
+      const before = ref.current!
+      const column = before.columns.find((c) => c.id === columnId)!
+      commit(logic.removeColumn(before, columnId))
+      boards.archiveColumn(columnId).then(
+        () =>
+          toast({
+            message: t('archive.columnArchived', { title: column.title }),
+            action: { label: t('board.undo'), onClick: () => restoreColumn(columnId) },
+          }),
+        (e) => {
+          commit(before)
+          fail(e)
+        },
+      )
+    },
     archiveCard: (cardId: number) => {
       if (!allowed('editor')) return
       const before = ref.current!

@@ -49,7 +49,7 @@
 - Public boards (read-only link, no sign-in needed; signed-in visitors can join as Viewer)
 - Assign cards to members; meeting link (Zoom, Meet, Teams) with Start meeting and Email to members
 - Voice input: microphone buttons on the main text fields and the AI chat (browser speech recognition, English and Arabic)
-- Projects and start screen (Phase 26): projects group related boards; a start screen after sign-in lists projects and boards, or only "New project" and "New board" when there are none; AI suggests column names from a board's name, with no demo cards
+- Workspaces and start page (Phase 26): workspaces group related boards; the start page after sign-in has a left panel (each workspace with Boards and Members), boards by workspace in the middle then boards without a workspace, and What's new notifications (invitations, changes to your assigned cards); only "New workspace" and "New board" when there are none; AI suggests column names from a board's name, with no demo cards
 - Further features (Phases 22-25): comments and @mentions, activity log, notifications and reminder emails, archive, duplicates, own templates, stars, WIP limits, auto-complete, card covers, focus sessions on cards, list view, export (deferred: see "Deferred" in PLAN.md)
 - Documentation: 8 Word files in `Documentation/` (overview, documentation, tests, plan, security, user flows, pages, build prompts), made last
 
@@ -63,7 +63,7 @@ The full plan with phases and success criteria is in `Planning/PLAN.md`. Keep it
 
 - Stack: FastAPI + SQLModel/SQLite, pwdlib + PyJWT cookie auth, LiteLLM, React + TypeScript + Vite, dnd-kit
 - Tests: pytest, vitest, Playwright
-- Phases: scaffolding, database, auth, board API, AI backend, account security, frontend foundation, board UI, files, focus timer, languages, AI UI, polish, hardening, integration testing, done, password strength, board sharing (backend, UI), public boards / assignment / meeting link, voice input, collaboration, notifications, organize, list view and export, deployment, documentation (Word files)
+- Phases: scaffolding, database, auth, board API, AI backend, account security, frontend foundation, board UI, files, focus timer, languages, AI UI, polish, hardening, integration testing, done, password strength, board sharing (backend, UI), public boards / assignment / meeting link, voice input, collaboration, notifications, organize, list view and export, workspaces and start page, deployment, documentation (Word files)
 - Deferred enhancements (N9-N14 in the plan) are not built unless the user approves them
 - Also: delete account (needed for a published site)
 - Continue with Google (no password needed), email verification for email + password accounts, forgot / reset password by email, change password; Google-only users can add a password

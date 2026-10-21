@@ -92,8 +92,11 @@ tr[data-completed] .open {
 }
 
 .views button {
-  min-height: 32px;
-  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
   border: 0;
   border-radius: calc(var(--radius-control) - 2px);
   background: transparent;
@@ -104,8 +107,8 @@ tr[data-completed] .open {
 }
 
 .views button[aria-pressed='true'] {
-  background: var(--surface-sunken);
-  color: var(--ink);
+  background: var(--primary);
+  color: var(--on-primary);
   font-weight: 600;
 }
 

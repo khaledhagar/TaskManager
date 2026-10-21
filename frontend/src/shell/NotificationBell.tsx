@@ -7,6 +7,7 @@ import { navigate } from '../lib/router'
 import { Dialog } from '../ui/Dialog'
 import ui from '../ui/ui.module.css'
 import css from './bell.module.css'
+import { noticeLink, noticeText, OPEN_BELL } from './notices'
 
 /**
  * Header bell with the unread count. The count refreshes when the app loads, when the tab
@@ -20,19 +21,22 @@ export function NotificationBell() {
   const load = useCallback(() => notifications.list().then(setData, () => {}), [])
   useEffect(() => {
     load()
+    const show = () => {
+      setOpen(true)
+      load()
+    }
     window.addEventListener('focus', load)
-    return () => window.removeEventListener('focus', load)
+    window.addEventListener(OPEN_BELL, show)
+    return () => {
+      window.removeEventListener('focus', load)
+      window.removeEventListener(OPEN_BELL, show)
+    }
   }, [load])
-
-  function text(n: Notice): string {
-    const params = { actor: n.actor_email ?? t('activity.someone'), title: n.data.title ?? '', board: n.data.board ?? '' }
-    return t(`notify.${n.kind}`, params)
-  }
 
   async function openNotice(n: Notice) {
     if (!n.read) await notifications.read(n.id)
     setOpen(false)
-    navigate(n.card_id ? `/?board=${n.board_id}&card=${n.card_id}` : `/?board=${n.board_id}`)
+    navigate(noticeLink(n))
     load()
   }
 
@@ -70,7 +74,7 @@ export function NotificationBell() {
                 <li key={n.id}>
                   <button type="button" className={css.item} data-unread={!n.read || undefined} onClick={() => openNotice(n)}>
                     {n.read ? null : <span className="visually-hidden">{t('notify.unread')}: </span>}
-                    <span dir="auto">{text(n)}</span>
+                    <span dir="auto">{noticeText(n)}</span>
                     <time className={ui.hint} dateTime={n.created_at}>
                       {timeAgo(n.created_at)}
                     </time>

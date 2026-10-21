@@ -6,7 +6,7 @@ import { boards } from '../api/boards'
 import { templates } from '../api/templates'
 import { NewBoardDialog } from './NewBoardDialog'
 
-vi.mock('../api/boards', () => ({ boards: { create: vi.fn(), createFromTemplate: vi.fn() } }))
+vi.mock('../api/boards', () => ({ boards: { create: vi.fn(), createFromTemplate: vi.fn(), createWithColumns: vi.fn() } }))
 vi.mock('../api/templates', () => ({ templates: { list: vi.fn(async () => []), remove: vi.fn(async () => undefined) } }))
 vi.mock('../api/ai', () => ({ ai: { startBoard: vi.fn() } }))
 
@@ -22,6 +22,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   vi.mocked(boards.create).mockResolvedValue(board)
   vi.mocked(ai.startBoard).mockResolvedValue(board)
+  vi.mocked(boards.createWithColumns).mockResolvedValue(board)
 })
 
 describe('new board dialog (T-247)', () => {
@@ -32,7 +33,8 @@ describe('new board dialog (T-247)', () => {
     expect(screen.getByText('Give the board a name.')).toBeInTheDocument()
     await userEvent.type(screen.getByLabelText('Board name'), ' Q4 roadmap ')
     await userEvent.click(screen.getByRole('button', { name: 'Create board' }))
-    expect(boards.create).toHaveBeenCalledWith('Q4 roadmap', 'blank')
+    // Blank starts with the default columns and no cards (T-731).
+    expect(boards.createWithColumns).toHaveBeenCalledWith('Q4 roadmap', ['To Do', 'In Progress', 'Done'], null)
     expect(onCreated).toHaveBeenCalledWith(board)
     expect(onClose).toHaveBeenCalled()
   })

@@ -173,8 +173,9 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [x] Duplicates and templates respect every limit; templates are private to their owner (SEC-207)
 - [x] Exports for members only; CSV cells starting with = + - @ are escaped against spreadsheet formula injection (SEC-208)
 - [x] Focus sessions saved only for the signed-in user, at most 60 minutes each (SEC-214)
-- [ ] Projects are private to their owner (404 otherwise); a board joins a project only when the user is the board's admin and the project's owner; limits on projects, names, boards per project and columns (SEC-215)
-- [ ] AI column suggestions: at most 10 board names in, each answer validated (3-8 plain-text names, at most 40 characters), `max_tokens` set, AI rate limits apply, no card content is sent (SEC-216)
+- [x] Workspaces are private to their owner (404 otherwise); a board joins a workspace only when the user is the board's admin and the workspace's owner; limits on workspaces, names, boards per workspace and columns (SEC-215)
+- [x] AI column suggestions: at most 10 board names in, each answer validated (3-8 plain-text names, at most 40 characters), `max_tokens` set, AI rate limits apply, no card content is sent (SEC-216)
+- [x] Workspace members lists only for the owner and only people on its boards; card-change notifications only to current members assigned to the card, never to the person who made the change (SEC-217)
 
 ## 16. Documentation (Phase 28)
 

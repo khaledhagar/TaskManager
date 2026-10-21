@@ -1,15 +1,21 @@
 import { X } from 'lucide-react'
 import { useCallback, useRef, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { useI18n } from '../i18n/context'
-import { ToastContext, type Show, type ToastInput } from './toastContext'
+import { ToastContext, ToastHostContext, type Show, type ToastInput } from './toastContext'
 
 import css from './toast.module.css'
 
 type Toast = ToastInput & { id: number }
 
-/** Bottom-of-screen messages; read out politely by screen readers. */
+/** Bottom-of-screen messages; read out politely by screen readers; usable above open dialogs. */
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
+  const [hosts, setHosts] = useState<HTMLElement[]>([])
+  const register = useCallback((host: HTMLElement) => {
+    setHosts((all) => [...all, host])
+    return () => setHosts((all) => all.filter((h) => h !== host))
+  }, [])
   const nextId = useRef(1)
   const i18n = useI18n()
 
@@ -28,9 +34,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     [dismiss],
   )
 
-  return (
-    <ToastContext.Provider value={show}>
-      {children}
+  const region = (
       <div className={css.region} role="status" aria-live="polite">
         {toasts.map((t) => (
           <div key={t.id} className={`${css.toast} ${t.tone === 'error' ? css.error : ''}`}>
@@ -58,6 +62,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           </div>
         ))}
       </div>
+  )
+  const host = hosts.at(-1)
+
+  return (
+    <ToastContext.Provider value={show}>
+      <ToastHostContext.Provider value={register}>
+        {children}
+        {host ? createPortal(region, host) : region}
+      </ToastHostContext.Provider>
     </ToastContext.Provider>
   )
 }
