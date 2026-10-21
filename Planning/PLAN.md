@@ -27,7 +27,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 14 - Security and Non-Functional Hardening | 5 / 5 | Done |
 | Phase 15 - Integration Testing (Playwright) | 19 / 19 | Done |
 | Phase 16 - Done | 7 / 7 | Done |
-| Phase 17 - Password Strength | 0 / 7 | Not started |
+| Phase 17 - Password Strength | 7 / 7 | Done |
 | Phase 18 - Board Sharing (backend) | 0 / 9 | Not started |
 | Phase 19 - Board Sharing (UI) | 0 / 7 | Not started |
 | Phase 20 - Public Boards, Assignment and Meeting Link | 0 / 7 | Not started |
@@ -472,13 +472,13 @@ Roles (stored per member; the admin chooses exactly one per member in the member
 
 ## Phase 17 - Password Strength
 
-- [ ] Shared rules and example table (`password_cases.json`), common-password list in backend and frontend with a match test
-- [ ] Server refuses Weak passwords on sign up, guest upgrade, reset, change and set password, with a translated message
-- [ ] Strength meter component (bar, word, hint; accessible; translated; RTL; dark mode) on every password field
-- [ ] A Weak password shows the reason before any request is sent
-- [ ] "Continue with Google" shows on sign in, sign up and guest upgrade when Google is configured (checked in the browser)
-- [ ] Tests T-500 to T-509 pass; SEC-150 to SEC-152 ticked; existing tests updated to strong passwords
-- [ ] Browser review: phone and desktop, light and dark, English and Arabic
+- [x] Shared rules and example table (`password_cases.json`), common-password list in backend and frontend with a match test
+- [x] Server refuses Weak passwords on sign up, guest upgrade, reset, change and set password, with a translated message
+- [x] Strength meter component (bar, word, hint; accessible; translated; RTL; dark mode) on every password field
+- [x] A Weak password shows the reason before any request is sent
+- [x] "Continue with Google" shows on sign in, sign up and guest upgrade when Google is configured (checked in the browser)
+- [x] Tests T-500 to T-509 pass; SEC-150 to SEC-152 ticked; existing tests updated to strong passwords
+- [x] Browser review: phone and desktop, light and dark, English and Arabic
 
 ## Phase 18 - Board Sharing (backend)
 

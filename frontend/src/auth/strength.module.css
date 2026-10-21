@@ -1,0 +1,44 @@
+.strength {
+  display: grid;
+  gap: 6px;
+  margin-block-start: -4px;
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.bar > span {
+  height: 4px;
+  border-radius: 2px;
+}
+
+.off {
+  background: var(--border);
+}
+
+.strength[data-level="weak"] .on {
+  background: var(--danger);
+}
+
+.strength[data-level="medium"] .on {
+  background: var(--accent);
+}
+
+.strength[data-level="strong"] .on {
+  background: var(--success);
+}
+
+.text {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.text strong {
+  color: var(--text);
+  font-weight: 600;
+}

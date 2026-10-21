@@ -28,6 +28,13 @@ AR: dict[str, str] = {
         "إذا كان هناك حساب بهذا البريد، فقد أرسلنا رابط إعادة التعيين."
     ),
     "Current password is incorrect": "كلمة المرور الحالية غير صحيحة",
+    (
+        "This password is too weak. Use at least 10 characters with letters and numbers, "
+        "and avoid common words and your email."
+    ): (
+        "كلمة المرور هذه ضعيفة جدا. استخدم 10 أحرف على الأقل تجمع بين الحروف والأرقام، "
+        "وتجنب الكلمات الشائعة وبريدك الإلكتروني."
+    ),
     "Google sign-in is not configured": "تسجيل الدخول بحساب Google غير مُعد",
     "Cross-site request blocked": "تم حظر طلب من موقع آخر",
     "Order must list every column once": "يجب أن يتضمن الترتيب كل عمود مرة واحدة",

@@ -133,9 +133,9 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## 13. Passwords (Phase 17)
 
-- [ ] Weak passwords refused on the server for sign up, guest upgrade, reset, change and set password (SEC-150)
-- [ ] The browser uses the same rules (shared example table) and blocks Weak before sending (SEC-151)
-- [ ] Common passwords and passwords containing the email name are Weak (SEC-152)
+- [x] Weak passwords refused on the server for sign up, guest upgrade, reset, change and set password (SEC-150)
+- [x] The browser uses the same rules (shared example table) and blocks Weak before sending (SEC-151)
+- [x] Common passwords and passwords containing the email name are Weak (SEC-152)
 
 ## 14. Board sharing (Phases 18-20)
 

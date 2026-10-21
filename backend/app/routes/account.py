@@ -9,6 +9,7 @@ from app.auth import CurrentUser, Password, UserOut, start_session
 from app.db import SessionDep
 from app.i18n import tr
 from app.models import TokenPurpose, User
+from app.passwords import require_not_weak
 from app.schemas import Strict
 from app.security import hash_password, verify_password
 from app.users import find_by_email
@@ -93,6 +94,9 @@ def reset_password(
     body: ResetIn, request: Request, response: Response, session: SessionDep
 ) -> UserOut:
     """Set a new password; the link proves email ownership, and other sessions end."""
+    owner = email_tokens.owner(session, body.token, TokenPurpose.reset)
+    if owner:
+        require_not_weak(body.password, owner.email)
     user = _consume(session, body.token, TokenPurpose.reset)
     user.password_hash = hash_password(body.password)
     user.token_version += 1
@@ -108,6 +112,7 @@ def change_password(
     """Change (or, for Google-only accounts, set) the password; other sessions end."""
     if user.password_hash and not verify_password(body.current_password or "", user.password_hash):
         raise HTTPException(status.HTTP_403_FORBIDDEN, tr("Current password is incorrect"))
+    require_not_weak(body.new_password, user.email)
     user.password_hash = hash_password(body.new_password)
     user.token_version += 1
     session.commit()

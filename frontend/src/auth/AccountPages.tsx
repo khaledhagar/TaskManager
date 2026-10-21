@@ -7,7 +7,8 @@ import { Link } from '../ui/Link'
 import ui from '../ui/ui.module.css'
 import css from './auth.module.css'
 import { AuthLayout } from './AuthLayout'
-import { emailError, passwordError } from './validation'
+import { PasswordStrength } from './PasswordStrength'
+import { emailError, newPasswordError } from './validation'
 
 const COOLDOWN = 30
 /** The token from an emailed link; it sits after '#', so it never reaches the server. */
@@ -145,7 +146,7 @@ export function ResetPassword({ onSignedIn }: { onSignedIn: (user: User) => void
   async function submit(event: FormEvent) {
     event.preventDefault()
     const next = {
-      password: passwordError(password),
+      password: newPasswordError(password),
       repeat: password === repeat ? null : t('reset.mismatch'),
     }
     setErrors(next)
@@ -175,8 +176,9 @@ export function ResetPassword({ onSignedIn }: { onSignedIn: (user: User) => void
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
-          hint={t('auth.passwordHint')}
+          hint={password ? undefined : t('auth.passwordHint')}
         />
+        <PasswordStrength password={password} />
         <Field
           label={t('reset.repeat')}
           type="password"

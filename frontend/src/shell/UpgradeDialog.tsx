@@ -2,7 +2,8 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { auth, GOOGLE_LOGIN_URL } from '../api/auth'
 import authCss from '../auth/auth.module.css'
 import { GoogleButton } from '../auth/GoogleButton'
-import { emailError, passwordError } from '../auth/validation'
+import { PasswordStrength } from '../auth/PasswordStrength'
+import { emailError, newPasswordError } from '../auth/validation'
 import { useI18n } from '../i18n/context'
 import { Dialog } from '../ui/Dialog'
 import { Field } from '../ui/Field'
@@ -33,7 +34,7 @@ function UpgradeForm() {
 
   async function submit(event: FormEvent) {
     event.preventDefault()
-    const next = { email: emailError(email), password: passwordError(password) }
+    const next = { email: emailError(email), password: newPasswordError(password, email.trim()) }
     setErrors(next)
     if (next.email || next.password) return
     setError(null)
@@ -81,8 +82,9 @@ function UpgradeForm() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
-          hint={t('auth.passwordHint')}
+          hint={password ? undefined : t('auth.passwordHint')}
         />
+        <PasswordStrength password={password} email={email.trim()} />
         <button className={`${ui.button} ${ui.primary} ${ui.full}`}>{t('auth.createAccount')}</button>
       </form>
     </div>

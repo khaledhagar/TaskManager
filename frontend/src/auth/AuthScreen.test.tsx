@@ -114,6 +114,27 @@ describe('auth screen (T-202, T-217)', () => {
     expect(location.pathname + location.search).toBe('/check-inbox?email=b%40example.com')
   })
 
+  test('sign up shows the strength meter and refuses a weak password without a request (T-507)', async () => {
+    render(<AuthScreen onSignedIn={vi.fn()} />)
+    await userEvent.click(screen.getByRole('link', { name: 'Create an account' }))
+    await userEvent.type(screen.getByLabelText('Email'), 'b@example.com')
+    await userEvent.type(screen.getByLabelText('Password'), 'abcdefghij')
+    expect(screen.getByRole('status')).toHaveTextContent('Password strength: Weak')
+    await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
+    expect(screen.getByLabelText('Password')).toHaveAttribute('aria-invalid', 'true')
+    expect(auth.signUp).not.toHaveBeenCalled()
+  })
+
+  test('sign in has no strength meter and accepts any 8-character password', async () => {
+    vi.mocked(auth.signIn).mockResolvedValue(user)
+    render(<AuthScreen onSignedIn={vi.fn()} />)
+    await userEvent.type(screen.getByLabelText('Email'), 'a@example.com')
+    await userEvent.type(screen.getByLabelText('Password'), 'abcdefgh')
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Sign in' }))
+    expect(auth.signIn).toHaveBeenCalled()
+  })
+
   test('continue as guest signs in without a form', async () => {
     vi.mocked(auth.guest).mockResolvedValue({ ...user, email: null, is_guest: true })
     const onSignedIn = vi.fn()

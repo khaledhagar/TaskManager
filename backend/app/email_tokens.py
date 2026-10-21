@@ -37,16 +37,29 @@ def issue(session: Session, user: User, purpose: TokenPurpose) -> str:
     return raw
 
 
-def consume(session: Session, raw: str, purpose: TokenPurpose) -> User | None:
-    """Mark a valid, unexpired, unused token as used and return its user."""
-    now = datetime.now(UTC)
+def _valid(session: Session, raw: str, purpose: TokenPurpose) -> EmailToken | None:
+    """The token if it exists, is unused and has not expired."""
     token = session.exec(
         select(EmailToken).where(EmailToken.token_hash == _hash(raw), EmailToken.purpose == purpose)
     ).first()
     if token is None or token.used_at is not None:
         return None
-    if token.expires_at.replace(tzinfo=UTC) < now:
+    if token.expires_at.replace(tzinfo=UTC) < datetime.now(UTC):
         return None
-    token.used_at = now
+    return token
+
+
+def owner(session: Session, raw: str, purpose: TokenPurpose) -> User | None:
+    """The user of a valid token, without using it up."""
+    token = _valid(session, raw, purpose)
+    return session.get(User, token.user_id) if token else None
+
+
+def consume(session: Session, raw: str, purpose: TokenPurpose) -> User | None:
+    """Mark a valid token as used and return its user."""
+    token = _valid(session, raw, purpose)
+    if token is None:
+        return None
+    token.used_at = datetime.now(UTC)
     session.commit()
     return session.get(User, token.user_id)

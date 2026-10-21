@@ -9,7 +9,8 @@ import ui from '../ui/ui.module.css'
 import css from './auth.module.css'
 import { AuthLayout } from './AuthLayout'
 import { GoogleButton } from './GoogleButton'
-import { emailError, passwordError } from './validation'
+import { PasswordStrength } from './PasswordStrength'
+import { emailError, newPasswordError, passwordError } from './validation'
 
 type Errors = { email?: string | null; password?: string | null }
 
@@ -34,7 +35,10 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: (user: User) => void })
 
   async function submit(event: FormEvent) {
     event.preventDefault()
-    const next = { email: emailError(email), password: passwordError(password) }
+    const next = {
+      email: emailError(email),
+      password: signup ? newPasswordError(password, email.trim()) : passwordError(password),
+    }
     setErrors(next)
     setFormError(null)
     setUnverified(false)
@@ -111,8 +115,9 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: (user: User) => void })
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
-          hint={signup ? t('auth.passwordHint') : undefined}
+          hint={signup && !password ? t('auth.passwordHint') : undefined}
         />
+        {signup ? <PasswordStrength password={password} email={email.trim()} /> : null}
         {signup ? null : (
           <Link to="/forgot-password" className={css.forgot}>
             {t('auth.forgot')}

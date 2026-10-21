@@ -262,16 +262,16 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 
 ### E1. Password strength (Phase 17)
 
-- [ ] T-500 Every example in `password_cases.json` gets the same rating (Weak / Medium / Strong) from the server rules
-- [ ] T-501 Every example in `password_cases.json` gets the same rating from the browser rules
-- [ ] T-502 The backend and frontend common-password lists are identical
-- [ ] T-503 Sign up, guest upgrade, reset, change and set password refuse a Weak password with 422 and a translated message (SEC-150)
-- [ ] T-504 A password containing the email name is Weak (SEC-152)
-- [ ] T-505 Sign in still accepts an existing password that is now rated Weak
-- [ ] T-506 Meter shows Weak / Medium / Strong with a hint, updates while typing, and is announced to screen readers
-- [ ] T-507 A Weak password shows the reason and sends no request (SEC-151)
-- [ ] T-508 Meter is translated and laid out right-to-left in Arabic, readable in dark mode
-- [ ] T-509 E2E: sign up refuses a Weak password and accepts a Medium one; "Continue with Google" is visible when configured
+- [x] T-500 Every example in `password_cases.json` gets the same rating (Weak / Medium / Strong) from the server rules
+- [x] T-501 Every example in `password_cases.json` gets the same rating from the browser rules
+- [x] T-502 The backend and frontend common-password lists are identical
+- [x] T-503 Sign up, guest upgrade, reset, change and set password refuse a Weak password with 422 and a translated message (SEC-150)
+- [x] T-504 A password containing the email name is Weak (SEC-152)
+- [x] T-505 Sign in still accepts an existing password that is now rated Weak
+- [x] T-506 Meter shows Weak / Medium / Strong with a hint, updates while typing, and is announced to screen readers
+- [x] T-507 A Weak password shows the reason and sends no request (SEC-151)
+- [x] T-508 Meter is translated and laid out right-to-left in Arabic, readable in dark mode
+- [x] T-509 E2E: sign up refuses a Weak password and accepts a Medium one; "Continue with Google" is visible when configured
 
 ### E2. Board sharing backend (Phase 18)
 

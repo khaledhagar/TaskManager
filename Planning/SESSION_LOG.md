@@ -5,15 +5,15 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 ## Where the project stands (2026-10-21)
 
 - Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
-- **Next: Phase 17 (password strength).** New Phases 17-20 approved by the user on 2026-10-21 (password strength, board sharing backend, board sharing UI, public boards / assignment / meeting link); Deployment is now Phase 21 and starts with deleting the local test data (ask the user). Design: "Password Strength Design" and "Board Sharing Design" in PLAN.md; tests T-500 to T-589; security SEC-150 to SEC-174.
-- Tests: backend 273 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 209 passing; Playwright 59 passing (Edge full suite, Firefox and WebKit smoke). Lint, format and type checks are clean.
-- Checklists: 214 tests ticked in `Planning/TEST_PLAN.md` (all ticked), 106 items ticked in `Planning/SECURITY.md` (all ticked).
+- Phase 17 (password strength) is done and pushed. **Next: Phase 18 (board sharing backend).** Phases 17-20 were approved on 2026-10-21; Deployment is Phase 21 and starts with deleting the local test data (ask the user). Design: "Board Sharing Design" in PLAN.md; tests T-510 to T-589; security SEC-160 to SEC-174.
+- Tests: backend 310 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 252 passing; Playwright 62 passing (Edge full suite, Firefox and WebKit smoke). Lint, format and type checks are clean.
+- Checklists: 228 tests ticked in `Planning/TEST_PLAN.md` (open: T-510 to T-589, Phases 18-20), 111 items ticked in `Planning/SECURITY.md` (open: SEC-160 to SEC-174).
 
 | Done | Phase |
 |------|-------|
-| Yes | 1 Scaffolding to 15 Playwright tests |
-| Next | 16 Done |
-| Later | 17 Deployment (Vercel) |
+| Yes | 1 Scaffolding to 17 Password strength |
+| Next | 18 Board sharing (backend) |
+| Later | 19 Board sharing (UI), 20 Public boards / assignment / meeting link, 21 Deployment (Vercel) |
 
 ## How we work (the user's preferences)
 
@@ -138,6 +138,14 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 - `e2e/helpers.ts`: `newEmail`, `emailLink`, `startAsGuest`, `signUp`. TypeScript for e2e is checked through `tsconfig.e2e.json`.
 - Defects fixed in this phase: card check button raised to 24 px to click (WCAG 2.5.8; the circle stays 18 px); board switcher's accessible name starts with the board title (WCAG 2.5.3); link color darkened to `#146d9a` for 4.5:1 contrast.
 - `TEST_PLAN.md` duplicate numbers (second T-330 / T-331) were renumbered.
+
+## Password strength (Phase 17): how it works
+
+- Rules in `backend/app/passwords.py` (`strength`, `require_not_weak`) and `frontend/src/auth/strength.ts`; both are tested against `backend/tests/password_cases.json`. Change one side, change both and add a case.
+- Common list: `backend/app/common_passwords.txt` (lowercase, unique) with a copy in `frontend/src/auth/commonPasswords.ts` (a test checks they match; the hard-coded-English check skips that data file).
+- Server: sign up, guest upgrade, reset and change/set password return 422 with a translated message for Weak. Reset checks strength before using up the link (`email_tokens.owner` peeks without consuming).
+- Browser: `PasswordStrength` meter (role `meter` + polite `status` text) on sign up, reset, change/set password and guest upgrade; a Weak password shows "This password is too weak." on the field and sends nothing; the meter gives the specific advice. Sign in keeps the plain 8-character check.
+- The page already has an empty `status` region (toasts), so in Playwright find the meter by its text or by role `meter`, not by `getByRole('status')`.
 
 ## Next steps: Phases 17-20
 

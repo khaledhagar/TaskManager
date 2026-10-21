@@ -10,6 +10,7 @@ from app.account import send_verification
 from app.db import SessionDep
 from app.i18n import Language, tr
 from app.models import User
+from app.passwords import require_not_weak
 from app.schemas import Strict
 from app.security import COOKIE, TOKEN_TTL, create_token, hash_password, read_token, verify_password
 from app.users import create_user, find_by_email
@@ -101,6 +102,7 @@ def new_email(session: SessionDep, email: str) -> str:
 @router.post("/signup", status_code=201)
 def signup(creds: Credentials, request: Request, session: SessionDep) -> PendingVerification:
     ratelimit.enforce(request, f"signin:{ratelimit.client_ip(request)}", ratelimit.SIGN_IN)
+    require_not_weak(creds.password, creds.email)
     user = create_user(session, new_email(session, creds.email), hash_password(creds.password))
     send_verification(request, session, user)
     return PendingVerification(email=user.email)
@@ -135,6 +137,7 @@ def upgrade(
     """Attach email and password to a guest; it stays a guest until the email is verified."""
     if not user.is_guest:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, tr("Account is not a guest account"))
+    require_not_weak(creds.password, creds.email)
     user.email = new_email(session, creds.email)
     user.password_hash = hash_password(creds.password)
     session.commit()

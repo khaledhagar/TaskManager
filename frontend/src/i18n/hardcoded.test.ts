@@ -12,12 +12,16 @@ const ALLOWED = new Set([
   'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Task Manager', 'Instrument Sans Variable', 'noopener noreferrer', 'Notification', 'Esc',
 ])
 
+/** Data files that hold words but no interface text. */
+const DATA_FILES = new Set(['commonPasswords.ts'])
+
 type Node = { type: string; [key: string]: unknown }
 
 function sourceFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const path = join(dir, entry.name)
     if (entry.isDirectory()) return entry.name === 'i18n' || entry.name === 'test' ? [] : sourceFiles(path)
+    if (DATA_FILES.has(entry.name)) return []
     return /\.tsx?$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name) ? [path] : []
   })
 }

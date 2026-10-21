@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { auth, type User } from '../api/auth'
-import { passwordError } from '../auth/validation'
+import { PasswordStrength } from '../auth/PasswordStrength'
+import { newPasswordError } from '../auth/validation'
 import { useI18n } from '../i18n/context'
 import { Dialog } from '../ui/Dialog'
 import dialog from '../ui/dialog.module.css'
@@ -35,7 +36,7 @@ function PasswordForm({ hasPassword, onSaved, onClose }: Omit<Props, 'open'>) {
 
   async function submit(event: FormEvent) {
     event.preventDefault()
-    const problem = passwordError(next)
+    const problem = newPasswordError(next)
     setFieldError(problem)
     if (problem) return
     setError(null)
@@ -89,6 +90,7 @@ function PasswordForm({ hasPassword, onSaved, onClose }: Omit<Props, 'open'>) {
         error={fieldError}
         hint={t('password.hint')}
       />
+      <PasswordStrength password={next} />
       <div className={dialog.actions}>
         <button type="button" className={`${ui.button} ${ui.secondary}`} onClick={onClose}>
           {t('ui.cancel')}
