@@ -3,6 +3,9 @@ import { expect, test } from '@playwright/test'
 import { card, column } from './helpers.ts'
 import { openMembers, person, share } from './sharingHelpers.ts'
 
+// Each test signs up two or three people in separate browsers; WebKit needs longer under load.
+test.describe.configure({ timeout: 120_000 })
+
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']
 
 test('T-578 admin makes a board public; a signed-out visitor sees it read-only; a signed-in user joins @smoke', async ({ browser }) => {

@@ -30,6 +30,8 @@ class Settings:
     google_client_id: str = ""
     google_client_secret: str = ""
     allowed_hosts: tuple[str, ...] = ()
+    # Protects the scheduled-job endpoints; empty turns them off (SEC-204).
+    cron_secret: str = ""
 
     def __post_init__(self) -> None:
         if len(self.jwt_secret) < 32:
@@ -72,4 +74,5 @@ def load_settings() -> Settings:
         google_client_id=env("GOOGLE_CLIENT_ID", ""),
         google_client_secret=env("GOOGLE_CLIENT_SECRET", ""),
         allowed_hosts=tuple(h.strip() for h in hosts.split(",") if h.strip()),
+        cron_secret=env("CRON_SECRET", ""),
     )

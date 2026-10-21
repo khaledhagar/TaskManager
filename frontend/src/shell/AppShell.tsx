@@ -11,6 +11,7 @@ import ui from '../ui/ui.module.css'
 import { AccountMenu } from './AccountMenu'
 import { BoardSwitcher } from './BoardSwitcher'
 import { NewBoardDialog } from './NewBoardDialog'
+import { NotificationBell } from './NotificationBell'
 import css from './shell.module.css'
 import { ThemeToggle } from './ThemeToggle'
 import { UpgradeDialog } from './UpgradeDialog'
@@ -65,6 +66,7 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
           <Plus size={16} aria-hidden="true" />
           <span>{t('shell.newBoard')}</span>
         </button>
+        <NotificationBell />
         <LanguageButton onChange={(lang) => auth.setLanguage(lang).then(onUserChange)} />
         <ThemeToggle />
         <AccountMenu

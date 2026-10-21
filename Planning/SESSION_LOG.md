@@ -5,14 +5,14 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 ## Where the project stands (2026-10-21)
 
 - Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
-- Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Phases 21 (voice) and 22 (comments, activity, Alembic) are done and pushed; Phase 21 waits only for the user's real-microphone check. Next: Phase 23 (Notifications and reminders).** The user trimmed the plan (2026-10-21) and asked to build Phases 21-25 back to back without asking: finish each, test everything, push, update this log, then start the next. Stop before Phase 26 (Deployment). Order: 21 Voice input; 22 Collaboration (Alembic, comments, @mentions, activity); 23 Notifications and reminders; 24 Organize (archive, duplicates, templates, stars, WIP, auto-complete, covers, focus sessions on cards); 25 List view, export and full regression; 26 Deployment (starts by asking before deleting local test data); 27 Documentation (Word files). Deferred features are listed under "Deferred" in PLAN.md.
-- Tests: backend 432 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 302 passing; Playwright 86 passing (Edge full suite, Firefox and WebKit smoke). Lint, format, type checks and both audits are clean.
-- Checklists: 338 tests ticked in `Planning/TEST_PLAN.md` (open: T-645 and T-660 to T-714 for Phases 23-25, T-620 to T-627 for Phase 27), 133 items ticked in `Planning/SECURITY.md`.
+- Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Phases 21-23 (voice; comments, activity, Alembic; notifications and reminders) are done and pushed; Phase 21 waits only for the user's real-microphone check. Next: Phase 24 (Organize).** The user trimmed the plan (2026-10-21) and asked to build Phases 21-25 back to back without asking: finish each, test everything, push, update this log, then start the next. Stop before Phase 26 (Deployment). Order: 21 Voice input; 22 Collaboration (Alembic, comments, @mentions, activity); 23 Notifications and reminders; 24 Organize (archive, duplicates, templates, stars, WIP, auto-complete, covers, focus sessions on cards); 25 List view, export and full regression; 26 Deployment (starts by asking before deleting local test data); 27 Documentation (Word files). Deferred features are listed under "Deferred" in PLAN.md.
+- Tests: backend 443 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 308 passing; Playwright 90 passing (Edge full suite, Firefox and WebKit smoke). Lint, format, type checks and both audits are clean.
+- Checklists: 352 tests ticked in `Planning/TEST_PLAN.md` (open: T-680 to T-714 for Phases 24-25, T-620 to T-627 for Phase 27), 136 items ticked in `Planning/SECURITY.md`.
 
 | Done | Phase |
 |------|-------|
 | Yes | 1 Scaffolding to 20 Public boards / assignment / meeting link |
-| Next | 23 Notifications, then 24-25 (approved, building back to back) |
+| Next | 24 Organize, then 25 (approved, building back to back) |
 | Later | 26 Deployment (Vercel), 27 Documentation (Word files) |
 
 ## How we work (the user's preferences)
@@ -204,6 +204,16 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 - **Comments:** `routes/comments.py`: list (viewer), add (updater), edit (author who can still comment), delete (author who can comment, or admin). Board cards carry `comment_count`. `app/comments.mentioned_members()` finds `@email` of board members (not the author); Phase 23 turns them into notifications.
 - **Frontend:** `collab/CommentsSection.tsx` and `MentionInput.tsx` (combobox with member suggestions, arrows / Enter / Tab / Escape, click; Ctrl/Cmd+Enter sends; has the microphone), `ActivityList.tsx` (card History with Show more; `ActivityPanel` from the board menu "Activity"), `activityText.ts` (sentences from `activity.<kind>` keys, "You" / "Someone", translated roles; `timeAgo` with `Intl.RelativeTimeFormat`). Comment count icon on cards.
 - A board loaded before someone joined has a stale member list until the board reloads (tab focus or reload); mention suggestions use that list.
+
+## Notifications and reminders (Phase 23): how it works
+
+- Tables (`app/models_notify.py`, migration `0003_notifications`): `notifications` (user, kind `assigned` / `mentioned` / `due_soon` / `overdue`, board, card, actor, JSON data with card and board titles, read_at) and `notification_settings` (user, `email` on/off, `last_reminder_on`).
+- `app/notify.notify(...)` (called from `PUT /cards/{id}/assignees` for newly added people, and from `POST /cards/{id}/comments` for `@email` mentions): skips the actor and non-members, stores the notification, and emails it in the **recipient's** language when `emails_on` (verified, non-guest, setting on). Every email ends with `APP_URL/unsubscribe#token=<user id>.<HMAC of the app secret>`; `POST /api/notifications/unsubscribe` (no sign-in) checks it in constant time.
+- `app/jobs.send_reminders(session, mailer, settings, today)`: open cards with assignees due today, tomorrow or overdue get one in-app notification per card, kind and day, and each user at most one digest email a day (`last_reminder_on`). Run by `POST /api/cron/reminders` with `Authorization: Bearer <CRON_SECRET>` (404 when `CRON_SECRET` is empty, 401 when wrong) or `uv run python -m app.jobs reminders`. Vercel Cron schedules it at Deployment.
+- API: `GET /api/notifications` (unread count + newest 30, only boards the user still belongs to), `POST /{id}/read`, `POST /read-all`, `GET/PATCH /notifications/settings`.
+- Frontend: `shell/NotificationBell.tsx` (badge, dialog list, opening one marks it read and goes to `/?board=..&card=..`; the board opens that card; refreshes on load, tab focus and opening, never on a timer), email switch in the account menu, `shell/UnsubscribePage.tsx` at `/unsubscribe`.
+- Header at 360 px: with the bell added, the account menu was squeezed (menu wrappers have `min-width: 0`). Fix: `Menu` takes a `className`; the board switcher's wrapper shrinks (`.switcherMenu`), the account menu never does (`.accountMenu { flex: none }`).
+- Multi-user Playwright files (`sharing`, `public`, `collab`, `notify`) use `test.describe.configure({ timeout: 120_000 })`: each signs up 2-3 people, and WebKit under 4 parallel workers needed more than 60 s (passes in about 18 s alone).
 
 ## Earlier next steps (Phases 17-20, done)
 

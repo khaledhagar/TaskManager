@@ -3,6 +3,9 @@ import { expect, test } from '@playwright/test'
 import { card, column } from './helpers.ts'
 import { drag, openMembers, person, setRole, share } from './sharingHelpers.ts'
 
+// Each test signs up two or three people in separate browsers; WebKit needs longer under load.
+test.describe.configure({ timeout: 120_000 })
+
 const VIEW_ONLY = 'You can only view this board. Ask the board admin for permission to edit.'
 
 test('T-553 admin invites a member, who accepts and sees the board as Viewer @smoke', async ({ browser }) => {

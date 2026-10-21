@@ -41,6 +41,16 @@
   font-weight: 600;
 }
 
+/* The switcher gives up width first: a long board name is cut with an ellipsis. */
+.switcherMenu {
+  min-width: 0;
+}
+
+/* The account button never shrinks. */
+.accountMenu {
+  flex: none;
+}
+
 .switcher:hover {
   background: var(--surface-sunken);
 }

@@ -24,6 +24,7 @@ export function BoardSwitcher({ boards, selectedId, onSelect }: Props) {
     <Menu
       label={t('shell.switchBoard', { title })}
       triggerClassName={css.switcher}
+      className={css.switcherMenu}
       trigger={
         <>
           <span className={css.switcherName} dir="auto">{title}</span>

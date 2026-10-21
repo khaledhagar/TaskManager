@@ -12,10 +12,12 @@ type Props = {
   items: MenuItem[]
   align?: 'start' | 'end'
   triggerClassName?: string
+  /** Class for the wrapper, e.g. to let it shrink in a flex row. */
+  className?: string
 }
 
 /** Button that opens a list of actions. Escape or a click outside closes it. */
-export function Menu({ label, trigger, items, align = 'start', triggerClassName }: Props) {
+export function Menu({ label, trigger, items, align = 'start', triggerClassName, className }: Props) {
   const [open, setOpen] = useState(false)
   const root = useRef<HTMLDivElement>(null)
   const button = useRef<HTMLButtonElement>(null)
@@ -52,7 +54,7 @@ export function Menu({ label, trigger, items, align = 'start', triggerClassName 
   }
 
   return (
-    <div ref={root} className={css.root} onKeyDown={onKeyDown}>
+    <div ref={root} className={className ? `${css.root} ${className}` : css.root} onKeyDown={onKeyDown}>
       <button
         ref={button}
         type="button"

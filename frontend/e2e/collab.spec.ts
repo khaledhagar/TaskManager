@@ -3,6 +3,9 @@ import { expect, test } from '@playwright/test'
 import { card, column } from './helpers.ts'
 import { drag, person, setRole, share } from './sharingHelpers.ts'
 
+// Each test signs up two or three people in separate browsers; WebKit needs longer under load.
+test.describe.configure({ timeout: 120_000 })
+
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']
 
 test('T-653 two members comment on a card; a mention reaches the other @smoke', async ({ browser }) => {

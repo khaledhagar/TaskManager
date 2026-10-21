@@ -37,7 +37,14 @@ export function BoardView({ boardId, userId, isGuest, onRenamed, onDeleted }: Pr
   const [activity, setActivity] = useState(false)
   const { t } = useI18n()
   const [filters, setFilters] = useState(EMPTY_FILTERS)
-  const [openCardId, setOpenCardId] = useState<number | null>(null)
+  // A notification links to ?board=..&card=..; open that card, also when the link changes.
+  const cardParam = Number(params.get('card')) || null
+  const [openCardId, setOpenCardId] = useState<number | null>(cardParam)
+  const [seenParam, setSeenParam] = useState(cardParam)
+  if (cardParam !== seenParam) {
+    setSeenParam(cardParam)
+    if (cardParam) setOpenCardId(cardParam)
+  }
   const [composing, setComposing] = useState<number | null>(null)
   const [help, setHelp] = useState(false)
   const [picking, setPicking] = useState(false)

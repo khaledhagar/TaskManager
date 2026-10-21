@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { auth, type User } from '../api/auth'
+import { notifications } from '../api/notifications'
+import { useToast } from '../ui/toastContext'
 import { useI18n } from '../i18n/context'
 import { Dialog } from '../ui/Dialog'
 import dialog from '../ui/dialog.module.css'
@@ -36,6 +38,18 @@ export function AccountMenu({ user, onUserChange, onSignedOut, onUpgrade }: Prop
     }
   }
 
+  const toast = useToast()
+  const [emails, setEmails] = useState<boolean | null>(null)
+  useEffect(() => {
+    if (!user.is_guest) notifications.settings().then((s) => setEmails(s.email), () => setEmails(null))
+  }, [user.is_guest])
+
+  async function toggleEmails() {
+    const next = (await notifications.setEmail(!emails)).email
+    setEmails(next)
+    toast({ message: t(next ? 'account.emailsTurnedOn' : 'account.emailsTurnedOff') })
+  }
+
   const items: MenuItem[] = [
     { kind: 'note', label: user.email ?? t('account.guest') },
     user.is_guest
@@ -45,6 +59,9 @@ export function AccountMenu({ user, onUserChange, onSignedOut, onUpgrade }: Prop
           label: t(user.has_password ? 'account.changePassword' : 'account.setPassword'),
           onSelect: () => setPassword(true),
         },
+    ...(emails === null
+      ? []
+      : [{ kind: 'action' as const, label: t(emails ? 'account.emailsOn' : 'account.emailsOff'), onSelect: toggleEmails }]),
     { kind: 'separator' },
     { kind: 'action', label: t('account.signOut'), onSelect: signOut },
     { kind: 'action', label: t('account.delete'), danger: true, onSelect: () => setConfirmDelete(true) },
@@ -56,6 +73,7 @@ export function AccountMenu({ user, onUserChange, onSignedOut, onUpgrade }: Prop
         label={t('account.menu')}
         align="end"
         triggerClassName={css.avatar}
+        className={css.accountMenu}
         trigger={<span aria-hidden="true">{(user.email ?? 'G').charAt(0).toUpperCase()}</span>}
         items={items}
       />

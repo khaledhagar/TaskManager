@@ -273,3 +273,4 @@ class Label(SQLModel, table=True):
 
 # Collaboration tables (Phase 22) live in their own module to keep this one short.
 from app.models_collab import Activity, Comment  # noqa: E402, F401
+from app.models_notify import Notification, NotificationSetting  # noqa: E402, F401

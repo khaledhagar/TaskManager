@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, Request, status
 from pydantic import BaseModel
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
@@ -10,9 +10,11 @@ from sqlmodel import select
 from app.access import RANK, board_role, card_for, not_found
 from app.activity import record
 from app.auth import CurrentUser
+from app.comments import mentioned_members
 from app.db import SessionDep
 from app.i18n import tr
 from app.models import Activity, Comment, Role
+from app.notify import notify
 from app.schemas import Strict, text
 
 router = APIRouter(prefix="/api", tags=["comments"])
@@ -67,13 +69,17 @@ def list_comments(card_id: int, user: CurrentUser, session: SessionDep) -> list[
 
 @router.post("/cards/{card_id}/comments", status_code=201)
 def add_comment(
-    card_id: int, body: CommentIn, user: CurrentUser, session: SessionDep
+    card_id: int, body: CommentIn, request: Request, user: CurrentUser, session: SessionDep
 ) -> CommentOut:
     """Viewers read; "Can update tasks" and above write (SEC-200)."""
     card = card_for(session, user, card_id, Role.updater)
     comment = Comment(card_id=card.id, author_id=user.id, text=body.text)
     session.add(comment)
-    record(session, card.column.board_id, user, "comment.added", card)
+    board = card.column.board
+    record(session, board.id, user, "comment.added", card)
+    state = request.app.state
+    for person in mentioned_members(session, board.id, user.id, body.text):
+        notify(session, state.mailer, state.settings, person, "mentioned", board, card, user)
     session.commit()
     return comment_out(comment)
 

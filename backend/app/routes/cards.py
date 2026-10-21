@@ -1,6 +1,6 @@
 """Card, move, checklist and card-label routes."""
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from sqlmodel import func, select
 
 from app import limits
@@ -9,6 +9,7 @@ from app.activity import record
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.models import BoardColumn, BoardMember, Card, ChecklistItem, Role, User
+from app.notify import notify
 from app.schemas import (
     CardAssignees,
     CardCreate,
@@ -105,7 +106,7 @@ def set_card_labels(
 
 @router.put("/cards/{card_id}/assignees")
 def set_assignees(
-    card_id: int, body: CardAssignees, user: CurrentUser, session: SessionDep
+    card_id: int, body: CardAssignees, request: Request, user: CurrentUser, session: SessionDep
 ) -> CardOut:
     """Only members of the card's board can be assigned (SEC-168)."""
     card = card_for(session, user, card_id, Role.editor)
@@ -113,8 +114,22 @@ def set_assignees(
     stmt = select(BoardMember.user_id).where(BoardMember.board_id == card.column.board_id)
     if not ids <= set(session.exec(stmt)):
         raise not_found()
+    before = {u.id for u in card.assignees}
     card.assignees = list(session.exec(select(User).where(User.id.in_(ids))))
     record(session, card.column.board_id, user, "card.assigned", card, people=len(ids))
+    state = request.app.state
+    for person in card.assignees:
+        if person.id not in before:
+            notify(
+                session,
+                state.mailer,
+                state.settings,
+                person,
+                "assigned",
+                card.column.board,
+                card,
+                user,
+            )
     session.commit()
     return card_out(card)
 

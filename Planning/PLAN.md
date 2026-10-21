@@ -33,7 +33,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 20 - Public Boards, Assignment and Meeting Link | 7 / 7 | Done |
 | Phase 21 - Voice Input | 6 / 7 | In progress |
 | Phase 22 - Collaboration: Comments and Activity | 6 / 6 | Done |
-| Phase 23 - Notifications and Reminders | 0 / 4 | Not started |
+| Phase 23 - Notifications and Reminders | 4 / 4 | Done |
 | Phase 24 - Organize: Archive, Copies, Templates, Stars, WIP, Auto-complete, Covers, Focus Sessions | 0 / 6 | Not started |
 | Phase 25 - List View, Export and Full Regression | 0 / 4 | Not started |
 | Phase 26 - Deployment (Vercel) | 0 / 14 | Not started |
@@ -619,10 +619,10 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 
 ## Phase 23 - Notifications and Reminders
 
-- [ ] Notifications model and API; header bell with unread count (refreshed on load, focus and own actions), list, open card, mark all read
-- [ ] Emails for assignment and mention; daily reminder email; turn-off link and account setting
-- [ ] `send_reminders()` job, `POST /api/cron/reminders` with `CRON_SECRET`, `uv run python -m app.jobs reminders`
-- [ ] Tests T-660 to T-675 pass; SEC-202 to SEC-204 ticked
+- [x] Notifications model and API; header bell with unread count (refreshed on load, focus and own actions), list, open card, mark all read
+- [x] Emails for assignment and mention; daily reminder email; turn-off link and account setting
+- [x] `send_reminders()` job, `POST /api/cron/reminders` with `CRON_SECRET`, `uv run python -m app.jobs reminders`
+- [x] Tests T-660 to T-675 pass; SEC-202 to SEC-204 ticked
 
 ## Phase 24 - Organize: Archive, Copies, Templates, Stars, WIP, Auto-complete, Covers, Focus Sessions
 

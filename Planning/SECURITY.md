@@ -166,9 +166,9 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 - [x] Comments: Markdown without raw HTML, at most 5,000 characters; Viewers read only; authors edit or delete their own, the admin deletes any (SEC-200)
 - [x] Mentions and suggestions reach only members of that board; there is still no user search (SEC-201)
-- [ ] Notifications only about boards the user belongs to; after removal they open nothing (SEC-202)
-- [ ] Emails can be turned off; every email has a turn-off link that works only for that user; reminders are one email per user per day (SEC-203)
-- [ ] Scheduled job endpoints need `CRON_SECRET` (compared in constant time) (SEC-204)
+- [x] Notifications only about boards the user belongs to; after removal they open nothing (SEC-202)
+- [x] Emails can be turned off; every email has a turn-off link that works only for that user; reminders are one email per user per day (SEC-203)
+- [x] Scheduled job endpoints need `CRON_SECRET` (compared in constant time) (SEC-204)
 - [x] Activity log keeps only short metadata (no descriptions or comment text), members only, 1,000 per board (SEC-205)
 - [ ] Duplicates and templates respect every limit; templates are private to their owner (SEC-207)
 - [ ] Exports for members only; CSV cells starting with = + - @ are escaped against spreadsheet formula injection (SEC-208)

@@ -387,7 +387,7 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-642 Viewers read comments but cannot write; "Can update tasks" and above can (SEC-200)
 - [x] T-643 Authors edit or delete their own comments; the admin can delete any; others get 403
 - [x] T-644 Comment text over 5,000 characters is refused; Markdown shows without raw HTML (SEC-200)
-- [ ] T-645 @mention of a member creates a notification; text that names a non-member does nothing (SEC-201)
+- [x] T-645 @mention of a member creates a notification; text that names a non-member does nothing (SEC-201)
 - [x] T-646 Non-members get 404 on every comment endpoint
 - [x] T-647 Every board change writes one activity entry with actor, kind and summary
 - [x] T-648 Activity holds no card descriptions or comment text; only members can read it (SEC-205)
@@ -401,19 +401,19 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 
 ### E8. Notifications and reminders (Phase 23)
 
-- [ ] T-660 Assigning a card notifies the assignee (in app and by email if on)
-- [ ] T-661 A mention notifies the mentioned member
-- [ ] T-662 `send_reminders()` sends one email per user per day listing cards due tomorrow and overdue
-- [ ] T-663 Users who turned emails off get none; the turn-off link works without signing in and only for that user (SEC-203)
-- [ ] T-664 Notifications only concern boards the user belongs to; after removal from a board, old ones open nothing (SEC-202)
-- [ ] T-665 `POST /api/cron/reminders` without the right `CRON_SECRET` is refused (SEC-204)
-- [ ] T-666 `uv run python -m app.jobs reminders` runs the job locally
-- [ ] T-667 Bell shows the unread count; opening a notification opens the card; Mark all as read
-- [ ] T-668 The unread count refreshes on load, when the tab regains focus and after the user's own actions; there is no timed polling
-- [ ] T-671 Emails in English and Arabic
-- [ ] T-673 E2E: assignment shows in the other member's bell and in the email outbox
-- [ ] T-674 Bell and notifications list at phone width, dark, Arabic; no axe violations
-- [ ] T-675 Gmail quota: reminder emails are batched per user (one per day)
+- [x] T-660 Assigning a card notifies the assignee (in app and by email if on)
+- [x] T-661 A mention notifies the mentioned member
+- [x] T-662 `send_reminders()` sends one email per user per day listing cards due tomorrow and overdue
+- [x] T-663 Users who turned emails off get none; the turn-off link works without signing in and only for that user (SEC-203)
+- [x] T-664 Notifications only concern boards the user belongs to; after removal from a board, old ones open nothing (SEC-202)
+- [x] T-665 `POST /api/cron/reminders` without the right `CRON_SECRET` is refused (SEC-204)
+- [x] T-666 `uv run python -m app.jobs reminders` runs the job locally
+- [x] T-667 Bell shows the unread count; opening a notification opens the card; Mark all as read
+- [x] T-668 The unread count refreshes on load, when the tab regains focus and after the user's own actions; there is no timed polling
+- [x] T-671 Emails in English and Arabic
+- [x] T-673 E2E: assignment shows in the other member's bell and in the email outbox
+- [x] T-674 Bell and notifications list at phone width, dark, Arabic; no axe violations
+- [x] T-675 Gmail quota: reminder emails are batched per user (one per day)
 
 ### E9. Organize and focus sessions (Phase 24)
 
