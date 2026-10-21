@@ -9,13 +9,15 @@ export type Filters = {
   labelId: number | null
   priority: Priority | null
   status: 'all' | 'open' | 'done'
+  /** The signed-in user's id when "Assigned to me" is chosen. */
+  assignee: number | null
 }
 
 /** Drag-and-drop ids for cards and columns. */
 export const cardKey = (id: number) => `card-${id}`
 export const columnKey = (id: number) => `column-${id}`
 
-export const EMPTY_FILTERS: Filters = { text: '', labelId: null, priority: null, status: 'all' }
+export const EMPTY_FILTERS: Filters = { text: '', labelId: null, priority: null, status: 'all', assignee: null }
 const SOON_DAYS = 2
 const DAY = 86_400_000
 
@@ -46,7 +48,7 @@ export function dueLabel(due: string, today = new Date()): string {
 }
 
 export function filtersActive(f: Filters): boolean {
-  return f.text.trim() !== '' || f.labelId !== null || f.priority !== null || f.status !== 'all'
+  return f.text.trim() !== '' || f.labelId !== null || f.priority !== null || f.status !== 'all' || f.assignee !== null
 }
 
 export function matchesFilters(card: Card, f: Filters): boolean {
@@ -56,6 +58,7 @@ export function matchesFilters(card: Card, f: Filters): boolean {
   if (f.priority !== null && card.priority !== f.priority) return false
   if (f.status === 'open' && card.completed) return false
   if (f.status === 'done' && !card.completed) return false
+  if (f.assignee !== null && !card.assignee_ids.includes(f.assignee)) return false
   return true
 }
 

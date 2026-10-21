@@ -106,6 +106,8 @@ def test_every_data_endpoint_requires_sign_in(client):
         "/api/auth/google/login",
         "/api/auth/google/callback",
         "/api/invites/preview",
+        "/api/public/boards/{token}",
+        "/api/public/boards/{token}/background",
     }
     checked = 0
     for path, operations in client.app.openapi()["paths"].items():

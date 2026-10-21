@@ -229,6 +229,15 @@ export function useBoard(boardId: number) {
         () => files.remove(attachmentId),
       ),
     setBackground: (background: Background) => commit({ ...ref.current!, background }),
+    /** Public link and meeting link, after the admin changed them in the members panel. */
+    setBoardInfo: (changes: Partial<Pick<Board, 'public' | 'public_link' | 'meeting_url'>>) =>
+      commit({ ...ref.current!, ...changes }),
+    setAssignees: (cardId: number, userIds: number[]) =>
+      allowed('editor') &&
+      mutate(
+        (b) => logic.updateCard(b, cardId, { assignee_ids: userIds }),
+        () => boards.setAssignees(cardId, userIds),
+      ),
 
     addLabel: (name: string, color: LabelColor) =>
       allowed('editor') &&

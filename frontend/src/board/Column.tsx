@@ -1,7 +1,7 @@
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, MoreHorizontal, Plus } from 'lucide-react'
-import type { Card, Column as ColumnType, Label } from '../api/boards'
+import type { Board, Card, Column as ColumnType, Label } from '../api/boards'
 import { useI18n } from '../i18n/context'
 import { InlineText } from '../ui/InlineText'
 import { Menu } from '../ui/Menu'
@@ -15,6 +15,7 @@ type Props = {
   column: ColumnType
   cards: Card[]
   labels: Label[]
+  members: Board['members']
   actions: BoardActions
   dragDisabled: boolean
   filtering: boolean
@@ -24,7 +25,7 @@ type Props = {
 }
 
 /** One column: drag handle, inline title, card list, and the add-card composer. */
-export function Column({ column, cards, labels, actions, dragDisabled, filtering, composing, onCompose, onOpenCard }: Props) {
+export function Column({ column, cards, labels, members, actions, dragDisabled, filtering, composing, onCompose, onOpenCard }: Props) {
   const { setNodeRef, setActivatorNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
     id: columnKey(column.id),
     data: { type: 'column', columnId: column.id },
@@ -85,6 +86,7 @@ export function Column({ column, cards, labels, actions, dragDisabled, filtering
               card={card}
               columnId={column.id}
               labels={labels}
+              members={members}
               disabled={dragDisabled}
               onOpen={() => onOpenCard(card.id)}
               onToggle={() => actions.updateCard(card.id, { completed: !card.completed })}
@@ -110,12 +112,13 @@ type CardProps = {
   card: Card
   columnId: number
   labels: Label[]
+  members: Board['members']
   disabled: boolean
   onOpen: () => void
   onToggle: () => void
 }
 
-function SortableCard({ card, columnId, labels, disabled, onOpen, onToggle }: CardProps) {
+function SortableCard({ card, columnId, labels, members, disabled, onOpen, onToggle }: CardProps) {
   const { setNodeRef, setActivatorNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
     id: cardKey(card.id),
     data: { type: 'card', columnId },
@@ -131,6 +134,7 @@ function SortableCard({ card, columnId, labels, disabled, onOpen, onToggle }: Ca
       <CardItem
         card={card}
         labels={labels}
+        members={members}
         onOpen={onOpen}
         onToggle={onToggle}
         activatorRef={setActivatorNodeRef}

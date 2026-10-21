@@ -7,8 +7,9 @@ from app import limits
 from app.access import board_labels, card_for, column_for, item_for, not_found, renumber
 from app.auth import CurrentUser
 from app.db import SessionDep
-from app.models import BoardColumn, Card, ChecklistItem, Role
+from app.models import BoardColumn, BoardMember, Card, ChecklistItem, Role, User
 from app.schemas import (
+    CardAssignees,
     CardCreate,
     CardLabels,
     CardMove,
@@ -86,6 +87,21 @@ def set_card_labels(
 ) -> CardOut:
     card = card_for(session, user, card_id, Role.editor)
     card.labels = board_labels(session, card.column.board_id, body.label_ids)
+    session.commit()
+    return card_out(card)
+
+
+@router.put("/cards/{card_id}/assignees")
+def set_assignees(
+    card_id: int, body: CardAssignees, user: CurrentUser, session: SessionDep
+) -> CardOut:
+    """Only members of the card's board can be assigned (SEC-168)."""
+    card = card_for(session, user, card_id, Role.editor)
+    ids = set(body.user_ids)
+    stmt = select(BoardMember.user_id).where(BoardMember.board_id == card.column.board_id)
+    if not ids <= set(session.exec(stmt)):
+        raise not_found()
+    card.assignees = list(session.exec(select(User).where(User.id.in_(ids))))
     session.commit()
     return card_out(card)
 

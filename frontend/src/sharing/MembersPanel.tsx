@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { Role } from '../api/boards'
+import type { Board, Role } from '../api/boards'
 import { sharing, type InviteLink, type Members } from '../api/sharing'
 import { useI18n } from '../i18n/context'
 import { Dialog } from '../ui/Dialog'
 import ui from '../ui/ui.module.css'
+import { BoardLinks } from './BoardLinks'
 import { InviteForm } from './InviteForm'
 import { MemberRow } from './MemberRow'
 import { AccessRequests, PendingInvites } from './PendingLists'
@@ -13,23 +14,24 @@ import css from './sharing.module.css'
 type Props = {
   open: boolean
   onClose: () => void
-  board: { id: number; title: string }
+  board: Pick<Board, 'id' | 'title' | 'public' | 'public_link' | 'meeting_url'>
   userId: number
   isGuest: boolean
   onLeft: () => void
+  onBoardChange: (changes: Partial<Pick<Board, 'public' | 'public_link' | 'meeting_url'>>) => void
 }
 
 /** Who is on the board. The admin invites, sets each member's permission and answers requests. */
-export function MembersPanel({ open, onClose, board, userId, isGuest, onLeft }: Props) {
+export function MembersPanel({ open, onClose, board, userId, isGuest, onLeft, onBoardChange }: Props) {
   const { t } = useI18n()
   return (
     <Dialog open={open} onClose={onClose} title={t('members.title', { title: board.title })} wide>
-      <PanelBody board={board} userId={userId} isGuest={isGuest} onLeft={onLeft} />
+      <PanelBody board={board} userId={userId} isGuest={isGuest} onLeft={onLeft} onBoardChange={onBoardChange} />
     </Dialog>
   )
 }
 
-function PanelBody({ board, userId, isGuest, onLeft }: Omit<Props, 'open' | 'onClose'>) {
+function PanelBody({ board, userId, isGuest, onLeft, onBoardChange }: Omit<Props, 'open' | 'onClose'>) {
   const { t } = useI18n()
   const [data, setData] = useState<Members | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -119,6 +121,7 @@ function PanelBody({ board, userId, isGuest, onLeft }: Omit<Props, 'open' | 'onC
             }
             onCancel={(invite) => run(() => sharing.cancel(invite.id))}
           />
+          <BoardLinks board={board} onChange={onBoardChange} />
         </>
       ) : (
         <div className={css.memberActions}>

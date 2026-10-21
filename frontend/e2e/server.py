@@ -42,7 +42,7 @@ from app.config import load_settings  # noqa: E402
 from app.factory import create_app  # noqa: E402
 
 LIMITS = ("SIGN_IN", "GUEST", "EMAIL_PER_ADDRESS", "EMAIL_PER_IP", "AI_PER_MINUTE", "UPLOADS")
-for name in (*LIMITS, "INVITES", "ACCESS_REQUESTS"):
+for name in (*LIMITS, "INVITES", "ACCESS_REQUESTS", "PUBLIC_VIEWS", "MEETING_EMAILS"):
     setattr(ratelimit, name, ratelimit.Limit(10_000, 60))
 google.GOOGLE_METADATA = {
     "issuer": ISSUER,

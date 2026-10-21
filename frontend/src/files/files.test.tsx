@@ -47,6 +47,7 @@ const card = (attachments: Attachment[] = []): Card => ({
   label_ids: [],
   checklist: [],
   attachments,
+  assignee_ids: [],
 })
 
 let actions: BoardActions

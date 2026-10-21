@@ -53,6 +53,10 @@ class CardUpdate(Strict):
     due_date: date | None = None
 
 
+class CardAssignees(Strict):
+    user_ids: list[int] = Field(max_length=50)
+
+
 class CardMove(Strict):
     column_id: int
     position: int = Field(ge=0)
@@ -118,6 +122,7 @@ class CardOut(BaseModel):
     label_ids: list[int]
     checklist: list[ItemOut]
     attachments: list[AttachmentOut]
+    assignee_ids: list[int]
 
 
 class ColumnOut(BaseModel):
@@ -141,6 +146,43 @@ class BoardOut(BaseModel):
     columns: list[ColumnOut]
     background: BackgroundOut
     role: Role
+    public: bool
+    public_link: str | None
+    meeting_url: str | None
+    members: list["MemberBrief"]
+
+
+class MemberBrief(BaseModel):
+    user_id: int
+    email: str | None
+
+
+class PublicCardOut(BaseModel):
+    """A card on a public board: no attachments, no assignees."""
+
+    id: int
+    title: str
+    details: str
+    completed: bool
+    priority: Priority
+    due_date: date | None
+    label_ids: list[int]
+    checklist: list[ItemOut]
+
+
+class PublicColumnOut(BaseModel):
+    id: int
+    title: str
+    cards: list[PublicCardOut]
+
+
+class PublicBoardOut(BaseModel):
+    """What anyone with the link sees: no board id, members, files or AI."""
+
+    title: str
+    labels: list[LabelOut]
+    columns: list[PublicColumnOut]
+    background: BackgroundOut
 
 
 def card_out(card: Card) -> CardOut:
@@ -155,6 +197,7 @@ def card_out(card: Card) -> CardOut:
         label_ids=sorted(label.id for label in card.labels),
         checklist=[ItemOut.model_validate(i) for i in card.checklist],
         attachments=[AttachmentOut.model_validate(a) for a in card.attachments],
+        assignee_ids=sorted(u.id for u in card.assignees),
     )
 
 
@@ -171,7 +214,13 @@ def board_summary(board: Board, role: Role) -> BoardSummary:
     return BoardSummary(id=board.id, title=board.title, created_at=board.created_at, role=role)
 
 
-def board_out(board: Board, role: Role) -> BoardOut:
+def public_url(app_url: str, token: str) -> str:
+    return f"{app_url}/p/{token}"
+
+
+def board_out(board: Board, role: Role, app_url: str) -> BoardOut:
+    """The full board; only the admin gets the public link."""
+    link = board.public_link
     return BoardOut(
         id=board.id,
         title=board.title,
@@ -179,6 +228,38 @@ def board_out(board: Board, role: Role) -> BoardOut:
         columns=[column_out(c) for c in board.columns],
         background=background_out(board),
         role=role,
+        public=link is not None,
+        public_link=public_url(app_url, link.token) if link and role == Role.admin else None,
+        meeting_url=board.meeting_link.url if board.meeting_link else None,
+        members=[MemberBrief(user_id=m.user_id, email=m.user.email) for m in board.members],
+    )
+
+
+def public_board_out(board: Board) -> PublicBoardOut:
+    return PublicBoardOut(
+        title=board.title,
+        labels=[LabelOut.model_validate(lbl) for lbl in board.labels],
+        columns=[
+            PublicColumnOut(
+                id=col.id,
+                title=col.title,
+                cards=[
+                    PublicCardOut(
+                        id=c.id,
+                        title=c.title,
+                        details=c.details,
+                        completed=c.completed,
+                        priority=c.priority,
+                        due_date=c.due_date,
+                        label_ids=sorted(lbl.id for lbl in c.labels),
+                        checklist=[ItemOut.model_validate(i) for i in c.checklist],
+                    )
+                    for c in col.cards
+                ],
+            )
+            for col in board.columns
+        ],
+        background=background_out(board),
     )
 
 

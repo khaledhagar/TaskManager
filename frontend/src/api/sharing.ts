@@ -1,4 +1,4 @@
-import type { BoardSummary, Role } from './boards'
+import type { Background, BoardSummary, Card, Label, Role } from './boards'
 import { api } from './client'
 
 export type Member = { user_id: number; email: string | null; role: Role }
@@ -13,6 +13,14 @@ export type Members = {
 }
 export type InviteLink = PendingInvite & { link: string }
 export type InvitePreview = { board_title: string; invited_by: string | null; email: string }
+type PublicCard = Omit<Card, 'attachments' | 'assignee_ids' | 'position'>
+/** What anyone with a public link sees: no board id, members, files or AI. */
+export type PublicBoard = {
+  title: string
+  labels: Label[]
+  columns: { id: number; title: string; cards: PublicCard[] }[]
+  background: Background
+}
 
 export const sharing = {
   members: (boardId: number) => api<Members>(`/boards/${boardId}/members`),
@@ -31,6 +39,19 @@ export const sharing = {
   approve: (requestId: number, role: Role) =>
     api<Member>(`/access-requests/${requestId}/approve`, { body: { role } }),
   decline: (requestId: number) => api<void>(`/access-requests/${requestId}`, { method: 'DELETE' }),
+
+  setVisibility: (boardId: number, isPublic: boolean) =>
+    api<{ public: boolean; link: string | null }>(`/boards/${boardId}/visibility`, {
+      method: 'PUT',
+      body: { public: isPublic },
+    }),
+  publicBoard: (token: string) => api<PublicBoard>(`/public/boards/${token}`),
+  publicBackground: (token: string) => `/api/public/boards/${token}/background`,
+  joinPublic: (token: string) => api<BoardSummary>(`/public/boards/${token}/join`, { method: 'POST' }),
+
+  setMeeting: (boardId: number, url: string | null) =>
+    api<{ url: string | null }>(`/boards/${boardId}/meeting`, { method: 'PUT', body: { url } }),
+  emailMeeting: (boardId: number) => api<{ sent: number }>(`/boards/${boardId}/meeting/email`, { method: 'POST' }),
 }
 
 /** WhatsApp share link with a short message and the invite link (opens the app or web). */

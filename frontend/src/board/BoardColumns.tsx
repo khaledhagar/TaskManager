@@ -160,6 +160,7 @@ export function BoardColumns({ board, actions, filters, dragDisabled, composingC
               column={column}
               cards={column.cards.filter((c) => matchesFilters(c, filters))}
               labels={shown.labels}
+              members={shown.members}
               actions={actions}
               dragDisabled={dragDisabled}
               filtering={dragDisabled}
@@ -174,7 +175,7 @@ export function BoardColumns({ board, actions, filters, dragDisabled, composingC
       <DragOverlay dropAnimation={DROP}>
         {activeCard ? (
           <div className={cardCss.overlay}>
-            <CardItem card={activeCard} labels={shown.labels} onOpen={() => {}} onToggle={() => {}} />
+            <CardItem card={activeCard} labels={shown.labels} members={shown.members} onOpen={() => {}} onToggle={() => {}} />
           </div>
         ) : null}
       </DragOverlay>

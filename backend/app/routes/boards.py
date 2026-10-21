@@ -1,6 +1,6 @@
 """Board, column and label routes."""
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Request, status
 from sqlmodel import func, select
 
 from app import limits
@@ -47,9 +47,10 @@ def create_board(body: BoardCreate, user: CurrentUser, session: SessionDep) -> B
 
 
 @router.get("/boards/{board_id}")
-def get_board(board_id: int, user: CurrentUser, session: SessionDep) -> BoardOut:
+def get_board(board_id: int, request: Request, user: CurrentUser, session: SessionDep) -> BoardOut:
     board = board_full_for(session, user, board_id)
-    return board_out(board, board_role(session, user, board_id))
+    role = board_role(session, user, board_id)
+    return board_out(board, role, request.app.state.settings.app_url)
 
 
 @router.patch("/boards/{board_id}")

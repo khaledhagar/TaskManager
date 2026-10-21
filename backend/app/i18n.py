@@ -47,6 +47,8 @@ AR: dict[str, str] = {
     "The board admin cannot leave the board.": "لا يمكن للمسؤول عن اللوحة مغادرتها.",
     "You already have full access to this board.": "لديك بالفعل صلاحية كاملة على هذه اللوحة.",
     "Create an account to share this board.": "أنشئ حسابا لمشاركة هذه اللوحة.",
+    "Create an account to join this board.": "أنشئ حسابا للانضمام إلى هذه اللوحة.",
+    "Add a meeting link first.": "أضف رابط الاجتماع أولا.",
     "This person is already a member of this board.": "هذا الشخص عضو بالفعل في هذه اللوحة.",
     "Limit reached: at most {cap} pending invitations per board": (
         "تم بلوغ الحد: {cap} دعوة معلقة كحد أقصى لكل لوحة"

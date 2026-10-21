@@ -6,7 +6,8 @@ import { useI18n } from './i18n/context'
 import { hasSavedLanguage } from './i18n/language'
 import { navigate, useLocation } from './lib/router'
 import { InvitePage } from './sharing/InvitePage'
-import { savedInvite } from './sharing/inviteStore'
+import { savedInvite, takeReturn } from './sharing/inviteStore'
+import { PublicBoardPage } from './sharing/PublicBoardPage'
 import { AppShell } from './shell/AppShell'
 
 const SIGNED_OUT_ONLY = ['/signin', '/signup']
@@ -35,7 +36,7 @@ export default function App() {
   // After signing in, go back to an invitation the user opened while signed out.
   const signedIn = useCallback((next: User) => {
     setUser(next)
-    navigate(savedInvite() ? '/invite' : '/', { replace: true })
+    navigate(savedInvite() ? '/invite' : (takeReturn() ?? '/'), { replace: true })
   }, [])
 
   useEffect(() => {
@@ -47,6 +48,7 @@ export default function App() {
   if (path === '/check-inbox') return <CheckInbox />
   if (path === '/forgot-password') return <ForgotPassword />
   if (user === undefined) return <div role="status" aria-label={t('app.loading')} />
+  if (path.startsWith('/p/')) return <PublicBoardPage token={path.slice(3)} user={user} />
   if (path === '/invite')
     return <InvitePage user={user} onSignOut={() => auth.signOut().then(() => setUser(null))} />
   if (user === null) return <AuthScreen onSignedIn={signedIn} />

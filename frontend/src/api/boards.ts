@@ -29,6 +29,7 @@ export type Card = {
   label_ids: number[]
   checklist: ChecklistItem[]
   attachments: Attachment[]
+  assignee_ids: number[]
 }
 export type Column = { id: number; title: string; position: number; cards: Card[] }
 export type Board = {
@@ -38,6 +39,11 @@ export type Board = {
   columns: Column[]
   background: Background
   role: Role
+  /** Anyone with the link can view; only the admin gets the link itself. */
+  public: boolean
+  public_link: string | null
+  meeting_url: string | null
+  members: { user_id: number; email: string | null }[]
 }
 export type CardPatch = Partial<
   Pick<Card, 'title' | 'details' | 'completed' | 'priority' | 'due_date'>
@@ -69,6 +75,8 @@ export const boards = {
     api<Card>(`/cards/${id}/move`, { body: { column_id: columnId, position } }),
   setCardLabels: (id: number, labelIds: number[]) =>
     api<Card>(`/cards/${id}/labels`, { method: 'PUT', body: { label_ids: labelIds } }),
+  setAssignees: (id: number, userIds: number[]) =>
+    api<Card>(`/cards/${id}/assignees`, { method: 'PUT', body: { user_ids: userIds } }),
 
   addItem: (cardId: number, text: string) =>
     api<ChecklistItem>(`/cards/${cardId}/checklist`, { body: { text } }),

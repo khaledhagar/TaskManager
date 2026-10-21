@@ -30,7 +30,7 @@ beforeEach(() => {
   applyLanguage('en')
   vi.mocked(auth.config).mockResolvedValue({ google: false })
   vi.mocked(boards.list).mockResolvedValue([{ id: 1, title: 'Website Launch', created_at: '', role: 'admin' as const }])
-  vi.mocked(boards.get).mockResolvedValue({ id: 1, title: 'Website Launch', labels: [], columns: [], background: { kind: 'none' as const, preset: null, version: 0 }, role: 'admin' as const })
+  vi.mocked(boards.get).mockResolvedValue({ id: 1, title: 'Website Launch', labels: [], columns: [], background: { kind: 'none' as const, preset: null, version: 0 }, role: 'admin' as const, public: false, public_link: null, meeting_url: null, members: [] })
 })
 
 const renderApp = () =>

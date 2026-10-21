@@ -5,15 +5,14 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 ## Where the project stands (2026-10-21)
 
 - Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
-- Phases 17 (password strength), 18 (sharing backend) and 19 (sharing UI) are done and pushed. **Next: Phase 20 (public boards, card assignment, meeting link).** The user asked (2026-10-21) to run Phases 18, 19 and 20 back to back without asking: finish each, test everything, push, update this log, then start the next. Stop before Phase 21 (Deployment).
-- Tests: backend 368 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 271 passing; Playwright 69 passing (Edge full suite, Firefox and WebKit smoke). Lint, format and type checks are clean.
-- Checklists: 278 tests ticked in `Planning/TEST_PLAN.md` (open: T-560 to T-589, Phase 20), 119 items ticked in `Planning/SECURITY.md` (open: SEC-164, SEC-168, SEC-170 to SEC-174).
+- Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Next: waiting for the user.** Proposed (not approved yet): a voice-input phase (see "Waiting on the user"); then Phase 21 Deployment, which starts by asking before deleting local test data.
+- Tests: backend 390 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 282 passing; Playwright 75 passing (Edge full suite, Firefox and WebKit smoke). Lint, format, type checks and both audits are clean. Lighthouse: sign-in 94, board 98, accessibility 100.
+- Checklists: 308 tests ticked in `Planning/TEST_PLAN.md` (all), 126 items ticked in `Planning/SECURITY.md` (all).
 
 | Done | Phase |
 |------|-------|
-| Yes | 1 Scaffolding to 19 Board sharing (UI) |
-| Next | 20 Public boards / assignment / meeting link |
-| Later | 21 Deployment (Vercel) |
+| Yes | 1 Scaffolding to 20 Public boards / assignment / meeting link |
+| Next | User's decision: voice input phase (proposed), or 21 Deployment (Vercel) |
 
 ## How we work (the user's preferences)
 
@@ -112,8 +111,9 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 
 ## Waiting on the user
 
+- **Voice input (proposed 2026-10-21, not approved):** the user asked about voice help for people who cannot type. Recommendation given: a phase "Voice input" before Deployment (which would become Phase 22). Browser Web Speech API (`SpeechRecognition`; free, no key, English and Arabic; Chrome, Edge and Safari, not Firefox, so the mic button is hidden there; audio goes to the browser maker's speech service, which must be stated next to the button; needs microphone permission and https). A mic button on card title, description, checklist, search and the AI chat; voice plus the existing AI chat actions lets people say "add a card ... to In Progress" and confirm. Add it to PLAN / TEST_PLAN / SECURITY / CLAUDE.md only after the user approves.
 - Optional: 10 OpenRouter credits would raise the AI limit from 50 to 1,000 requests per day.
-- **First Phase 21 (Deployment) task:** delete `backend/taskmanager.db` and `backend/storage/` (stop the server first). Remind the user and do it only when they agree; the local database now holds their live-test accounts.
+- **First Phase 21 (Deployment) task:** delete `backend/taskmanager.db` and `backend/storage/` (stop the server first), only with the user's OK. On 2026-10-21 the user asked to remove their test accounts: all 3 users (and their boards) were deleted through the ORM; the database file itself is still there, empty.
 - The free AI quota is 50 requests per day for the whole account; Phase 12 used 1 for the live check.
 
 ## Hardening (Phase 14): how it works
@@ -170,7 +170,19 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 - CSS gotchas: a `fieldset` does not shrink below its content (`min-inline-size: 0`), and grid rows need `grid-template-columns: minmax(0, 1fr)`, or a long email widens the dialog on phones. The visually hidden radio covers its label, so Playwright must `check()` the radio rather than click the text. After a drop, wait for the card count to be 1 (the drag overlay lingers 200 ms).
 - E2E: `frontend/e2e/sharing.spec.ts` (two browser contexts: admin and member). Stop any server on port 8001 before `npx playwright test` (the runner starts its own and fails silently if the port is taken).
 
-## Next steps: Phase 20
+## Public boards, assignment, meeting link (Phase 20): how it works
+
+- New tables only (no reset of existing databases): `public_links` (board_id unique, token), `meeting_links` (board_id unique, url), `card_assignees` (card_id, user_id).
+- `PUT /boards/{id}/visibility {public}` (admin): public creates a new `secrets.token_urlsafe(32)` link `APP_URL/p/{token}`; private deletes the row so the old link 404s. `GET /api/public/boards/{token}` (no sign-in; `X-Robots-Tag: noindex`; rate limit `PUBLIC_VIEWS` 60/min per IP) returns `PublicBoardOut`: no board id, members, attachments or AI. `GET .../background`, `POST .../join` (signed-in non-guest becomes Viewer; members keep their role).
+- `BoardOut` now has `public`, `public_link` (admin only), `meeting_url`, `members` (user_id, email); cards have `assignee_ids`. `PUT /cards/{id}/assignees` (Full access; only members, else 404). Removing a member deletes their assignments.
+- `PUT /boards/{id}/meeting {url}` (admin; https with a host, max 500, else 422); `POST /boards/{id}/meeting/email` (admin; emails every other member; rate limit `MEETING_EMAILS` 3/h per board).
+- `access.full_board_options()` loads everything in batches; the one-to-one links and member users use `joinedload` to keep the query count at 12 or below.
+- Frontend: assignee picker in the card window (`board/AssigneePicker.tsx`, styles in `assignees.module.css`), initials on cards (max 3 + "+n"), "Assigned to me" option in the status filter (`Filters.assignee`), Start meeting link in the board header, `sharing/BoardLinks.tsx` (public switch with link, Copy and WhatsApp; meeting link save / email / remove) inside the members panel for the admin, `sharing/PublicBoardPage.tsx` at `/p/{token}` (read-only `CardItem readOnly`, Join board or Sign in to join; `inviteStore.rememberReturn` brings the visitor back after sign-in).
+- Fixes found by the checks: dark `--primary-hover` raised to `#9655b4` (white text was 4.45:1); the public columns area is focusable (axe `scrollable-region-focusable`); a guest's own row in the assignee list reads "You"; links styled as buttons have no underline.
+- The 500-card speed test pauses coverage and takes the best of 3 (real time is about 34 ms; coverage tracing and occasional disk or antivirus pauses made single timings 300-400 ms).
+- E2E: `frontend/e2e/public.spec.ts`; shared two-user helpers in `frontend/e2e/sharingHelpers.ts`.
+
+## Earlier next steps (Phases 17-20, done)
 
 Approved on 2026-10-21; details in PLAN.md. User decisions: public = read-only for anyone with the link, signed-in visitors can join as Viewer; every new member starts as Viewer; Request access button emails the admin; admin picks exactly one permission per member in a members panel; invites by email plus Copy / Share on WhatsApp. My calls (tell the user if questioned): any address can be invited (no user search, no account enumeration); public view hides attachments, member emails and AI; no live sync (board reloads on tab focus); Zoom meetings are links, not created by API.
 

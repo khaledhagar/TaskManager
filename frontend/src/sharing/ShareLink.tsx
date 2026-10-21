@@ -2,13 +2,14 @@ import { Check, Copy, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
 import { whatsAppLink } from '../api/sharing'
 import { useI18n } from '../i18n/context'
+import type { Key } from '../i18n/messages'
 import ui from '../ui/ui.module.css'
 import css from './sharing.module.css'
 
-type Props = { link: string; boardTitle: string; note: string }
+type Props = { link: string; boardTitle: string; note: string; message?: Key; linkLabel?: Key }
 
-/** An invitation link with Copy and Share on WhatsApp. */
-export function ShareLink({ link, boardTitle, note }: Props) {
+/** A link (invitation or public board) with Copy and Share on WhatsApp. */
+export function ShareLink({ link, boardTitle, note, message = 'share.message', linkLabel = 'share.link' }: Props) {
   const { t } = useI18n()
   const [copied, setCopied] = useState(false)
 
@@ -23,7 +24,7 @@ export function ShareLink({ link, boardTitle, note }: Props) {
         {note}
       </p>
       <label className={css.linkLabel}>
-        <span className={ui.hint}>{t('share.link')}</span>
+        <span className={ui.hint}>{t(linkLabel)}</span>
         <input className={`${ui.input} ${css.linkInput}`} value={link} readOnly dir="ltr" onFocus={(e) => e.target.select()} />
       </label>
       <div className={css.shareActions}>
@@ -33,7 +34,7 @@ export function ShareLink({ link, boardTitle, note }: Props) {
         </button>
         <a
           className={`${ui.button} ${ui.secondary}`}
-          href={whatsAppLink(t('share.message', { title: boardTitle, link }))}
+          href={whatsAppLink(t(message, { title: boardTitle, link }))}
           target="_blank"
           rel="noopener noreferrer"
         >

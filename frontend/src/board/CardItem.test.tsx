@@ -30,7 +30,7 @@ const card: Card = {
     { id: 1, text: 'a', done: true, position: 0 },
     { id: 2, text: 'b', done: false, position: 1 },
   ],
-  attachments: [],
+  attachments: [], assignee_ids: [],
 }
 const labels = [
   { id: 9, name: 'Bug', color: 'red' as const },
@@ -38,6 +38,14 @@ const labels = [
 ]
 
 describe('card tile (T-204)', () => {
+  test('shows the initials of assigned members, at most 3 plus a count (T-574)', () => {
+    const members = ['alice', 'bob', 'carol', 'dan'].map((name, i) => ({ user_id: i + 1, email: `${name}@example.com` }))
+    render(<CardItem card={{ ...card, assignee_ids: [1, 2, 3, 4] }} labels={labels} members={members} onOpen={vi.fn()} onToggle={vi.fn()} />)
+    const body = screen.getByRole('button', { name: /fix checkout/i })
+    expect(body).toHaveTextContent('Assigned to alice@example.com, bob@example.com, carol@example.com, dan@example.com')
+    expect(body).toHaveTextContent('ABC+1')
+  })
+
   test('shows title, priority, labels, due date and checklist progress', () => {
     render(<CardItem card={card} labels={labels} onOpen={vi.fn()} onToggle={vi.fn()} />)
     const body = screen.getByRole('button', { name: /fix checkout/i })

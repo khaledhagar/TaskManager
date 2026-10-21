@@ -1,21 +1,22 @@
 import { Check, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import type { Card, Label, Priority } from '../api/boards'
+import type { Board, Card, Label, Priority } from '../api/boards'
 import { AttachmentsSection } from '../files/AttachmentsSection'
 import { useI18n } from '../i18n/context'
 import { Dialog } from '../ui/Dialog'
 import ui from '../ui/ui.module.css'
 import css from './cardWindow.module.css'
+import { AssigneePicker } from './AssigneePicker'
 import { ChecklistEditor } from './ChecklistEditor'
 import { DescriptionEditor } from './DescriptionEditor'
 import { PRIORITIES, priorityLabel } from './display'
 import { LabelPicker } from './LabelPicker'
 import type { BoardActions } from './useBoard'
 
-type Props = { card: Card; labels: Label[]; actions: BoardActions; onClose: () => void }
+type Props = { card: Card; labels: Label[]; members: Board['members']; actions: BoardActions; onClose: () => void }
 
 /** Card details: content first, properties at the end side. Every change saves at once. */
-export function CardModal({ card, labels, actions, onClose }: Props) {
+export function CardModal({ card, labels, members, actions, onClose }: Props) {
   const { t } = useI18n()
   const update = (changes: Parameters<BoardActions['updateCard']>[1]) =>
     actions.updateCard(card.id, changes)
@@ -84,6 +85,8 @@ export function CardModal({ card, labels, actions, onClose }: Props) {
           </div>
 
           <LabelPicker card={card} labels={labels} actions={actions} />
+
+          <AssigneePicker card={card} members={members} actions={actions} />
 
           <button
             type="button"

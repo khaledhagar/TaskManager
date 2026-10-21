@@ -5,7 +5,7 @@ confirmed), and a role below what the action needs means 403 with a message sayi
 """
 
 from fastapi import HTTPException, status
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import joinedload, selectinload
 from sqlmodel import Session, select
 
 from app.i18n import tr
@@ -57,19 +57,27 @@ def board_for(session: Session, user: User, board_id: int, need: Role = Role.vie
     return _allowed(session, stmt, user, need)
 
 
-def board_full_for(session: Session, user: User, board_id: int) -> Board:
-    """The board with columns, cards and their details, loaded in a few queries (NFR-01)."""
+def full_board_options():
+    """Load columns, cards and their details in a few queries, whatever the size (NFR-01)."""
     cards = selectinload(Board.columns).selectinload(BoardColumn.cards)
+    return (
+        selectinload(Board.labels),
+        selectinload(Board.members).joinedload(BoardMember.user),
+        joinedload(Board.public_link),
+        joinedload(Board.meeting_link),
+        cards.selectinload(Card.labels),
+        cards.selectinload(Card.checklist),
+        cards.selectinload(Card.attachments),
+        cards.selectinload(Card.assignees),
+    )
+
+
+def board_full_for(session: Session, user: User, board_id: int) -> Board:
     stmt = (
         select(Board, BoardMember.role)
-        .join(BoardMember)
+        .join(BoardMember, BoardMember.board_id == Board.id)
         .where(Board.id == board_id)
-        .options(
-            selectinload(Board.labels),
-            cards.selectinload(Card.labels),
-            cards.selectinload(Card.checklist),
-            cards.selectinload(Card.attachments),
-        )
+        .options(*full_board_options())
     )
     return _allowed(session, stmt, user, Role.viewer)
 

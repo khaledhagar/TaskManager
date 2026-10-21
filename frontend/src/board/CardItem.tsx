@@ -1,6 +1,6 @@
 import { AlignLeft, CalendarDays, Check, ListChecks, Paperclip } from 'lucide-react'
-import { memo, type ButtonHTMLAttributes, type Ref } from 'react'
-import type { Card, Label } from '../api/boards'
+import { memo, type ButtonHTMLAttributes, type ReactNode, type Ref } from 'react'
+import type { Board, Card, Label } from '../api/boards'
 import { useI18n } from '../i18n/context'
 import css from './card.module.css'
 import { LABEL_SWATCH, priorityLabel } from './display'
@@ -9,6 +9,9 @@ import { dueLabel, dueStatus } from './logic'
 type Props = {
   card: Card
   labels: Label[]
+  members?: Board['members']
+  /** Public boards: no buttons, nothing to click. */
+  readOnly?: boolean
   onOpen: () => void
   onToggle: () => void
   activatorRef?: Ref<HTMLButtonElement>
@@ -25,37 +28,39 @@ type Props = {
 const sameCard = (a: Props, b: Props) =>
   a.card === b.card &&
   a.labels === b.labels &&
+  a.members === b.members &&
   a.activatorRef === b.activatorRef &&
   a.activatorAttributes === b.activatorAttributes &&
   a.activatorListeners === b.activatorListeners
 
 /** Card tile: completion toggle, title and a compact row of details. */
-export const CardItem = memo(function CardItem({ card, labels, onOpen, onToggle, activatorRef, activatorAttributes, activatorListeners }: Props) {
+export const CardItem = memo(function CardItem({ card, labels, members = [], readOnly = false, onOpen, onToggle, activatorRef, activatorAttributes, activatorListeners }: Props) {
   const { t } = useI18n()
   const status = dueStatus(card.due_date, card.completed)
   const cardLabels = labels.filter((l) => card.label_ids.includes(l.id))
   const done = card.checklist.filter((i) => i.done).length
+  const assigned = members.filter((m) => card.assignee_ids?.includes(m.user_id))
 
   return (
     <div className={css.card} data-completed={card.completed || undefined}>
-      <button
-        type="button"
-        role="checkbox"
-        aria-checked={card.completed}
-        aria-label={t('card.completedToggle', { title: card.title })}
-        className={css.check}
-        onClick={onToggle}
-      >
-        {card.completed ? <Check size={12} strokeWidth={3} aria-hidden="true" /> : null}
-      </button>
-      <button
-        type="button"
-        ref={activatorRef}
-        className={css.cardBody}
-        onClick={onOpen}
-        {...activatorAttributes}
-        {...activatorListeners}
-      >
+      {readOnly ? (
+        <span className={css.check} data-checked={card.completed || undefined} aria-hidden="true">
+          {card.completed ? <Check size={12} strokeWidth={3} /> : null}
+        </span>
+      ) : (
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={card.completed}
+          aria-label={t('card.completedToggle', { title: card.title })}
+          className={css.check}
+          onClick={onToggle}
+        >
+          {card.completed ? <Check size={12} strokeWidth={3} aria-hidden="true" /> : null}
+        </button>
+      )}
+      <CardBody readOnly={readOnly} activatorRef={activatorRef} onOpen={onOpen} attributes={{ ...activatorAttributes, ...activatorListeners }}>
+        {readOnly && card.completed ? <span className="visually-hidden">{t('card.completed')} </span> : null}
         <span className={css.cardTitle} dir="auto">
           {card.title}
         </span>
@@ -97,8 +102,43 @@ export const CardItem = memo(function CardItem({ card, labels, onOpen, onToggle,
               <span className="visually-hidden">{t('card.hasDescription')}</span>
             </span>
           ) : null}
+          {assigned.length ? (
+            <span className={css.assignees}>
+              <span className="visually-hidden">
+                {t('card.assignedTo', { names: assigned.map((m) => m.email ?? '').join(', ') })}
+              </span>
+              {assigned.slice(0, 3).map((m) => (
+                <span key={m.user_id} className={css.assignee} aria-hidden="true" title={m.email ?? ''}>
+                  {(m.email ?? '?').slice(0, 1).toUpperCase()}
+                </span>
+              ))}
+              {assigned.length > 3 ? (
+                <span className={css.assignee} aria-hidden="true">
+                  +{assigned.length - 3}
+                </span>
+              ) : null}
+            </span>
+          ) : null}
         </span>
-      </button>
+      </CardBody>
     </div>
   )
 }, sameCard)
+
+type BodyProps = {
+  readOnly: boolean
+  activatorRef?: Ref<HTMLButtonElement>
+  onOpen: () => void
+  attributes: ButtonHTMLAttributes<HTMLButtonElement>
+  children: ReactNode
+}
+
+/** The card's main area: a button that opens the card, or plain text on a public board. */
+function CardBody({ readOnly, activatorRef, onOpen, attributes, children }: BodyProps) {
+  if (readOnly) return <div className={css.cardBody}>{children}</div>
+  return (
+    <button type="button" ref={activatorRef} className={css.cardBody} onClick={onOpen} {...attributes}>
+      {children}
+    </button>
+  )
+}

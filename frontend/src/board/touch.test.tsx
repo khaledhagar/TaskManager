@@ -7,13 +7,13 @@ import type { BoardActions } from './useBoard'
 
 const card = (id: number, title: string) => ({
   id, title, details: '', completed: false, priority: 'medium' as const, due_date: null,
-  position: 0, label_ids: [], checklist: [], attachments: [],
+  position: 0, label_ids: [], checklist: [], attachments: [], assignee_ids: [],
 })
 const board: Board = {
   id: 1,
   title: 'B',
   labels: [],
-  background: { kind: 'none', preset: null, version: 0 }, role: 'admin' as const,
+  background: { kind: 'none', preset: null, version: 0 }, role: 'admin' as const, public: false, public_link: null, meeting_url: null, members: [],
   columns: [{ id: 1, title: 'To Do', position: 0, cards: [card(10, 'Write post')] }],
 }
 

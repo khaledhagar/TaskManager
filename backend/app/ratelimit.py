@@ -30,6 +30,8 @@ AI_PER_DAY = Limit(10, 86400)
 UPLOADS = Limit(20, 60)  # per user
 INVITES = Limit(20, 3600)  # per user
 ACCESS_REQUESTS = Limit(3, 86400)  # per member per board
+PUBLIC_VIEWS = Limit(60, 60)  # per IP, public board pages
+MEETING_EMAILS = Limit(3, 3600)  # per board
 
 TOO_MANY = "Too many attempts. Please wait a moment and try again."
 AI_MINUTE = "Too many AI requests. Please wait a minute and try again."

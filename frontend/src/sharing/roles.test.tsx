@@ -13,7 +13,7 @@ vi.mock('../api/sharing', () => ({ sharing: { requestAccess: vi.fn(), members: v
 
 const card = (id: number, title: string) => ({
   id, title, details: '', completed: false, priority: 'medium' as const, due_date: null,
-  position: 0, label_ids: [], checklist: [], attachments: [],
+  position: 0, label_ids: [], checklist: [], attachments: [], assignee_ids: [],
 })
 
 const board = (role: Role): Board => ({
@@ -23,6 +23,10 @@ const board = (role: Role): Board => ({
   labels: [],
   columns: [{ id: 1, title: 'To Do', position: 0, cards: [card(1, 'Write announcement')] }],
   role,
+  public: false,
+  public_link: null,
+  meeting_url: null,
+  members: [],
 })
 
 function renderAs(role: Role) {

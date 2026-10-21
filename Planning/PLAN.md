@@ -30,7 +30,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 17 - Password Strength | 7 / 7 | Done |
 | Phase 18 - Board Sharing (backend) | 9 / 9 | Done |
 | Phase 19 - Board Sharing (UI) | 7 / 7 | Done |
-| Phase 20 - Public Boards, Assignment and Meeting Link | 0 / 7 | Not started |
+| Phase 20 - Public Boards, Assignment and Meeting Link | 7 / 7 | Done |
 | Phase 21 - Deployment (Vercel) | 0 / 14 | Not started |
 
 ## Stack
@@ -162,7 +162,7 @@ These rules keep that move to one small phase:
 - New in Phase 18: `board_members`: id, board_id -> boards, user_id -> users, role (`admin`, `editor`, `updater`, `viewer`), created_at; unique (board_id, user_id). The board's owner has the `admin` row.
 - New in Phase 18: `board_invites`: id, board_id, invited_by -> users, email, token_hash (SHA-256), expires_at, used_at, created_at
 - New in Phase 18: `access_requests`: id, board_id, user_id, created_at; one per member per board
-- New in Phase 20: `card_assignees`: card_id -> cards, user_id -> users; `boards` gains visibility (`private` or `public`), public_token (unique, null when private), meeting_url
+- New in Phase 20: `card_assignees`: card_id -> cards, user_id -> users; `public_links`: board_id (unique), token (unique; the board is public while this row exists); `meeting_links`: board_id (unique), url. New tables instead of new `boards` columns, so existing local databases keep working without a reset.
 
 Authorization rule (until Phase 17): a user can only read or change boards they own. From Phase 18: a user can read a board they are a member of and change it as far as their role allows (see Board Sharing Design).
 
@@ -296,7 +296,7 @@ Roles (stored per member; the admin chooses exactly one per member in the member
 - **Public boards (Phase 20):** the admin switches a board to public and copies its link `/p/{token}` (random token, not the board id; switching back to private revokes it). Anyone with the link sees a read-only board (no attachments, no member emails, no AI), with `X-Robots-Tag: noindex`. A signed-in visitor sees **Join board** and becomes a Viewer.
 - **Assignment (Phase 20):** a card can be assigned to any members; their initials show on the card; filter "Assigned to me". Removing a member removes their assignments.
 - **Meeting link (Phase 20):** the admin saves an https link; every member sees **Start meeting** (opens a new tab; Zoom links open the Zoom app). **Email the link to members** sends it to everyone on the board. Creating Zoom meetings automatically is out of scope (needs a Zoom developer app and its own sign-in).
-- Local database: Phase 20 adds columns to `boards`, so the local `backend/taskmanager.db` must be recreated then (ask the user first).
+- Local database: Phase 20 adds only new tables, so the local `backend/taskmanager.db` keeps working (no reset).
 
 ## Phase 1 - Scaffolding
 
@@ -504,13 +504,13 @@ Roles (stored per member; the admin chooses exactly one per member in the member
 
 ## Phase 20 - Public Boards, Assignment and Meeting Link
 
-- [ ] Ask the user, then recreate the local database (new `boards` columns)
-- [ ] Public or private switch (admin), public link with Copy, read-only public page `/p/{token}`, Join board for signed-in visitors
-- [ ] Card assignees: picker in the card window, initials on cards, "Assigned to me" filter
-- [ ] Meeting link: admin sets it; Start meeting for every member; Email the link to members
-- [ ] Tests T-560 to T-589 pass; SEC-170 to SEC-174 ticked
-- [ ] Full regression: backend, frontend, Playwright (all browsers), Lighthouse, audits
-- [ ] Browser review: phone and desktop, light and dark, English and Arabic
+- [x] New tables only (`card_assignees`, `public_links`, `meeting_links`), so the local database needs no reset
+- [x] Public or private switch (admin), public link with Copy, read-only public page `/p/{token}`, Join board for signed-in visitors
+- [x] Card assignees: picker in the card window, initials on cards, "Assigned to me" filter
+- [x] Meeting link: admin sets it; Start meeting for every member; Email the link to members
+- [x] Tests T-560 to T-589 pass; SEC-170 to SEC-174 ticked
+- [x] Full regression: backend, frontend, Playwright (all browsers), Lighthouse, audits
+- [x] Browser review: phone and desktop, light and dark, English and Arabic
 
 ## Phase 21 - Deployment (Vercel)
 

@@ -16,6 +16,9 @@ vi.mock('../api/sharing', async (original) => ({
     approve: vi.fn(),
     decline: vi.fn(),
     requestAccess: vi.fn(),
+    setVisibility: vi.fn(),
+    setMeeting: vi.fn(),
+    emailMeeting: vi.fn(),
   },
 }))
 
@@ -37,10 +40,11 @@ function open(props: Partial<Parameters<typeof MembersPanel>[0]> = {}) {
     <MembersPanel
       open
       onClose={vi.fn()}
-      board={{ id: 5, title: 'Launch' }}
+      board={{ id: 5, title: 'Launch', public: false, public_link: null, meeting_url: null }}
       userId={1}
       isGuest={false}
       onLeft={vi.fn()}
+      onBoardChange={vi.fn()}
       {...props}
     />,
   )
@@ -119,6 +123,55 @@ describe('members panel for the admin (T-540 to T-543)', () => {
     open({ isGuest: true })
     expect(await screen.findByText('Create an account to share this board.')).toBeInTheDocument()
     expect(screen.queryByLabelText('Invite by email')).toBeNull()
+  })
+})
+
+describe('public link and meeting link (T-571, T-575, T-576)', () => {
+  test('switching to public shows the link to copy or share; switching back hides it', async () => {
+    const onBoardChange = vi.fn()
+    vi.mocked(sharing.setVisibility).mockResolvedValue({ public: true, link: 'http://app.test/p/xyz' })
+    open({ onBoardChange })
+    expect(await screen.findByText('Private: only members can see this board.')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Anyone with the link can view' }))
+    expect(sharing.setVisibility).toHaveBeenCalledWith(5, true)
+    expect(onBoardChange).toHaveBeenCalledWith({ public: true, public_link: 'http://app.test/p/xyz' })
+  })
+
+  test('a public board shows its link', async () => {
+    open({ board: { id: 5, title: 'Launch', public: true, public_link: 'http://app.test/p/xyz', meeting_url: null } })
+    expect(await screen.findByDisplayValue('http://app.test/p/xyz')).toBeInTheDocument()
+    const share = screen.getAllByRole('link', { name: 'Share on WhatsApp' })[0]
+    expect(decodeURIComponent(share.getAttribute('href')!)).toContain('See my board "Launch"')
+  })
+
+  test('the meeting link must be https; saved links can be emailed and removed', async () => {
+    const onBoardChange = vi.fn()
+    const url = 'https://zoom.us/j/123'
+    vi.mocked(sharing.setMeeting).mockResolvedValue({ url })
+    vi.mocked(sharing.emailMeeting).mockResolvedValue({ sent: 1 })
+    open({ onBoardChange })
+    const field = await screen.findByLabelText('Meeting link (Zoom, Google Meet, Teams)')
+    await userEvent.type(field, 'javascript:alert(1)')
+    await userEvent.click(screen.getByRole('button', { name: 'Save link' }))
+    expect(screen.getByText('Use an https link, for example https://zoom.us/j/123.')).toBeInTheDocument()
+    expect(sharing.setMeeting).not.toHaveBeenCalled()
+    await userEvent.clear(field)
+    await userEvent.type(field, url)
+    await userEvent.click(screen.getByRole('button', { name: 'Save link' }))
+    expect(sharing.setMeeting).toHaveBeenCalledWith(5, url)
+    expect(onBoardChange).toHaveBeenCalledWith({ meeting_url: url })
+  })
+
+  test('with a meeting link: Start meeting opens safely, Email sends it to members', async () => {
+    vi.mocked(sharing.emailMeeting).mockResolvedValue({ sent: 1 })
+    open({ board: { id: 5, title: 'Launch', public: false, public_link: null, meeting_url: 'https://zoom.us/j/1' } })
+    const start = await screen.findByRole('link', { name: 'Start meeting' })
+    expect(start).toHaveAttribute('href', 'https://zoom.us/j/1')
+    expect(start).toHaveAttribute('rel', 'noopener noreferrer')
+    expect(start).toHaveAttribute('target', '_blank')
+    await userEvent.click(screen.getByRole('button', { name: 'Email the link to members' }))
+    expect(sharing.emailMeeting).toHaveBeenCalledWith(5)
+    expect(await screen.findByText('The meeting link was emailed to the members.')).toBeInTheDocument()
   })
 })
 

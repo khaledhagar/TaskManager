@@ -21,7 +21,7 @@ const card: Card = {
   position: 0,
   label_ids: [],
   checklist: [{ id: 1, text: 'a', done: false, position: 0 }],
-  attachments: [],
+  attachments: [], assignee_ids: [],
 }
 
 beforeEach(() => localStorage.clear())

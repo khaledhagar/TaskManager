@@ -14,7 +14,7 @@ from app.auth import CurrentUser
 from app.db import SessionDep
 from app.i18n import tr
 from app.mailer import access_email
-from app.models import AccessRequest, Board, BoardMember, Role
+from app.models import AccessRequest, Board, BoardColumn, BoardMember, Card, CardAssignee, Role
 from app.schemas import Strict
 from app.sharing import board_link, membership, pending_invites
 
@@ -140,6 +140,14 @@ def remove_member(board_id: int, user_id: int, user: CurrentUser, session: Sessi
     if member is None:
         raise not_found()
     _drop_request(session, board_id, user_id)
+    assigned = (
+        select(CardAssignee)
+        .join(Card)
+        .join(BoardColumn)
+        .where(BoardColumn.board_id == board_id, CardAssignee.user_id == user_id)
+    )
+    for row in session.exec(assigned):
+        session.delete(row)
     session.delete(member)
     session.commit()
 

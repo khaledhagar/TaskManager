@@ -100,16 +100,19 @@
   margin: 0;
 }
 
-/* Same pill shape as the focus timer next to it. */
-button.askButton {
+/* Same pill shape as the focus timer next to it (Ask AI, and the Start meeting link). */
+button.askButton,
+a.askButton {
   min-height: 32px;
+  text-decoration: none;
   padding: 0 12px;
   border-radius: 16px;
   font-weight: 500;
 }
 
 @media (pointer: coarse) {
-  button.askButton {
+  button.askButton,
+  a.askButton {
     min-height: 40px;
   }
 }

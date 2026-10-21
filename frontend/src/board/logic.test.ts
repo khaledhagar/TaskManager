@@ -29,7 +29,7 @@ function card(id: number, extra: Partial<Card> = {}): Card {
     position: 0,
     label_ids: [],
     checklist: [],
-    attachments: [],
+    attachments: [], assignee_ids: [],
     ...extra,
   }
 }
@@ -38,7 +38,7 @@ function board(): Board {
   return {
     id: 1,
     title: 'B',
-    background: { kind: 'none' as const, preset: null, version: 0 }, role: 'admin' as const,
+    background: { kind: 'none' as const, preset: null, version: 0 }, role: 'admin' as const, public: false, public_link: null, meeting_url: null, members: [],
     labels: [{ id: 9, name: 'Bug', color: 'red' }],
     columns: [
       { id: 1, title: 'To Do', position: 0, cards: [card(1), card(2), card(3)] },
@@ -77,6 +77,13 @@ describe('filters (T-206)', () => {
     details: 'Slow networks',
     priority: 'urgent',
     label_ids: [9],
+  })
+
+  test('"Assigned to me" keeps only cards assigned to the user (T-574)', () => {
+    const mine = { ...EMPTY_FILTERS, assignee: 7 }
+    expect(filtersActive(mine)).toBe(true)
+    expect(matchesFilters({ ...c, assignee_ids: [3, 7] }, mine)).toBe(true)
+    expect(matchesFilters({ ...c, assignee_ids: [3] }, mine)).toBe(false)
   })
 
   test('empty filters match everything and are inactive', () => {

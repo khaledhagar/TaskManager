@@ -331,36 +331,36 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 
 ### E4. Public boards, assignment, meeting link (Phase 20)
 
-- [ ] T-560 Admin switches a board to public; a random token link is created; only the admin can change it
-- [ ] T-561 Public page shows the board read-only without signing in; every change is refused (SEC-171)
-- [ ] T-562 Public view has no attachments, no member emails and no AI (SEC-171)
-- [ ] T-563 Switching back to private makes the old link return 404; public again gives a new token (SEC-170)
-- [ ] T-564 The board id never works as a public link (SEC-170)
-- [ ] T-565 Public responses send `X-Robots-Tag: noindex` (SEC-172)
-- [ ] T-566 Public endpoints are rate limited per IP (SEC-171)
-- [ ] T-567 Signed-in visitor joins a public board as Viewer; joining twice changes nothing
-- [ ] T-568 Assign: Full access and admin only; only members can be assigned (SEC-168)
-- [ ] T-569 Removing a member removes their assignments
-- [ ] T-570 Board response includes assignees and members' initials
-- [ ] T-571 Meeting link: admin only; https only (`javascript:` and `http:` refused); 500 characters max (SEC-173)
-- [ ] T-572 Email the link to members: admin only; sends to every member except the admin; 4th in an hour is 429 (SEC-166)
-- [ ] T-573 Meeting email follows the request language and contains only the board title and the link (SEC-174)
-- [ ] T-574 Card window assignee picker; initials on cards; "Assigned to me" filter
-- [ ] T-575 Start meeting opens the link in a new tab with `noopener noreferrer` (SEC-173)
-- [ ] T-576 Share panel: Private / Public switch and Copy link
-- [ ] T-577 Public page shows "View only" and Join board for signed-in visitors, Sign in for others
-- [ ] T-578 E2E: admin makes a board public; a signed-out browser sees it read-only; a signed-in user joins as Viewer
-- [ ] T-579 E2E: admin assigns a card to a member; the member filters "Assigned to me" and sees it
-- [ ] T-580 E2E: admin saves a Zoom link; a member sees Start meeting; Email the link to members puts an email in the outbox
-- [ ] T-581 E2E: public page, share panel and assignee picker at phone width, dark mode, Arabic
-- [ ] T-582 Accessibility: share panel, public page and assignee picker have no axe violations
-- [ ] T-583 Full regression passes: backend, frontend, Playwright in all browsers
-- [ ] T-584 Lighthouse still 90+ performance and 100 accessibility
-- [ ] T-585 `pip-audit` and `npm audit --omit=dev` clean
-- [ ] T-586 Bundle still under 300 KB gzipped
-- [ ] T-587 New texts in both dictionaries and server messages have Arabic
-- [ ] T-588 Deleting a public board makes its link return 404
-- [ ] T-589 Every item in `Planning/SECURITY.md` is checked
+- [x] T-560 Admin switches a board to public; a random token link is created; only the admin can change it
+- [x] T-561 Public page shows the board read-only without signing in; every change is refused (SEC-171)
+- [x] T-562 Public view has no attachments, no member emails and no AI (SEC-171)
+- [x] T-563 Switching back to private makes the old link return 404; public again gives a new token (SEC-170)
+- [x] T-564 The board id never works as a public link (SEC-170)
+- [x] T-565 Public responses send `X-Robots-Tag: noindex` (SEC-172)
+- [x] T-566 Public endpoints are rate limited per IP (SEC-171)
+- [x] T-567 Signed-in visitor joins a public board as Viewer; joining twice changes nothing
+- [x] T-568 Assign: Full access and admin only; only members can be assigned (SEC-168)
+- [x] T-569 Removing a member removes their assignments
+- [x] T-570 Board response includes assignees and members' initials
+- [x] T-571 Meeting link: admin only; https only (`javascript:` and `http:` refused); 500 characters max (SEC-173)
+- [x] T-572 Email the link to members: admin only; sends to every member except the admin; 4th in an hour is 429 (SEC-166)
+- [x] T-573 Meeting email follows the request language and contains only the board title and the link (SEC-174)
+- [x] T-574 Card window assignee picker; initials on cards; "Assigned to me" filter
+- [x] T-575 Start meeting opens the link in a new tab with `noopener noreferrer` (SEC-173)
+- [x] T-576 Share panel: Private / Public switch and Copy link
+- [x] T-577 Public page shows "View only" and Join board for signed-in visitors, Sign in for others
+- [x] T-578 E2E: admin makes a board public; a signed-out browser sees it read-only; a signed-in user joins as Viewer
+- [x] T-579 E2E: admin assigns a card to a member; the member filters "Assigned to me" and sees it
+- [x] T-580 E2E: admin saves a Zoom link; a member sees Start meeting; Email the link to members puts an email in the outbox
+- [x] T-581 E2E: public page, share panel and assignee picker at phone width, dark mode, Arabic
+- [x] T-582 Accessibility: share panel, public page and assignee picker have no axe violations
+- [x] T-583 Full regression passes: backend, frontend, Playwright in all browsers
+- [x] T-584 Lighthouse still 90+ performance and 100 accessibility
+- [x] T-585 `pip-audit` and `npm audit --omit=dev` clean
+- [x] T-586 Bundle still under 300 KB gzipped
+- [x] T-587 New texts in both dictionaries and server messages have Arabic
+- [x] T-588 Deleting a public board makes its link return 404
+- [x] T-589 Every item in `Planning/SECURITY.md` is checked
 
 ## D. Release checks
 

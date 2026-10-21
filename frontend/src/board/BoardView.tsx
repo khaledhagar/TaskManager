@@ -90,6 +90,7 @@ export function BoardView({ boardId, userId, isGuest, onRenamed, onDeleted }: Pr
         shown={shown}
         total={cards.length}
         searchRef={searchRef}
+        me={userId}
       />
       {board.columns.length === 0 ? <p className={css.noResults}>{t('board.noColumns')}</p> : null}
       {filtering && shown === 0 ? (
@@ -116,6 +117,7 @@ export function BoardView({ boardId, userId, isGuest, onRenamed, onDeleted }: Pr
           key={openCard.id}
           card={openCard}
           labels={board.labels}
+          members={board.members}
           actions={actions}
           onClose={() => setOpenCardId(null)}
         />
@@ -129,6 +131,7 @@ export function BoardView({ boardId, userId, isGuest, onRenamed, onDeleted }: Pr
         userId={userId}
         isGuest={isGuest}
         onLeft={() => onDeleted(board.id)}
+        onBoardChange={actions.setBoardInfo}
       />
       <BackgroundPicker
         open={picking}

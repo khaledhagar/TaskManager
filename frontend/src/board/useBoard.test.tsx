@@ -22,12 +22,12 @@ function sample(): Board {
     position: 0,
     label_ids: [],
     checklist: [],
-    attachments: [],
+    attachments: [], assignee_ids: [],
   })
   return {
     id: 1,
     title: 'B',
-    background: { kind: 'none' as const, preset: null, version: 0 }, role: 'admin' as const,
+    background: { kind: 'none' as const, preset: null, version: 0 }, role: 'admin' as const, public: false, public_link: null, meeting_url: null, members: [],
     labels: [],
     columns: [
       { id: 1, title: 'To Do', position: 0, cards: [card(1), card(2)] },

@@ -206,3 +206,32 @@
     min-height: 40px;
   }
 }
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  cursor: pointer;
+}
+
+.switch input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+
+.viewOnly {
+  padding: 2px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.publicError {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  padding: 32px 24px;
+}

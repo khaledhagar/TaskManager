@@ -14,10 +14,11 @@ type Props = {
   shown: number
   total: number
   searchRef: Ref<HTMLInputElement>
+  me: number
 }
 
 /** Search and filters; the count tells how many cards are visible. */
-export function FilterBar({ filters, onChange, labels, shown, total, searchRef }: Props) {
+export function FilterBar({ filters, onChange, labels, shown, total, searchRef, me }: Props) {
   const { t } = useI18n()
   const set = (changes: Partial<Filters>) => onChange({ ...filters, ...changes })
   const active = filtersActive(filters)
@@ -69,12 +70,17 @@ export function FilterBar({ filters, onChange, labels, shown, total, searchRef }
       <select
         aria-label={t('filter.byStatus')}
         className={css.filterSelect}
-        value={filters.status}
-        onChange={(e) => set({ status: e.target.value as Filters['status'] })}
+        value={filters.assignee === null ? filters.status : 'mine'}
+        onChange={(e) =>
+          e.target.value === 'mine'
+            ? set({ status: 'all', assignee: me })
+            : set({ status: e.target.value as Filters['status'], assignee: null })
+        }
       >
         <option value="all">{t('filter.allCards')}</option>
         <option value="open">{t('filter.open')}</option>
         <option value="done">{t('filter.completed')}</option>
+        <option value="mine">{t('filter.mine')}</option>
       </select>
       {active ? (
         <>

@@ -99,6 +99,32 @@ class Board(SQLModel, table=True):
     )
     invites: list["BoardInvite"] = Relationship(cascade_delete=True)
     access_requests: list["AccessRequest"] = Relationship(cascade_delete=True)
+    public_link: "PublicLink" = Relationship(
+        cascade_delete=True, sa_relationship_kwargs={"uselist": False}
+    )
+    meeting_link: "MeetingLink" = Relationship(
+        cascade_delete=True, sa_relationship_kwargs={"uselist": False}
+    )
+
+
+class PublicLink(SQLModel, table=True):
+    """A board is public while it has this row; its token is the read-only link."""
+
+    __tablename__ = "public_links"
+
+    id: int | None = Field(default=None, primary_key=True)
+    board_id: int = Field(foreign_key="boards.id", ondelete="CASCADE", unique=True)
+    token: str = Field(unique=True, index=True)
+
+
+class MeetingLink(SQLModel, table=True):
+    """The board's https meeting link (Zoom, Meet, Teams or any other)."""
+
+    __tablename__ = "meeting_links"
+
+    id: int | None = Field(default=None, primary_key=True)
+    board_id: int = Field(foreign_key="boards.id", ondelete="CASCADE", unique=True)
+    url: str
 
 
 class BoardMember(SQLModel, table=True):
@@ -168,6 +194,13 @@ class CardLabel(SQLModel, table=True):
     label_id: int = Field(foreign_key="labels.id", ondelete="CASCADE", primary_key=True)
 
 
+class CardAssignee(SQLModel, table=True):
+    __tablename__ = "card_assignees"
+
+    card_id: int = Field(foreign_key="cards.id", ondelete="CASCADE", primary_key=True)
+    user_id: int = Field(foreign_key="users.id", ondelete="CASCADE", primary_key=True)
+
+
 class Card(SQLModel, table=True):
     __tablename__ = "cards"
 
@@ -188,6 +221,7 @@ class Card(SQLModel, table=True):
         sa_relationship_kwargs={"order_by": "ChecklistItem.position"},
     )
     labels: list["Label"] = Relationship(back_populates="cards", link_model=CardLabel)
+    assignees: list[User] = Relationship(link_model=CardAssignee)
     attachments: list["Attachment"] = Relationship(
         back_populates="card",
         cascade_delete=True,

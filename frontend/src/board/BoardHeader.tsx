@@ -1,4 +1,4 @@
-import { MoreHorizontal, Sparkles } from 'lucide-react'
+import { MoreHorizontal, Sparkles, Video } from 'lucide-react'
 import { useState } from 'react'
 import type { Board } from '../api/boards'
 import aiCss from '../ai/ai.module.css'
@@ -77,6 +77,19 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, o
       </div>
       <div className={css.boardActions}>
         <FocusTimer />
+        {board.meeting_url ? (
+          <a
+            className={`${ui.button} ${ui.secondary} ${aiCss.askButton}`}
+            href={board.meeting_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t('meeting.start')}
+            title={t('meeting.start')}
+          >
+            <Video size={16} aria-hidden="true" />
+            <span className={aiCss.askLabel}>{t('meeting.start')}</span>
+          </a>
+        ) : null}
         <button
           type="button"
           className={`${ui.button} ${ui.secondary} ${aiCss.askButton}`}

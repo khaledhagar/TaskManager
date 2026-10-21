@@ -133,3 +133,19 @@ def invite_email(to: str, inviter: str, board: str, link: str) -> Email:
 
 def access_email(to: str, requester: str, board: str, link: str) -> Email:
     return _email(ACCESS, to, requester=requester, board=board, link=link)
+
+
+MEETING = {
+    "en": (
+        "Meeting for {board}",
+        '{admin} invites you to a meeting for the board "{board}".\n\nJoin here:\n{link}',
+    ),
+    "ar": (
+        "اجتماع للوحة {board}",
+        'يدعوك {admin} إلى اجتماع للوحة "{board}".\n\nانضم من هنا:\n{link}',
+    ),
+}
+
+
+def meeting_email(to: str, admin: str, board: str, link: str) -> Email:
+    return _email(MEETING, to, admin=admin, board=board, link=link)

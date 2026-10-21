@@ -1,4 +1,4 @@
-/** The invite token from the link, kept in this browser while the user signs in or signs up. */
+/** Where to return after sign-in: an invitation link, or a public board to join. */
 
 const KEY = 'inviteToken'
 
@@ -28,5 +28,27 @@ export function remember(token: string | null) {
     else localStorage.removeItem(KEY)
   } catch {
     // Private mode: the user can open the link again after signing in.
+  }
+}
+
+const RETURN = 'returnTo'
+
+/** A public board page to come back to after signing in (to join it). */
+export function rememberReturn(path: string) {
+  try {
+    localStorage.setItem(RETURN, path)
+  } catch {
+    // Private mode: the visitor can open the link again.
+  }
+}
+
+/** The page saved by `rememberReturn`, cleared once read. */
+export function takeReturn(): string | null {
+  try {
+    const path = localStorage.getItem(RETURN)
+    localStorage.removeItem(RETURN)
+    return path
+  } catch {
+    return null
   }
 }

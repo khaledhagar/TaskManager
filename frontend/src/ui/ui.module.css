@@ -9,6 +9,7 @@
   border: 1px solid transparent;
   border-radius: var(--radius-control);
   font-weight: 600;
+  text-decoration: none; /* links styled as buttons look like buttons */
   transition:
     background-color 150ms var(--ease),
     border-color 150ms var(--ease);

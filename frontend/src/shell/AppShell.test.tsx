@@ -41,7 +41,7 @@ function boardFor(id: number) {
     title,
     labels: [],
     columns: [{ id: 1, title: 'To Do', position: 0, cards: [] }],
-    background: { kind: 'none' as const, preset: null, version: 0 }, role: 'admin' as const,
+    background: { kind: 'none' as const, preset: null, version: 0 }, role: 'admin' as const, public: false, public_link: null, meeting_url: null, members: [],
   }
 }
 

@@ -18,8 +18,12 @@ const card: Card = {
     { id: 11, text: 'Draft wireframe', done: true, position: 0 },
     { id: 12, text: 'Review copy', done: false, position: 1 },
   ],
-  attachments: [],
+  attachments: [], assignee_ids: [],
 }
+const members = [
+  { user_id: 1, email: 'alice@example.com' },
+  { user_id: 2, email: 'bob@example.com' },
+]
 const labels = [
   { id: 1, name: 'Design', color: 'purple' as const },
   { id: 2, name: 'Bug', color: 'red' as const },
@@ -36,15 +40,27 @@ beforeEach(() => {
     addLabel: vi.fn(),
     deleteLabel: vi.fn(),
     deleteCard: vi.fn(),
+    setAssignees: vi.fn(),
+    allowed: vi.fn(() => true),
   } as unknown as BoardActions
 })
 
 function open(overrides: Partial<Card> = {}, onClose = vi.fn()) {
-  render(<CardModal card={{ ...card, ...overrides }} labels={labels} actions={actions} onClose={onClose} />)
+  render(<CardModal card={{ ...card, ...overrides }} labels={labels} members={members} actions={actions} onClose={onClose} />)
   return screen.getByRole('dialog', { name: overrides.title ?? card.title })
 }
 
 describe('card modal (T-208)', () => {
+  test('members can be assigned and unassigned (T-574)', async () => {
+    const dialog = open({ assignee_ids: [2] })
+    const group = within(dialog).getByRole('group', { name: 'Assigned to' })
+    expect(within(group).getByRole('checkbox', { name: /bob@example.com/ })).toBeChecked()
+    await userEvent.click(within(group).getByRole('checkbox', { name: /alice@example.com/ }))
+    expect(actions.setAssignees).toHaveBeenCalledWith(card.id, [2, 1])
+    await userEvent.click(within(group).getByRole('checkbox', { name: /bob@example.com/ }))
+    expect(actions.setAssignees).toHaveBeenCalledWith(card.id, [])
+  })
+
   test('title saves on Enter, trimmed', async () => {
     const dialog = open()
     const title = within(dialog).getByLabelText('Title')

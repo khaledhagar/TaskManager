@@ -11,13 +11,13 @@ vi.mock('../api/ai', () => ({ ai: { chat: vi.fn() } }))
 
 const card = (id: number, title: string) => ({
   id, title, details: '', completed: false, priority: 'medium' as const, due_date: null,
-  position: 0, label_ids: [], checklist: [], attachments: [],
+  position: 0, label_ids: [], checklist: [], attachments: [], assignee_ids: [],
 })
 const board: Board = {
   id: 5,
   title: 'Launch',
   labels: [],
-  background: { kind: 'none', preset: null, version: 0 }, role: 'admin' as const,
+  background: { kind: 'none', preset: null, version: 0 }, role: 'admin' as const, public: false, public_link: null, meeting_url: null, members: [],
   columns: [
     { id: 1, title: 'To Do', position: 0, cards: [card(10, 'Write post'), card(11, 'Set up analytics')] },
     { id: 2, title: 'Done', position: 1, cards: [card(12, 'Pick colors')] },
