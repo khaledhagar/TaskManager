@@ -5,7 +5,7 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 ## Where the project stands (2026-10-21)
 
 - Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
-- **Next:** the user's approval of the new phases (password strength, board members and invitations, permissions, assignment, meeting link, public/private boards); Deployment moves after them. Then delete `backend/taskmanager.db` and `backend/storage/` (final Phase 16 task) when the user agrees.
+- **Next: Phase 17 (password strength).** New Phases 17-20 approved by the user on 2026-10-21 (password strength, board sharing backend, board sharing UI, public boards / assignment / meeting link); Deployment is now Phase 21 and starts with deleting the local test data (ask the user). Design: "Password Strength Design" and "Board Sharing Design" in PLAN.md; tests T-500 to T-589; security SEC-150 to SEC-174.
 - Tests: backend 273 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 209 passing; Playwright 59 passing (Edge full suite, Firefox and WebKit smoke). Lint, format and type checks are clean.
 - Checklists: 214 tests ticked in `Planning/TEST_PLAN.md` (all ticked), 106 items ticked in `Planning/SECURITY.md` (all ticked).
 
@@ -112,9 +112,8 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 
 ## Waiting on the user
 
-- Approve the new phases (see "Next steps" at the end).
 - Optional: 10 OpenRouter credits would raise the AI limit from 50 to 1,000 requests per day.
-- **Final Phase 16 task, before Deployment:** delete `backend/taskmanager.db` and `backend/storage/` (stop the server first). Remind the user and do it only when they agree; the local database now holds their live-test accounts.
+- **First Phase 21 (Deployment) task:** delete `backend/taskmanager.db` and `backend/storage/` (stop the server first). Remind the user and do it only when they agree; the local database now holds their live-test accounts.
 - The free AI quota is 50 requests per day for the whole account; Phase 12 used 1 for the live check.
 
 ## Hardening (Phase 14): how it works
@@ -140,14 +139,9 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 - Defects fixed in this phase: card check button raised to 24 px to click (WCAG 2.5.8; the circle stays 18 px); board switcher's accessible name starts with the board title (WCAG 2.5.3); link color darkened to `#146d9a` for 4.5:1 contrast.
 - `TEST_PLAN.md` duplicate numbers (second T-330 / T-331) were renumbered.
 
-## Next steps: new feature phases (being planned, not approved yet)
+## Next steps: Phases 17-20
 
-Requested by the user on 2026-10-21. Deployment moves to the end. Proposed split (waiting for the user's approval, then update PLAN, TEST_PLAN, SECURITY and CLAUDE.md before building):
-
-- **Phase 17:** password strength meter on sign-up, reset and change password (Weak / Medium / Strong; Weak is refused, server and browser); show the Google sign-in option clearly.
-- **Phase 18:** board members. The board's creator is its admin. Invite a signed-up user by exact email (no browsable user list); the invite is emailed and the admin also gets the link with Copy and Share on WhatsApp; the invitee signs in as that email and accepts. Proposed: one-time link, expires in 7 days, admin can cancel invites and remove members, guests cannot invite or be invited. Permission levels proposed: Full access / Can update tasks (move, complete, checklist) / View only. Only the admin invites, changes permissions, renames or deletes the board. Every endpoint's ownership check becomes a membership + permission check.
-- **Phase 19:** assign cards to members (initials on cards, "Assigned to me" filter); meeting link on the board (Zoom, Meet, Teams; Start meeting opens it, Zoom links open the app; Email the link to members). Creating Zoom meetings by API is left out (needs a Zoom developer app). Public / private boards: **open question to the user**, whether public means anyone with the link can view read-only without signing in.
-- **Phase 20:** Deployment (was Phase 17).
+Approved on 2026-10-21; details in PLAN.md. User decisions: public = read-only for anyone with the link, signed-in visitors can join as Viewer; every new member starts as Viewer; Request access button emails the admin; admin picks exactly one permission per member in a members panel; invites by email plus Copy / Share on WhatsApp. My calls (tell the user if questioned): any address can be invited (no user search, no account enumeration); public view hides attachments, member emails and AI; no live sync (board reloads on tab focus); Zoom meetings are links, not created by API.
 
 ## Phase 16 (2026-10-21): what was done
 

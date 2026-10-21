@@ -258,6 +258,110 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-354 A full board (100 cards) loads under 300 ms (API), renders without errors, and the 101st card shows the limit message (NFR-01, SEC-42)
 - [x] T-355 Runs in Chromium, Firefox and WebKit (NFR-22)
 
+## E. New features (Phases 17-20)
+
+### E1. Password strength (Phase 17)
+
+- [ ] T-500 Every example in `password_cases.json` gets the same rating (Weak / Medium / Strong) from the server rules
+- [ ] T-501 Every example in `password_cases.json` gets the same rating from the browser rules
+- [ ] T-502 The backend and frontend common-password lists are identical
+- [ ] T-503 Sign up, guest upgrade, reset, change and set password refuse a Weak password with 422 and a translated message (SEC-150)
+- [ ] T-504 A password containing the email name is Weak (SEC-152)
+- [ ] T-505 Sign in still accepts an existing password that is now rated Weak
+- [ ] T-506 Meter shows Weak / Medium / Strong with a hint, updates while typing, and is announced to screen readers
+- [ ] T-507 A Weak password shows the reason and sends no request (SEC-151)
+- [ ] T-508 Meter is translated and laid out right-to-left in Arabic, readable in dark mode
+- [ ] T-509 E2E: sign up refuses a Weak password and accepts a Medium one; "Continue with Google" is visible when configured
+
+### E2. Board sharing backend (Phase 18)
+
+- [ ] T-510 Existing boards get their owner as admin on startup; running it twice changes nothing
+- [ ] T-511 Each endpoint follows the permission table for Viewer, Can update tasks, Full access and Admin (parametrized over every endpoint) (SEC-160)
+- [ ] T-512 A non-member gets 404 on every board, column, card, checklist, label, attachment, background, member and invite endpoint (SEC-21, SEC-160)
+- [ ] T-513 A Viewer gets 403 with "You can only view this board..." in English and Arabic
+- [ ] T-514 Can update tasks: move, complete and tick checklist work; add, edit, delete get 403 "Ask the board admin for full access..."
+- [ ] T-515 Role sent by the browser is ignored; only the stored role counts (SEC-161)
+- [ ] T-516 Invite: admin only; emails a link; the raw token is stored only as a SHA-256 hash (SEC-162)
+- [ ] T-517 Invite link works once and expires after 7 days (SEC-162)
+- [ ] T-518 Accept needs a signed-in, verified account with the invited email; another email gets 403 and the invite stays usable (SEC-163)
+- [ ] T-519 Accepting adds the user as Viewer; inviting an existing member is refused
+- [ ] T-520 Invite response and email never say whether the address has an account (SEC-167, SEC-174)
+- [ ] T-521 Cancel invite: admin only; a cancelled link no longer works
+- [ ] T-522 Guests cannot invite and cannot accept invites (SEC-165)
+- [ ] T-523 Change role: admin only; one role per member; the admin's own row cannot be changed or removed (SEC-164)
+- [ ] T-524 Remove member: admin only; the removed user gets 404 on the board afterwards
+- [ ] T-525 Leave board: a member can remove themselves; the admin cannot leave
+- [ ] T-526 Access request: Viewer or Can update tasks only; emails the admin; one pending per member per board
+- [ ] T-527 Approve request sets the chosen role (Can update tasks or Full access); decline removes it; admin only
+- [ ] T-528 `GET /boards` lists owned and shared boards with the user's role
+- [ ] T-529 Members list: members see member emails of that board only; there is no endpoint to search or list users (SEC-167)
+- [ ] T-530 Limits: 51st member and 21st pending invite refused (SEC-169)
+- [ ] T-531 Rate limits: 21st invite in an hour, 4th access request in a day, 429 (SEC-166)
+- [ ] T-532 Deleting a board removes members, invites and requests; deleting an account removes its memberships
+- [ ] T-533 Attachments uploaded by a member count against the member's storage
+- [ ] T-534 AI chat works for every member; AI checklist needs Full access
+- [ ] T-535 Moving a card or setting a label across boards is still refused, even for a member of both (SEC-22, SEC-23, SEC-168)
+- [ ] T-536 Invite and access-request emails follow the request language
+- [ ] T-537 Guest cleanup removes guest memberships too
+- [ ] T-538 Board list, board and members load in a few queries whatever the number of members
+- [ ] T-539 Every new user-facing server message has Arabic (existing i18n source check)
+
+### E3. Board sharing UI (Phase 19)
+
+- [ ] T-540 Members panel lists members with one selected permission each; choosing another turns the old one off and saves
+- [ ] T-541 The admin row is fixed; Remove asks first; pending invites show Copy link, Share on WhatsApp, Cancel
+- [ ] T-542 Access requests show with Approve (Can update tasks / Full access) and Decline
+- [ ] T-543 Invite dialog validates the email, sends, then shows the link with Copy and Share on WhatsApp (`wa.me` link opened in a new tab)
+- [ ] T-544 Invite page shows board and inviter; Accept works; expired, used and other-email cases show clear messages
+- [ ] T-545 Signed-out visitor on the invite page is sent to sign in or sign up, then back to accept
+- [ ] T-546 Viewer: adding, editing, dragging or completing shows "ask the admin" with Request access; nothing changes and no request is sent
+- [ ] T-547 Can update tasks: drag and complete work; add and delete show the full-access message
+- [ ] T-548 Request access sends once, then shows "Request sent"
+- [ ] T-549 Board switcher groups "Your boards" and "Shared with you"; Leave board works
+- [ ] T-550 Board reloads when the tab regains focus (shows another member's change)
+- [ ] T-551 Guest admin sees "Create an account to share this board"
+- [ ] T-552 New texts in both dictionaries; no hard-coded English (existing source check)
+- [ ] T-553 E2E: admin invites a second user, who accepts and sees the board as Viewer
+- [ ] T-554 E2E: Viewer drag is refused with the message; Request access reaches the admin (email in outbox); admin approves Full access; the member can now add a card
+- [ ] T-555 E2E: admin changes a member to Can update tasks; the member can move and complete but not delete
+- [ ] T-556 E2E: removed member loses the board
+- [ ] T-557 E2E: members panel and invite page at phone width, dark mode, Arabic
+- [ ] T-558 Accessibility: members panel and invite page have no axe violations; the permission choice is a labelled radio group
+- [ ] T-559 Existing E2E suite still passes for single-user boards
+
+### E4. Public boards, assignment, meeting link (Phase 20)
+
+- [ ] T-560 Admin switches a board to public; a random token link is created; only the admin can change it
+- [ ] T-561 Public page shows the board read-only without signing in; every change is refused (SEC-171)
+- [ ] T-562 Public view has no attachments, no member emails and no AI (SEC-171)
+- [ ] T-563 Switching back to private makes the old link return 404; public again gives a new token (SEC-170)
+- [ ] T-564 The board id never works as a public link (SEC-170)
+- [ ] T-565 Public responses send `X-Robots-Tag: noindex` (SEC-172)
+- [ ] T-566 Public endpoints are rate limited per IP (SEC-171)
+- [ ] T-567 Signed-in visitor joins a public board as Viewer; joining twice changes nothing
+- [ ] T-568 Assign: Full access and admin only; only members can be assigned (SEC-168)
+- [ ] T-569 Removing a member removes their assignments
+- [ ] T-570 Board response includes assignees and members' initials
+- [ ] T-571 Meeting link: admin only; https only (`javascript:` and `http:` refused); 500 characters max (SEC-173)
+- [ ] T-572 Email the link to members: admin only; sends to every member except the admin; 4th in an hour is 429 (SEC-166)
+- [ ] T-573 Meeting email follows the request language and contains only the board title and the link (SEC-174)
+- [ ] T-574 Card window assignee picker; initials on cards; "Assigned to me" filter
+- [ ] T-575 Start meeting opens the link in a new tab with `noopener noreferrer` (SEC-173)
+- [ ] T-576 Share panel: Private / Public switch and Copy link
+- [ ] T-577 Public page shows "View only" and Join board for signed-in visitors, Sign in for others
+- [ ] T-578 E2E: admin makes a board public; a signed-out browser sees it read-only; a signed-in user joins as Viewer
+- [ ] T-579 E2E: admin assigns a card to a member; the member filters "Assigned to me" and sees it
+- [ ] T-580 E2E: admin saves a Zoom link; a member sees Start meeting; Email the link to members puts an email in the outbox
+- [ ] T-581 E2E: public page, share panel and assignee picker at phone width, dark mode, Arabic
+- [ ] T-582 Accessibility: share panel, public page and assignee picker have no axe violations
+- [ ] T-583 Full regression passes: backend, frontend, Playwright in all browsers
+- [ ] T-584 Lighthouse still 90+ performance and 100 accessibility
+- [ ] T-585 `pip-audit` and `npm audit --omit=dev` clean
+- [ ] T-586 Bundle still under 300 KB gzipped
+- [ ] T-587 New texts in both dictionaries and server messages have Arabic
+- [ ] T-588 Deleting a public board makes its link return 404
+- [ ] T-589 Every item in `Planning/SECURITY.md` is checked
+
 ## D. Release checks
 
 - [x] T-400 `uv run pytest --cov` passes with 90% or more coverage (NFR-40)

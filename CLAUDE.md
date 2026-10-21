@@ -43,6 +43,11 @@
 - Keyboard shortcuts: N, /, Esc, ?
 - Markdown in card descriptions
 - At most 100 cards per board; adding the 101st shows "Maximum cards in a board is 100"
+- Password strength meter (Weak, Medium, Strong); Weak passwords refused
+- Board members: invite by email or link (Copy, Share on WhatsApp); the board creator is admin
+- Member permissions chosen by the admin: Viewer (default), Can update tasks, Full access; Viewers asked to request access from the admin
+- Public boards (read-only link, no sign-in needed; signed-in visitors can join as Viewer)
+- Assign cards to members; meeting link (Zoom, Meet, Teams) with Start meeting and Email to members
 
 ## Start Here (new session)
 
@@ -54,7 +59,7 @@ The full plan with phases and success criteria is in `Planning/PLAN.md`. Keep it
 
 - Stack: FastAPI + SQLModel/SQLite, pwdlib + PyJWT cookie auth, LiteLLM, React + TypeScript + Vite, dnd-kit
 - Tests: pytest, vitest, Playwright
-- Phases: scaffolding, database, auth, board API, AI backend, account security, frontend foundation, board UI, files, focus timer, languages, AI UI, polish, hardening, integration testing, done, deployment
+- Phases: scaffolding, database, auth, board API, AI backend, account security, frontend foundation, board UI, files, focus timer, languages, AI UI, polish, hardening, integration testing, done, password strength, board sharing (backend, UI), public boards / assignment / meeting link, deployment
 - Deferred enhancements (N9-N14 in the plan) are not built unless the user approves them
 - Also: delete account (needed for a published site)
 - Continue with Google (no password needed), email verification for email + password accounts, forgot / reset password by email, change password; Google-only users can add a password

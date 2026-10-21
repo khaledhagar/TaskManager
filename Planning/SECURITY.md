@@ -131,6 +131,30 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 # Non-Functional Requirements
 
+## 13. Passwords (Phase 17)
+
+- [ ] Weak passwords refused on the server for sign up, guest upgrade, reset, change and set password (SEC-150)
+- [ ] The browser uses the same rules (shared example table) and blocks Weak before sending (SEC-151)
+- [ ] Common passwords and passwords containing the email name are Weak (SEC-152)
+
+## 14. Board sharing (Phases 18-20)
+
+- [ ] Every endpoint checks membership (404 for non-members) and the role it needs (403 with a message) (SEC-160)
+- [ ] Roles are read from the database only, never from the request (SEC-161)
+- [ ] Invite tokens: random, stored as SHA-256, single use, expire after 7 days (SEC-162)
+- [ ] An invite is accepted only by a signed-in, verified account with the invited email (SEC-163)
+- [ ] Only the admin manages members, invites, requests, visibility and the meeting link; the admin cannot be demoted or removed (SEC-164)
+- [ ] Guests cannot invite or be invited (SEC-165)
+- [ ] Rate limits: invites 20 per hour per user, access requests 3 per day per member per board, meeting emails 3 per hour per board (SEC-166)
+- [ ] No user search or listing; invites never reveal whether an address has an account; members see only their boards' member emails (SEC-167)
+- [ ] Cards can be assigned only to members; cross-board moves and labels still refused (SEC-168)
+- [ ] Limits: 50 members and 20 pending invites per board (SEC-169)
+- [ ] Public boards use a random token, not the board id; making the board private revokes it (SEC-170)
+- [ ] Public view is read-only, without attachments, member emails or AI, and rate limited per IP (SEC-171)
+- [ ] Public board responses send `X-Robots-Tag: noindex` (SEC-172)
+- [ ] Meeting links are https only and open with `rel="noopener noreferrer"` (SEC-173)
+- [ ] Invite, access-request and meeting emails are plain text, follow the language and contain only the needed link (SEC-174)
+
 ## Performance
 
 - [x] Board with 500 cards loads from the API in under 300 ms locally (NFR-01)

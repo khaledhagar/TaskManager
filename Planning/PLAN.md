@@ -26,8 +26,12 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 13 - Polish | 8 / 8 | Done |
 | Phase 14 - Security and Non-Functional Hardening | 5 / 5 | Done |
 | Phase 15 - Integration Testing (Playwright) | 19 / 19 | Done |
-| Phase 16 - Done | 7 / 8 | In progress |
-| Phase 17 - Deployment (Vercel) | 0 / 12 | Not started |
+| Phase 16 - Done | 7 / 7 | Done |
+| Phase 17 - Password Strength | 0 / 7 | Not started |
+| Phase 18 - Board Sharing (backend) | 0 / 9 | Not started |
+| Phase 19 - Board Sharing (UI) | 0 / 7 | Not started |
+| Phase 20 - Public Boards, Assignment and Meeting Link | 0 / 7 | Not started |
+| Phase 21 - Deployment (Vercel) | 0 / 14 | Not started |
 
 ## Stack
 
@@ -84,6 +88,12 @@ The app will be published, so two companion checklists are part of every phase:
 31. English and Arabic: a language button in the header and on the sign-in screen; Arabic switches the whole app to right-to-left; every text, server message, email, demo board, template and AI answer follows the chosen language
 32. Dark mode in every screen and both languages (already built in Phase 7; verified again in Phase 13)
 33. Responsive design: every feature works at phone (360 px), tablet (768 px), laptop (1024 px) and desktop (1440 px) widths, with touch drag and drop on phones
+34. Password strength meter (Weak / Medium / Strong) on every password field; Weak passwords are refused (approved 2026-10-21)
+35. Board members: the board's creator is its admin; invite by email (emailed link, plus Copy and Share on WhatsApp); the invitee accepts by signing in with that email (approved 2026-10-21)
+36. Member permissions set by the admin in a members panel: Viewer (default), Can update tasks, Full access; one selected per member; a Viewer who tries to edit sees "ask the admin" with a Request access button that emails the admin (approved 2026-10-21)
+37. Public boards: anyone with the link can view read-only without signing in; a signed-in visitor can join as a Viewer (approved 2026-10-21)
+38. Assign cards to board members; "Assigned to me" filter (approved 2026-10-21)
+39. Meeting link on the board (Zoom, Google Meet, Teams or any https link): Start meeting opens it (Zoom links open the Zoom app); the admin can email the link to all members (approved 2026-10-21)
 30. Pomodoro focus timer on the board, opt-in: off by default and turned on with a "Focus timer" button; 25 / 5 or 50 / 10 minutes, start, pause, reset focus, reset break, skip; chip with time left, chime and optional notification
 
 ### Enhancement review (N1-N8 approved on 2026-10-19; the rest deferred)
@@ -103,7 +113,7 @@ Reviewed against the confirmed list above for overlap and cost.
 | N9 | WIP limit per column (column header warns when exceeded) | None | Small | Optional |
 | N10 | Card activity log (created, moved, completed, with times) | None | Medium | Optional |
 | N11 | Export board as JSON | None | Small | Optional |
-| N12 | Board sharing with members and roles (owner, editor, viewer) | Changes auth model from #2 | Large | Not for this version |
+| N12 | Board sharing with members and roles (owner, editor, viewer) | Changes auth model from #2 | Large | Approved 2026-10-21 as #35-#39 (Phases 18-20) |
 | N13 | Real-time sync between open browsers | Needs N12 | Large | Not for this version |
 | N14 | File attachments on cards | None | Large | Not for this version |
 
@@ -149,7 +159,12 @@ These rules keep that move to one small phase:
 - `attachments`: id, card_id -> cards, owner_id -> users, filename (display only, sanitized), content_type, size, storage_key (random), created_at
 - `boards` gains: background_kind (`none`, `preset`, `image`), background_preset, background_key
 
-Authorization rule: a user can only read or change boards they own (and everything under them).
+- New in Phase 18: `board_members`: id, board_id -> boards, user_id -> users, role (`admin`, `editor`, `updater`, `viewer`), created_at; unique (board_id, user_id). The board's owner has the `admin` row.
+- New in Phase 18: `board_invites`: id, board_id, invited_by -> users, email, token_hash (SHA-256), expires_at, used_at, created_at
+- New in Phase 18: `access_requests`: id, board_id, user_id, created_at; one per member per board
+- New in Phase 20: `card_assignees`: card_id -> cards, user_id -> users; `boards` gains visibility (`private` or `public`), public_token (unique, null when private), meeting_url
+
+Authorization rule (until Phase 17): a user can only read or change boards they own. From Phase 18: a user can read a board they are a member of and change it as far as their role allows (see Board Sharing Design).
 
 ## API (all under `/api`)
 
@@ -163,6 +178,11 @@ Authorization rule: a user can only read or change boards they own (and everythi
 - AI: `POST /ai/cards/{id}/checklist`, `POST /ai/boards`, `POST /ai/chat`
 - Files: `POST /cards/{id}/attachments` (multipart), `GET /attachments/{id}` (download), `DELETE /attachments/{id}`, `GET /files/usage`
 - Background: `PUT /boards/{id}/background` (multipart image), `PUT /boards/{id}/background/preset`, `DELETE /boards/{id}/background`, `GET /boards/{id}/background`
+
+- Members (Phase 18): `GET /boards/{id}/members`, `PATCH /boards/{id}/members/{user_id}` (role), `DELETE /boards/{id}/members/{user_id}` (remove, or leave when it is yourself)
+- Invites (Phase 18): `POST /boards/{id}/invites`, `DELETE /invites/{id}`, `POST /invites/preview`, `POST /invites/accept`
+- Access requests (Phase 18): `POST /boards/{id}/access-requests`, `POST /access-requests/{id}/approve` (with role), `DELETE /access-requests/{id}` (decline)
+- Public boards, assignment, meeting (Phase 20): `PUT /boards/{id}/visibility`, `GET /public/boards/{token}`, `GET /public/boards/{token}/background`, `POST /public/boards/{token}/join`, `PUT /cards/{id}/assignees`, `PUT /boards/{id}/meeting`, `POST /boards/{id}/meeting/email`
 
 Every request sends `Accept-Language` (`en` or `ar`); server messages, emails, seeded demo boards, templates and AI answers use it. `PATCH /auth/me` saves the signed-in user's language.
 Search, filters, undo and keyboard shortcuts run in the browser; no API needed.
@@ -241,6 +261,42 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - Unit tests mock `complete`; one live smoke test runs only with `uv run pytest -m live`.
 
 ---
+
+## Password Strength Design (Phase 17)
+
+Same rules in the browser (live meter) and on the server (the authority). One table of example passwords in `backend/tests/password_cases.json` is checked by both test suites, so they cannot drift.
+
+- Kinds of characters: lowercase, uppercase, digits, symbols.
+- **Weak** (refused): fewer than 8 characters; or in the common-password list (case-insensitive); or contains the part of the email before `@` (4+ characters); or fewer than 5 different characters; or not Medium.
+- **Medium** (accepted): 10+ characters with 2+ kinds, or 8+ characters with 3+ kinds.
+- **Strong** (accepted): 12+ characters with 3+ kinds, or 16+ characters with 2+ kinds.
+- Applies to sign up, guest upgrade, reset password, change password and set password. Sign in is unchanged (old passwords keep working).
+- Meter under the field: a 3-step bar plus the word (Weak / Medium / Strong) and one hint ("Add numbers or symbols", "Use at least 10 characters"); colors with text, never color alone; announced politely to screen readers; translated.
+- Common-password list (about 200 entries) kept in `backend/app/common_passwords.txt` and copied to the frontend; a test checks both copies match.
+
+## Board Sharing Design (Phases 18-20)
+
+Roles (stored per member; the admin chooses exactly one per member in the members panel; new members start as Viewer):
+
+| Action | Viewer | Can update tasks | Full access | Admin |
+|--------|--------|------------------|-------------|-------|
+| See the board, download attachments, ask the AI chat | Yes | Yes | Yes | Yes |
+| Move cards, mark complete, tick checklist items | No | Yes | Yes | Yes |
+| Add, edit and delete cards, columns, labels, checklist items, attachments; AI checklist; assign cards | No | No | Yes | Yes |
+| Rename or delete the board, background, members, invites, requests, public or private, meeting link | No | No | No | Yes |
+
+- Non-members get 404 (as today). A member without the right permission gets 403 with a translated message: Viewer: "You can only view this board. Ask the board admin for permission to edit."; Can update tasks: "Ask the board admin for full access to do this." The browser shows the same message as a toast with a **Request access** button, before sending anything.
+- **Request access** emails the admin ("{email} asks for more access to {board}") with a link that opens the members panel; the request shows there with Approve as Can update tasks / Full access, or Decline. One pending request per member per board.
+- **Invite:** the admin types an email. The app emails an invitation link (`/invite#token=...`, one use, 7 days) and shows the same link with Copy and Share on WhatsApp (`https://wa.me/?text=...`). Any address can be invited: the email says to sign in, or create an account, with that address. The app never says whether an address has an account and has no way to search or list users. Accepting needs a signed-in, verified account with the invited email; it adds a Viewer.
+- **Members panel** (board menu, "Members"): one row per member (email, initials) with Viewer / Can update tasks / Full access as a single choice (radio group), Remove; the admin row is fixed. Pending invites (Copy link, Share on WhatsApp, Cancel) and access requests below. Members who are not admins see the member list read-only and a Leave board button.
+- Guests cannot invite or be invited (no email); a guest admin sees "Create an account to share this board".
+- One admin per board (the creator). Deleting the board removes it for everyone; deleting an account removes its boards and memberships. Attachments count against the uploader's storage.
+- Board switcher: "Your boards" and "Shared with you". Others' changes appear when the board reloads; the board reloads when the tab regains focus (no live sync, N13 stays deferred).
+- Limits: 50 members and 20 pending invites per board; invites 20 per hour per user; access requests 3 per day per member per board; meeting emails 3 per hour per board.
+- **Public boards (Phase 20):** the admin switches a board to public and copies its link `/p/{token}` (random token, not the board id; switching back to private revokes it). Anyone with the link sees a read-only board (no attachments, no member emails, no AI), with `X-Robots-Tag: noindex`. A signed-in visitor sees **Join board** and becomes a Viewer.
+- **Assignment (Phase 20):** a card can be assigned to any members; their initials show on the card; filter "Assigned to me". Removing a member removes their assignments.
+- **Meeting link (Phase 20):** the admin saves an https link; every member sees **Start meeting** (opens a new tab; Zoom links open the Zoom app). **Email the link to members** sends it to everyone on the board. Creating Zoom meetings automatically is out of scope (needs a Zoom developer app and its own sign-in).
+- Local database: Phase 20 adds columns to `boards`, so the local `backend/taskmanager.db` must be recreated then (ask the user first).
 
 ## Phase 1 - Scaffolding
 
@@ -413,10 +469,53 @@ Setup needed from the user (free, no billing): a Gmail App Password (requires 2-
 - [x] Server running locally with the built frontend, ready for the user
 - [x] Card limit: at most 100 cards per board with a clear message (approved by the user on 2026-10-21; resolves NFR-03)
 - [x] Lighthouse: performance 90 or more, accessibility 100 (static assets gzipped and cached)
-- [ ] FINAL TASK before Deployment (remind the user): delete the local test data `backend/taskmanager.db` and `backend/storage/`
 
-## Phase 17 - Deployment (Vercel)
+## Phase 17 - Password Strength
 
+- [ ] Shared rules and example table (`password_cases.json`), common-password list in backend and frontend with a match test
+- [ ] Server refuses Weak passwords on sign up, guest upgrade, reset, change and set password, with a translated message
+- [ ] Strength meter component (bar, word, hint; accessible; translated; RTL; dark mode) on every password field
+- [ ] A Weak password shows the reason before any request is sent
+- [ ] "Continue with Google" shows on sign in, sign up and guest upgrade when Google is configured (checked in the browser)
+- [ ] Tests T-500 to T-509 pass; SEC-150 to SEC-152 ticked; existing tests updated to strong passwords
+- [ ] Browser review: phone and desktop, light and dark, English and Arabic
+
+## Phase 18 - Board Sharing (backend)
+
+- [ ] `board_members`, `board_invites`, `access_requests` tables; existing boards get their owner as admin (on startup, idempotent)
+- [ ] One access helper replaces the owner checks: membership (404 otherwise) plus the role needed by each endpoint (403 with message)
+- [ ] Every existing endpoint mapped to a required role and tested for each role (permission table in the design)
+- [ ] Invites: create (email + link), preview, accept (matching verified email), cancel, expiry, single use
+- [ ] Members: list, change role (admin only, admin row fixed), remove, leave
+- [ ] Access requests: create (emails the admin), approve with role, decline
+- [ ] `GET /boards` returns owned and shared boards with the user's role; limits and rate limits
+- [ ] Emails (invite, access request) in English and Arabic
+- [ ] Tests T-510 to T-539 pass; SEC-160 to SEC-169 ticked
+
+## Phase 19 - Board Sharing (UI)
+
+- [ ] Members panel: member rows with a single-choice permission (Viewer / Can update tasks / Full access), Remove, pending invites, access requests
+- [ ] Invite dialog: email field, sends the invite, shows the link with Copy and Share on WhatsApp
+- [ ] Invite page `/invite`: shows board and inviter, Accept (sign in or sign up first when needed), clear errors (expired, used, other email)
+- [ ] The board follows the user's role: blocked actions show the "ask the admin" toast with Request access; drag is refused for Viewers with the same message
+- [ ] Board switcher: "Your boards" and "Shared with you"; Leave board; board reloads when the tab regains focus
+- [ ] Tests T-540 to T-559 pass (unit and Playwright: two users, invite, accept, permissions, request access)
+- [ ] Browser review: phone and desktop, light and dark, English and Arabic
+
+## Phase 20 - Public Boards, Assignment and Meeting Link
+
+- [ ] Ask the user, then recreate the local database (new `boards` columns)
+- [ ] Public or private switch (admin), public link with Copy, read-only public page `/p/{token}`, Join board for signed-in visitors
+- [ ] Card assignees: picker in the card window, initials on cards, "Assigned to me" filter
+- [ ] Meeting link: admin sets it; Start meeting for every member; Email the link to members
+- [ ] Tests T-560 to T-589 pass; SEC-170 to SEC-174 ticked
+- [ ] Full regression: backend, frontend, Playwright (all browsers), Lighthouse, audits
+- [ ] Browser review: phone and desktop, light and dark, English and Arabic
+
+## Phase 21 - Deployment (Vercel)
+
+- [ ] FIRST TASK (remind the user, do it only with their OK): delete the local test data `backend/taskmanager.db` and `backend/storage/`
+- [ ] Use a dedicated Gmail account for the app's emails (sender shows as "Task Manager")
 - [ ] Choose Postgres provider (Neon or Supabase); add Postgres driver with `uv add`
 - [ ] Full backend test suite passes against Postgres
 - [ ] Alembic set up with an initial migration
