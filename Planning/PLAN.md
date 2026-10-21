@@ -37,8 +37,9 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 24 - Organize: Archive, Copies, Templates, Stars, WIP, Auto-complete, Covers, Focus Sessions | 6 / 6 | Done |
 | Phase 25 - List View and Export | 3 / 3 | Done |
 | Phase 26 - Workspaces, Start Page and Full Regression | 11 / 11 | Done |
-| Phase 27 - Deployment (Vercel) | 0 / 14 | Not started |
-| Phase 28 - Documentation (Word files) | 0 / 8 | Not started |
+| Phase 27 - Voice Commands (proposed) | 0 / 6 | Not started |
+| Phase 28 - Deployment (Vercel) | 0 / 14 | Not started |
+| Phase 29 - Documentation (Word files) | 0 / 8 | Not started |
 
 ## Stack
 
@@ -101,8 +102,9 @@ The app will be published, so two companion checklists are part of every phase:
 37. Public boards: anyone with the link can view read-only without signing in; a signed-in visitor can join as a Viewer (approved 2026-10-21)
 38. Assign cards to board members; "Assigned to me" filter (approved 2026-10-21)
 42. Further features (Phases 22-25, before Deployment; trimmed by the user on 2026-10-21): comments with @mentions, activity log, notifications with emails and a daily reminder, archive and restore, duplicate cards and boards, own templates, starred boards, WIP limits, auto-complete in the last column, card covers, focus sessions on cards, list view, export
-41. Project documentation as Word files (Phase 28, after Deployment; requested 2026-10-21)
+41. Project documentation as Word files (Phase 29, after Deployment; requested 2026-10-21)
 43. Workspaces that group related boards, a start page after sign-in (left panel with each workspace's boards and members, boards by workspace in the middle, What's new notifications), notifications for invitations and for changes to your assigned cards, and AI-suggested columns from a board's name with no demo cards (Phase 26, before Deployment; requested 2026-10-21)
+44. Voice commands: one microphone button that understands spoken commands (add, move, complete, delete, rename, priority, due date, assign, open, search, filters) in English and Arabic, shows each change for Confirm, and sends anything else to the AI chat (Phase 27, before Deployment; proposed 2026-10-22, waiting for approval)
 40. Voice input for people who cannot type: a microphone button on the main text fields and the AI chat, in English and Arabic (approved for planning 2026-10-21; build after the user checks the plan)
 39. Meeting link on the board (Zoom, Google Meet, Teams or any https link): Start meeting opens it (Zoom links open the Zoom app); the admin can email the link to all members (approved 2026-10-21)
 30. Pomodoro focus timer on the board, opt-in: off by default and turned on with a "Focus timer" button; 25 / 5 or 50 / 10 minutes, start, pause, reset focus, reset break, skip; chip with time left, chime and optional notification
@@ -392,7 +394,39 @@ Requested by the user on 2026-10-21 (first as "projects"; renamed "workspaces" a
 - **Board switcher:** grouped by workspace (Starred first, archived last).
 - **API:** `GET/POST /api/workspaces` (POST takes the name and up to 10 boards, each with 1 to 20 columns), `PATCH/DELETE /api/workspaces/{id}`, `GET /api/workspaces/{id}/members` and `GET /api/workspaces/none/members` (your boards without a workspace) listing members per board (owner only), `POST /api/boards` takes `columns` and `workspace_id`, `PATCH /api/boards/{id}` takes `workspace_id`, `BoardSummary` and `BoardOut` gain `workspace_id` (own workspaces only), `cards` and `done`.
 
-## Documentation Design (Phase 28)
+## Voice Commands Design (Phase 27)
+
+Requested by the user on 2026-10-22 ("plan it"), after Voice Input (Phase 21). Choices made by the user: common commands are understood in the browser with the AI as a fallback; a change is shown first and done only after Confirm. **Proposed, waiting for the user's approval.**
+
+- **One button:** "Voice command" (microphone with a spark) in the board header and on the start page, and the shortcut **V**. It listens in the app's language (English or Arabic), shows the words live in a small panel, then shows what it understood.
+- **What happens next:**
+  - **Changes** (add, move, complete, reopen, delete, rename, priority, due date, assign, add column) are shown as a sentence, e.g. "Add card 'Buy domain' to To Do", with **Confirm** and **Cancel**. Delete keeps its Undo after Confirm.
+  - **Look-ups** (open a card or board, search, filters, "All boards", help) happen at once.
+  - **Several possible matches** ("move design to done" with two "Design ..." cards): it lists them as buttons to choose from.
+  - **Not understood:** the words go to the AI chat panel (it opens and sends them), which answers or proposes actions with its own Confirm. This uses the free AI quota, so only phrases of two words or more are sent; a "What can I say?" link is always shown.
+- **Commands understood in the browser** (each in English and Arabic; the column, card, board or member is matched by name, ignoring case, punctuation and Arabic letter forms):
+
+| Command | English example | Arabic example |
+|---|---|---|
+| Add a card | "add card Buy domain to To Do" (no column: the first one) | "أضف بطاقة شراء النطاق إلى المطلوب" |
+| Move a card | "move Buy domain to Done" | "انقل شراء النطاق إلى تم" |
+| Complete / reopen | "complete Buy domain", "reopen Buy domain" | "أنجز شراء النطاق"، "أعد فتح شراء النطاق" |
+| Delete a card | "delete Buy domain" | "احذف شراء النطاق" |
+| Rename a card | "rename Buy domain to Buy the domain" | "غيّر اسم شراء النطاق إلى شراء الدومين" |
+| Priority | "set Buy domain priority to high" | "اجعل أولوية شراء النطاق عالية" |
+| Due date | "Buy domain due tomorrow" (today, tomorrow, next week, a weekday) | "موعد شراء النطاق غدا" |
+| Assign | "assign Buy domain to me" / "to sara@..." | "أسند شراء النطاق إلي" |
+| Add a column | "add column Review" | "أضف عمود المراجعة" |
+| Open | "open Buy domain", "open board Launch", "all boards" | "افتح شراء النطاق"، "افتح لوحة الإطلاق"، "كل اللوحات" |
+| Search and filters | "search domain", "show my cards", "show overdue", "show urgent", "show completed", "clear filters" | "ابحث عن النطاق"، "اعرض بطاقاتي"، "اعرض المتأخرة"، "امسح الفلاتر" |
+| Help | "what can I say" | "ماذا يمكنني أن أقول" |
+
+- **Permissions:** the same as the buttons: a Viewer can open, search and filter; "Can update tasks" can also move, complete and reopen; Full access can do everything else. A refused command says whom to ask, like the buttons.
+- **Privacy:** the speech is turned into text by the browser's speech service (the same notice as voice input); the app's server only ever receives text, and only for a confirmed change or the AI fallback. No audio is stored.
+- **Accessibility:** the panel is a labeled region with live announcements; Confirm and Cancel work with the keyboard (Enter, Escape); every command also has an on-screen button elsewhere, so voice is never the only way.
+- **Non-goals:** spoken replies (the answer is shown as text), always-on listening or a wake word, commands while a card window is open (the card's own microphone buttons cover that).
+
+## Documentation Design (Phase 29)
 
 Eight Word (`.docx`) files in a new `Documentation/` folder, written after Deployment so they describe the finished, live app (real address, final features, final test results). English, the app's name "Task Manager" on every title page, consistent styling (title page, table of contents for long files, headings, page numbers), the project colors from `CLAUDE.md`, and no secrets (no `.env` values, keys, passwords or personal emails).
 
@@ -678,7 +712,16 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 - [x] Full regression after Phases 21-26 (backend, frontend, Playwright in all browsers, axe, Lighthouse, audits)
 - [x] Tests T-714, T-720 to T-745 and T-750 to T-757 pass; SEC-215 to SEC-217 ticked
 
-## Phase 27 - Deployment (Vercel)
+## Phase 27 - Voice Commands (proposed, waiting for approval)
+
+- [ ] Command parser in the browser (English and Arabic) with name matching for cards, columns, boards and members; unit tested phrase by phrase
+- [ ] Voice command button and panel (board header, start page, shortcut V): live words, understood command, Confirm / Cancel, choose among several matches, help list
+- [ ] Changes run through the existing board actions (same permissions, optimistic updates, Undo for delete); look-ups run at once
+- [ ] AI fallback: phrases not understood go to the AI chat panel
+- [ ] English and Arabic, right to left, light and dark, phone to desktop, keyboard and screen reader
+- [ ] Tests T-780 to T-794 pass; SEC-218 and SEC-219 ticked; full regression
+
+## Phase 28 - Deployment (Vercel)
 
 - [ ] FIRST TASK (remind the user, do it only with their OK): delete the local test data `backend/taskmanager.db` and `backend/storage/`
 - [ ] Use a dedicated Gmail account for the app's emails (sender shows as "Task Manager")
@@ -695,7 +738,7 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 - [ ] Playwright smoke suite passes against the deployed URL
 - [ ] Security headers, Secure cookie and HSTS verified on the deployed URL
 
-## Phase 28 - Documentation (Word files)
+## Phase 29 - Documentation (Word files)
 
 - [ ] `Documentation/build/` script with shared styles (title page, contents, headings, page numbers, colors)
 - [ ] `01_Overview.docx`: name, short and long description

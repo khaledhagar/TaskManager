@@ -505,7 +505,25 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-769 A board's admin deletes it from its "..." menu on the start page, after confirming
 - [x] T-770 A column is dragged by its whole header (mouse or finger); on phones columns stack, on tablets they wrap, nothing is cut off at the sides; board options is a bold "..." icon and Share opens the sharing panel
 
-### E6. Documentation (Phase 28)
+### E14. Voice commands (Phase 27, proposed)
+
+- [ ] T-780 The parser understands each command in English, with and without a column, and returns what to do
+- [ ] T-781 The parser understands each command in Arabic (including letter forms such as أ/إ/ا and ة/ه)
+- [ ] T-782 Names are matched ignoring case, punctuation and trailing "."; a close name matches; several matches are offered to choose from; no match says so
+- [ ] T-783 Due dates: today, tomorrow, next week and weekdays become the right date; priorities map to Low, Medium, High, Urgent
+- [ ] T-784 A change is shown as a sentence and done only after Confirm; Cancel does nothing; delete keeps its Undo
+- [ ] T-785 Look-ups (open card, open board, search, filters, all boards, help) happen at once
+- [ ] T-786 Commands obey the board role like the buttons (a Viewer cannot move; "Can update tasks" cannot rename) and explain whom to ask (SEC-218)
+- [ ] T-787 Phrases not understood (two words or more) go to the AI chat panel; one word does not (SEC-219)
+- [ ] T-788 The V shortcut and the button start listening; Escape stops; the panel announces results to screen readers
+- [ ] T-789 E2E (faked speech): add a card by voice and confirm; it is saved
+- [ ] T-790 E2E (faked speech): move and complete a card by voice; search and "show overdue" filter the board
+- [ ] T-791 E2E (faked speech): an ambiguous card name offers a choice; a not-understood phrase opens the AI chat (faked reply)
+- [ ] T-792 E2E: voice commands in Arabic, right to left, dark, at phone width
+- [ ] T-793 Accessibility: no axe violations with the voice panel open; keyboard only
+- [ ] T-794 Full regression after Phase 27: backend, frontend, Playwright in all browsers, axe, Lighthouse, audits
+
+### E6. Documentation (Phase 29)
 
 - [ ] T-620 The build script writes all 8 `.docx` files and each one opens (read back with `python-docx`)
 - [ ] T-621 Every file has a title page with "Task Manager", headings, and page numbers; long files have a table of contents
