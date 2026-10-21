@@ -5,14 +5,15 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 ## Where the project stands (2026-10-21)
 
 - Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
-- Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Next: waiting for the user.** Proposed (not approved yet): a voice-input phase (see "Waiting on the user"); then Phase 21 Deployment, which starts by asking before deleting local test data.
+- Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Next: Phase 21 (Voice input) is written into the plan but must NOT be built until the user has checked the plan and says go** (user, 2026-10-21). Deployment is now Phase 22 and starts by asking before deleting local test data.
 - Tests: backend 390 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 282 passing; Playwright 75 passing (Edge full suite, Firefox and WebKit smoke). Lint, format, type checks and both audits are clean. Lighthouse: sign-in 94, board 98, accessibility 100.
 - Checklists: 308 tests ticked in `Planning/TEST_PLAN.md` (all), 126 items ticked in `Planning/SECURITY.md` (all).
 
 | Done | Phase |
 |------|-------|
 | Yes | 1 Scaffolding to 20 Public boards / assignment / meeting link |
-| Next | User's decision: voice input phase (proposed), or 21 Deployment (Vercel) |
+| Next | 21 Voice input (planned; waiting for the user's check) |
+| Later | 22 Deployment (Vercel) |
 
 ## How we work (the user's preferences)
 
@@ -111,9 +112,9 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 
 ## Waiting on the user
 
-- **Voice input (proposed 2026-10-21, not approved):** the user asked about voice help for people who cannot type. Recommendation given: a phase "Voice input" before Deployment (which would become Phase 22). Browser Web Speech API (`SpeechRecognition`; free, no key, English and Arabic; Chrome, Edge and Safari, not Firefox, so the mic button is hidden there; audio goes to the browser maker's speech service, which must be stated next to the button; needs microphone permission and https). A mic button on card title, description, checklist, search and the AI chat; voice plus the existing AI chat actions lets people say "add a card ... to In Progress" and confirm. Add it to PLAN / TEST_PLAN / SECURITY / CLAUDE.md only after the user approves.
+- **Voice input (Phase 21): planned, waiting for the user's check.** Design in "Voice Input Design" in PLAN.md, tests T-600 to T-614, security SEC-180 to SEC-183. Key point: the server's `Permissions-Policy` currently blocks the microphone (`microphone=()`); the phase changes it to `microphone=(self)`. Do not start until the user approves the plan.
 - Optional: 10 OpenRouter credits would raise the AI limit from 50 to 1,000 requests per day.
-- **First Phase 21 (Deployment) task:** delete `backend/taskmanager.db` and `backend/storage/` (stop the server first), only with the user's OK. On 2026-10-21 the user asked to remove their test accounts: all 3 users (and their boards) were deleted through the ORM; the database file itself is still there, empty.
+- **First Phase 22 (Deployment) task:** delete `backend/taskmanager.db` and `backend/storage/` (stop the server first), only with the user's OK. On 2026-10-21 the user asked to remove their test accounts: all 3 users (and their boards) were deleted through the ORM; the database file itself is still there, empty.
 - The free AI quota is 50 requests per day for the whole account; Phase 12 used 1 for the live check.
 
 ## Hardening (Phase 14): how it works

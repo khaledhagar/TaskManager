@@ -31,7 +31,8 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 18 - Board Sharing (backend) | 9 / 9 | Done |
 | Phase 19 - Board Sharing (UI) | 7 / 7 | Done |
 | Phase 20 - Public Boards, Assignment and Meeting Link | 7 / 7 | Done |
-| Phase 21 - Deployment (Vercel) | 0 / 14 | Not started |
+| Phase 21 - Voice Input | 0 / 6 | Not started |
+| Phase 22 - Deployment (Vercel) | 0 / 14 | Not started |
 
 ## Stack
 
@@ -93,6 +94,7 @@ The app will be published, so two companion checklists are part of every phase:
 36. Member permissions set by the admin in a members panel: Viewer (default), Can update tasks, Full access; one selected per member; a Viewer who tries to edit sees "ask the admin" with a Request access button that emails the admin (approved 2026-10-21)
 37. Public boards: anyone with the link can view read-only without signing in; a signed-in visitor can join as a Viewer (approved 2026-10-21)
 38. Assign cards to board members; "Assigned to me" filter (approved 2026-10-21)
+40. Voice input for people who cannot type: a microphone button on the main text fields and the AI chat, in English and Arabic (approved for planning 2026-10-21; build after the user checks the plan)
 39. Meeting link on the board (Zoom, Google Meet, Teams or any https link): Start meeting opens it (Zoom links open the Zoom app); the admin can email the link to all members (approved 2026-10-21)
 30. Pomodoro focus timer on the board, opt-in: off by default and turned on with a "Focus timer" button; 25 / 5 or 50 / 10 minutes, start, pause, reset focus, reset break, skip; chip with time left, chime and optional notification
 
@@ -297,6 +299,21 @@ Roles (stored per member; the admin chooses exactly one per member in the member
 - **Assignment (Phase 20):** a card can be assigned to any members; their initials show on the card; filter "Assigned to me". Removing a member removes their assignments.
 - **Meeting link (Phase 20):** the admin saves an https link; every member sees **Start meeting** (opens a new tab; Zoom links open the Zoom app). **Email the link to members** sends it to everyone on the board. Creating Zoom meetings automatically is out of scope (needs a Zoom developer app and its own sign-in).
 - Local database: Phase 20 adds only new tables, so the local `backend/taskmanager.db` keeps working (no reset).
+
+## Voice Input Design (Phase 21)
+
+Goal: someone who cannot type can fill in the app's text fields and drive the board by speaking.
+
+- **Engine:** the browser's built-in speech recognition (Web Speech API, `SpeechRecognition` / `webkitSpeechRecognition`). Free, no API key, no new library, nothing for the server to do. Works in Chrome, Edge and Safari; Firefox has no support, so the microphone button is not shown there.
+- **Language:** follows the app language: English `en-US`, Arabic `ar-EG`.
+- **Where:** a microphone button inside these fields: new card title (column composer), card title and description, new checklist item, search, new board title and "Describe it to AI", and the AI chat message. Not on email or password fields.
+- **How it behaves:** press the button (or Space / Enter on it) to start, speak, press again to stop; it also stops by itself after a pause. Words appear live in the field while speaking (interim results) and the final text is added at the end of what is already there. Nothing is saved or sent until the user saves or sends as usual, so every spoken text can be checked first.
+- **Voice commands:** through the existing AI chat: say "add a card Call the supplier to In Progress" or "mark Fix checkout complete" into the chat; the chat proposes the action and the user confirms, as today. No separate command system.
+- **Feedback and accessibility:** the button shows a pulsing "listening" state (no animation with reduced motion), has `aria-pressed` and a label ("Start voice input" / "Stop voice input"), and a polite live region announces "Listening" and "Stopped". At least 40 px on touch screens. Works in light and dark, LTR and RTL.
+- **Privacy:** the browser sends the audio to its maker's speech service (Google, Microsoft or Apple). The first time someone uses the microphone, a short notice says so (remembered in the browser); the AI chat panel keeps its existing third-party note.
+- **Errors (translated):** microphone blocked ("Allow the microphone in your browser to use voice input"), no speech heard, no network.
+- **Security headers:** `Permissions-Policy` changes from `microphone=()` to `microphone=(self)` (this site only; camera and geolocation stay off). No CSP change.
+- **Tests:** speech is faked in unit tests and in Playwright (an init script installs a fake `SpeechRecognition` that returns chosen words), so tests never need a real microphone.
 
 ## Phase 1 - Scaffolding
 
@@ -512,7 +529,16 @@ Roles (stored per member; the admin chooses exactly one per member in the member
 - [x] Full regression: backend, frontend, Playwright (all browsers), Lighthouse, audits
 - [x] Browser review: phone and desktop, light and dark, English and Arabic
 
-## Phase 21 - Deployment (Vercel)
+## Phase 21 - Voice Input
+
+- [ ] `useSpeech` hook (start, stop, interim and final text, errors, language) and a `MicButton` component; hidden when the browser has no speech recognition
+- [ ] Microphone in the column composer, card title and description, checklist item, search, new board title, "Describe it to AI" and the AI chat message
+- [ ] One-time privacy notice, listening state, live-region announcements, translated errors, reduced motion, 40 px touch target, RTL
+- [ ] `Permissions-Policy: microphone=(self)` on the server; camera and geolocation stay blocked
+- [ ] Tests T-600 to T-614 pass; SEC-180 to SEC-183 ticked
+- [ ] Browser review: phone and desktop, light and dark, English and Arabic; real check by the user in Edge or Chrome with a microphone
+
+## Phase 22 - Deployment (Vercel)
 
 - [ ] FIRST TASK (remind the user, do it only with their OK): delete the local test data `backend/taskmanager.db` and `backend/storage/`
 - [ ] Use a dedicated Gmail account for the app's emails (sender shows as "Task Manager")

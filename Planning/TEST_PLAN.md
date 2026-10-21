@@ -362,6 +362,24 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-588 Deleting a public board makes its link return 404
 - [x] T-589 Every item in `Planning/SECURITY.md` is checked
 
+### E5. Voice input (Phase 21)
+
+- [ ] T-600 `useSpeech` starts and stops recognition, passes interim and final text, and uses `en-US` or `ar-EG` from the app language
+- [ ] T-601 The microphone button is hidden when the browser has no speech recognition
+- [ ] T-602 Final text is added to what the field already holds; nothing is saved or sent automatically
+- [ ] T-603 Errors show a translated message (microphone blocked, no speech, no network)
+- [ ] T-604 Button: `aria-pressed`, "Start voice input" / "Stop voice input", live region says "Listening" and "Stopped"
+- [ ] T-605 The privacy notice shows on first use only
+- [ ] T-606 Microphone appears in the composer, card title, description, checklist, search, new board dialog and AI chat, and not on email or password fields
+- [ ] T-607 Reduced motion turns the listening animation off
+- [ ] T-608 New texts in both dictionaries; no hard-coded English (existing source check)
+- [ ] T-609 Server sends `Permissions-Policy` with `microphone=(self)` and still blocks camera and geolocation (SEC-180)
+- [ ] T-610 E2E (fake speech): speak a card title into the composer, then press Enter; the card is added
+- [ ] T-611 E2E (fake speech): speak "add a card Call the supplier to In Progress" into the AI chat (AI mocked); confirming adds the card
+- [ ] T-612 E2E: Arabic speech fills the field right-to-left
+- [ ] T-613 E2E: microphone buttons at phone width, dark mode, Arabic; no axe violations
+- [ ] T-614 Full regression passes (backend, frontend, Playwright, Lighthouse, audits)
+
 ## D. Release checks
 
 - [x] T-400 `uv run pytest --cov` passes with 90% or more coverage (NFR-40)

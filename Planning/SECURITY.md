@@ -102,7 +102,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 ## 9. HTTP security headers
 
 - [x] `Content-Security-Policy`: `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'` (SEC-80)
-- [x] `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` disabling camera, microphone and geolocation (SEC-81)
+- [x] `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` disabling camera and geolocation; microphone allowed for this site only from Phase 21 (SEC-81, SEC-180)
 - [x] `Strict-Transport-Security` in production (SEC-82)
 - [x] Fonts and icons bundled locally (no third-party CDNs), so CSP stays `'self'` (SEC-83)
 
@@ -154,6 +154,13 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [x] Public board responses send `X-Robots-Tag: noindex` (SEC-172)
 - [x] Meeting links are https only and open with `rel="noopener noreferrer"` (SEC-173)
 - [x] Invite, access-request and meeting emails are plain text, follow the language and contain only the needed link (SEC-174)
+
+## 15. Voice input (Phase 21)
+
+- [ ] `Permissions-Policy: microphone=(self)`: only this site may use the microphone; camera and geolocation stay blocked (SEC-180)
+- [ ] The microphone starts only when the user presses the button and stops when pressed again or after a pause; it is never on in the background (SEC-181)
+- [ ] Users are told, before first use, that the browser's speech service receives the audio (SEC-182)
+- [ ] Spoken text goes through the same paths as typed text (same length limits, plain text, AI actions still need confirmation); the server stores no audio (SEC-183)
 
 ## Performance
 
