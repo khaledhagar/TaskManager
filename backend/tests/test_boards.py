@@ -15,7 +15,8 @@ def user(client):
 def test_list_boards(user):
     boards = user.get("/api/boards").json()
     assert [b["title"] for b in boards] == ["Website Launch"]
-    assert set(boards[0]) == {"id", "title", "created_at"}
+    assert set(boards[0]) == {"id", "title", "created_at", "role"}
+    assert boards[0]["role"] == "admin"
 
 
 def test_create_board_has_default_columns(user):

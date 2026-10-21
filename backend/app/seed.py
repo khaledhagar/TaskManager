@@ -5,7 +5,7 @@ from datetime import date, timedelta
 from sqlmodel import Session
 
 from app.i18n import current_language
-from app.models import Board, BoardColumn, Card, ChecklistItem, Label
+from app.models import Board, BoardColumn, BoardMember, Card, ChecklistItem, Label, Role
 from app.templates import TEMPLATES
 
 
@@ -17,6 +17,7 @@ def build_board(session: Session, owner_id: int, template: str, title: str | Non
 def build_from_data(session: Session, owner_id: int, data: dict, title: str | None = None) -> Board:
     """Create a board with the data's labels, columns, cards and checklists."""
     board = Board(owner_id=owner_id, title=title or data["title"])
+    board.members = [BoardMember(user_id=owner_id, role=Role.admin)]
     labels = {name: Label(name=name, color=color) for name, color in data.get("labels", [])}
     board.labels = list(labels.values())
     board.columns = [

@@ -7,11 +7,11 @@ from pydantic import BaseModel, Field
 from sqlmodel import func, select
 
 from app import ai, assistant, limits, ratelimit
-from app.access import owned_board_full, owned_card
+from app.access import board_full_for, card_for
 from app.auth import CurrentUser
 from app.db import SessionDep
-from app.models import Board, User
-from app.schemas import BoardSummary, Strict, text
+from app.models import Board, Role, User
+from app.schemas import BoardSummary, Strict, board_summary, text
 from app.seed import build_from_data
 
 router = APIRouter(prefix="/api/ai", tags=["ai"])
@@ -51,7 +51,7 @@ def _key(request: Request, user: User) -> str:
 def suggest_checklist(
     card_id: int, request: Request, user: CurrentUser, session: SessionDep
 ) -> Suggestions:
-    card = owned_card(session, user, card_id)
+    card = card_for(session, user, card_id, Role.editor)
     draft = ai.complete(
         assistant.checklist_messages(card), assistant.ChecklistDraft, _key(request, user)
     )
@@ -67,12 +67,12 @@ def board_starter(
     messages = assistant.board_messages(body.description)
     draft = ai.complete(messages, assistant.BoardDraft, _key(request, user))
     board = build_from_data(session, user.id, assistant.clean_board(draft))
-    return BoardSummary.model_validate(board)
+    return board_summary(board, Role.admin)
 
 
 @router.post("/chat")
 def chat(body: ChatRequest, request: Request, user: CurrentUser, session: SessionDep) -> ChatReply:
-    board = owned_board_full(session, user, body.board_id)
+    board = board_full_for(session, user, body.board_id)
     history = [m.model_dump() for m in body.messages]
     draft = ai.complete(
         assistant.chat_messages(board, history), assistant.ChatDraft, _key(request, user)

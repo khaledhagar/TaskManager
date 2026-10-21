@@ -13,9 +13,10 @@ from app.i18n import add_language
 from app.mailer import Mailer
 from app.middleware import add_origin_check
 from app.ratelimit import MemoryStore, RateLimiter
-from app.routes import account, ai, background, boards, cards
+from app.routes import account, ai, background, boards, cards, invites, members
 from app.routes import files as file_routes
 from app.routes import google as google_routes
+from app.sharing import backfill_admins
 from app.storage import LocalStorage
 from app.users import cleanup_guests
 
@@ -48,13 +49,15 @@ def create_app(settings: Settings) -> FastAPI:
     add_language(app)
     with Session(app.state.engine, info={"storage": app.state.storage}) as session:
         cleanup_guests(session)
+        backfill_admins(session)
 
     @app.get("/api/health")
     def health(session: SessionDep) -> dict:
         session.exec(text("SELECT 1"))
         return {"status": "ok", "database": "ok"}
 
-    for module in (auth, account, google_routes, boards, cards, ai, file_routes, background):
+    routers = (auth, account, google_routes, boards, cards, ai, file_routes, background)
+    for module in (*routers, members, invites):
         app.include_router(module.router)
     mount_frontend(app, settings.frontend_dist)
     return app

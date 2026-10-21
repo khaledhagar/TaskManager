@@ -4,11 +4,11 @@ from fastapi import APIRouter, HTTPException, status
 from sqlmodel import func, select
 
 from app import limits
-from app.access import owned_board, owned_board_full, owned_column, owned_label, renumber
+from app.access import board_for, board_full_for, board_role, column_for, label_for, renumber
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.i18n import tr
-from app.models import Board, BoardColumn, Label
+from app.models import Board, BoardColumn, BoardMember, Label, Role
 from app.schemas import (
     BoardCreate,
     BoardOut,
@@ -19,6 +19,7 @@ from app.schemas import (
     LabelOut,
     TitleUpdate,
     board_out,
+    board_summary,
     column_out,
 )
 from app.seed import build_board
@@ -28,8 +29,13 @@ router = APIRouter(prefix="/api", tags=["boards"])
 
 @router.get("/boards")
 def list_boards(user: CurrentUser, session: SessionDep) -> list[BoardSummary]:
-    stmt = select(Board).where(Board.owner_id == user.id).order_by(Board.created_at, Board.id)
-    return [BoardSummary.model_validate(b) for b in session.exec(stmt)]
+    stmt = (
+        select(Board, BoardMember.role)
+        .join(BoardMember)
+        .where(BoardMember.user_id == user.id)
+        .order_by(Board.created_at, Board.id)
+    )
+    return [board_summary(board, role) for board, role in session.exec(stmt)]
 
 
 @router.post("/boards", status_code=201)
@@ -37,27 +43,28 @@ def create_board(body: BoardCreate, user: CurrentUser, session: SessionDep) -> B
     count = session.exec(select(func.count()).where(Board.owner_id == user.id)).one()
     limits.check(count, limits.BOARDS_PER_USER, "Limit reached: at most {cap} boards")
     board = build_board(session, user.id, body.template, body.title)
-    return BoardSummary.model_validate(board)
+    return board_summary(board, Role.admin)
 
 
 @router.get("/boards/{board_id}")
 def get_board(board_id: int, user: CurrentUser, session: SessionDep) -> BoardOut:
-    return board_out(owned_board_full(session, user, board_id))
+    board = board_full_for(session, user, board_id)
+    return board_out(board, board_role(session, user, board_id))
 
 
 @router.patch("/boards/{board_id}")
 def rename_board(
     board_id: int, body: TitleUpdate, user: CurrentUser, session: SessionDep
 ) -> BoardSummary:
-    board = owned_board(session, user, board_id)
+    board = board_for(session, user, board_id, Role.admin)
     board.title = body.title
     session.commit()
-    return BoardSummary.model_validate(board)
+    return board_summary(board, Role.admin)
 
 
 @router.delete("/boards/{board_id}", status_code=204)
 def delete_board(board_id: int, user: CurrentUser, session: SessionDep) -> None:
-    session.delete(owned_board(session, user, board_id))
+    session.delete(board_for(session, user, board_id, Role.admin))
     session.commit()
 
 
@@ -65,7 +72,7 @@ def delete_board(board_id: int, user: CurrentUser, session: SessionDep) -> None:
 def add_column(
     board_id: int, body: TitleUpdate, user: CurrentUser, session: SessionDep
 ) -> ColumnOut:
-    board = owned_board(session, user, board_id)
+    board = board_for(session, user, board_id, Role.editor)
     limits.check(
         len(board.columns),
         limits.COLUMNS_PER_BOARD,
@@ -81,7 +88,7 @@ def add_column(
 def reorder_columns(
     board_id: int, body: ColumnOrder, user: CurrentUser, session: SessionDep
 ) -> None:
-    board = owned_board(session, user, board_id)
+    board = board_for(session, user, board_id, Role.editor)
     by_id = {c.id: c for c in board.columns}
     if len(body.column_ids) != len(by_id) or set(body.column_ids) != set(by_id):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, tr("Order must list every column once"))
@@ -93,7 +100,7 @@ def reorder_columns(
 def rename_column(
     column_id: int, body: TitleUpdate, user: CurrentUser, session: SessionDep
 ) -> ColumnOut:
-    column = owned_column(session, user, column_id)
+    column = column_for(session, user, column_id, Role.editor)
     column.title = body.title
     session.commit()
     return column_out(column)
@@ -101,7 +108,7 @@ def rename_column(
 
 @router.delete("/columns/{column_id}", status_code=204)
 def delete_column(column_id: int, user: CurrentUser, session: SessionDep) -> None:
-    column = owned_column(session, user, column_id)
+    column = column_for(session, user, column_id, Role.editor)
     board = column.board
     session.delete(column)
     session.flush()
@@ -112,7 +119,7 @@ def delete_column(column_id: int, user: CurrentUser, session: SessionDep) -> Non
 
 @router.post("/boards/{board_id}/labels", status_code=201)
 def add_label(board_id: int, body: LabelCreate, user: CurrentUser, session: SessionDep) -> LabelOut:
-    board = owned_board(session, user, board_id)
+    board = board_for(session, user, board_id, Role.editor)
     limits.check(
         len(board.labels), limits.LABELS_PER_BOARD, "Limit reached: at most {cap} labels per board"
     )
@@ -124,5 +131,5 @@ def add_label(board_id: int, body: LabelCreate, user: CurrentUser, session: Sess
 
 @router.delete("/labels/{label_id}", status_code=204)
 def delete_label(label_id: int, user: CurrentUser, session: SessionDep) -> None:
-    session.delete(owned_label(session, user, label_id))
+    session.delete(label_for(session, user, label_id, Role.editor))
     session.commit()

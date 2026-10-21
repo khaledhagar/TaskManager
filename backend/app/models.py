@@ -1,8 +1,9 @@
-"""Database tables: users, boards, columns, cards, checklist items and labels."""
+"""Database tables: users, boards, members, invites, columns, cards, checklist items and labels."""
 
 from datetime import UTC, date, datetime
 from enum import StrEnum
 
+from sqlalchemy import UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -27,6 +28,15 @@ class LabelColor(StrEnum):
     gray = "gray"
 
 
+class Role(StrEnum):
+    """A member's permission on a board, lowest first (see Board Sharing Design)."""
+
+    viewer = "viewer"
+    updater = "updater"
+    editor = "editor"
+    admin = "admin"
+
+
 class User(SQLModel, table=True):
     __tablename__ = "users"
 
@@ -42,6 +52,7 @@ class User(SQLModel, table=True):
 
     boards: list["Board"] = Relationship(back_populates="owner", cascade_delete=True)
     email_tokens: list["EmailToken"] = Relationship(cascade_delete=True)
+    memberships: list["BoardMember"] = Relationship(back_populates="user", cascade_delete=True)
 
 
 class TokenPurpose(StrEnum):
@@ -83,6 +94,55 @@ class Board(SQLModel, table=True):
         sa_relationship_kwargs={"order_by": "BoardColumn.position"},
     )
     labels: list["Label"] = Relationship(back_populates="board", cascade_delete=True)
+    members: list["BoardMember"] = Relationship(
+        cascade_delete=True, sa_relationship_kwargs={"order_by": "BoardMember.id"}
+    )
+    invites: list["BoardInvite"] = Relationship(cascade_delete=True)
+    access_requests: list["AccessRequest"] = Relationship(cascade_delete=True)
+
+
+class BoardMember(SQLModel, table=True):
+    """A user's role on a board; the board's creator has the admin row."""
+
+    __tablename__ = "board_members"
+    __table_args__ = (UniqueConstraint("board_id", "user_id"),)
+
+    id: int | None = Field(default=None, primary_key=True)
+    board_id: int = Field(foreign_key="boards.id", ondelete="CASCADE", index=True)
+    user_id: int = Field(foreign_key="users.id", ondelete="CASCADE", index=True)
+    role: Role = Role.viewer
+    created_at: datetime = Field(default_factory=utcnow)
+
+    user: User = Relationship(back_populates="memberships")
+
+
+class BoardInvite(SQLModel, table=True):
+    """Emailed invitation to a board; only the SHA-256 hash of its token is stored."""
+
+    __tablename__ = "board_invites"
+
+    id: int | None = Field(default=None, primary_key=True)
+    board_id: int = Field(foreign_key="boards.id", ondelete="CASCADE", index=True)
+    invited_by: int = Field(foreign_key="users.id", ondelete="CASCADE")
+    email: str = Field(index=True)
+    token_hash: str = Field(unique=True, index=True)
+    expires_at: datetime
+    used_at: datetime | None = None
+    created_at: datetime = Field(default_factory=utcnow)
+
+
+class AccessRequest(SQLModel, table=True):
+    """A member asking the admin for more access; one per member per board."""
+
+    __tablename__ = "access_requests"
+    __table_args__ = (UniqueConstraint("board_id", "user_id"),)
+
+    id: int | None = Field(default=None, primary_key=True)
+    board_id: int = Field(foreign_key="boards.id", ondelete="CASCADE", index=True)
+    user_id: int = Field(foreign_key="users.id", ondelete="CASCADE", index=True)
+    created_at: datetime = Field(default_factory=utcnow)
+
+    user: User = Relationship()
 
 
 class BoardColumn(SQLModel, table=True):

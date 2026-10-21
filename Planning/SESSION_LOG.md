@@ -5,15 +5,15 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 ## Where the project stands (2026-10-21)
 
 - Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
-- Phase 17 (password strength) is done and pushed. **Next: Phase 18 (board sharing backend).** Phases 17-20 were approved on 2026-10-21; Deployment is Phase 21 and starts with deleting the local test data (ask the user). Design: "Board Sharing Design" in PLAN.md; tests T-510 to T-589; security SEC-160 to SEC-174.
-- Tests: backend 310 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 252 passing; Playwright 62 passing (Edge full suite, Firefox and WebKit smoke). Lint, format and type checks are clean.
-- Checklists: 228 tests ticked in `Planning/TEST_PLAN.md` (open: T-510 to T-589, Phases 18-20), 111 items ticked in `Planning/SECURITY.md` (open: SEC-160 to SEC-174).
+- Phases 17 (password strength) and 18 (board sharing backend) are done and pushed. **Next: Phase 19 (board sharing UI).** The user asked (2026-10-21) to run Phases 18, 19 and 20 back to back without asking: finish each, test everything, push, update this log, then start the next. Stop before Phase 21 (Deployment).
+- Tests: backend 368 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 252 passing; Playwright 62 passing (Edge full suite, Firefox and WebKit smoke). Lint, format and type checks are clean.
+- Checklists: 258 tests ticked in `Planning/TEST_PLAN.md` (open: T-540 to T-589, Phases 19-20), 119 items ticked in `Planning/SECURITY.md` (open: SEC-164, SEC-168, SEC-170 to SEC-174).
 
 | Done | Phase |
 |------|-------|
-| Yes | 1 Scaffolding to 17 Password strength |
-| Next | 18 Board sharing (backend) |
-| Later | 19 Board sharing (UI), 20 Public boards / assignment / meeting link, 21 Deployment (Vercel) |
+| Yes | 1 Scaffolding to 18 Board sharing (backend) |
+| Next | 19 Board sharing (UI) |
+| Later | 20 Public boards / assignment / meeting link, 21 Deployment (Vercel) |
 
 ## How we work (the user's preferences)
 
@@ -147,7 +147,18 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 - Browser: `PasswordStrength` meter (role `meter` + polite `status` text) on sign up, reset, change/set password and guest upgrade; a Weak password shows "This password is too weak." on the field and sends nothing; the meter gives the specific advice. Sign in keeps the plain 8-character check.
 - The page already has an empty `status` region (toasts), so in Playwright find the meter by its text or by role `meter`, not by `getByRole('status')`.
 
-## Next steps: Phases 17-20
+## Board sharing backend (Phase 18): how it works
+
+- Tables: `board_members` (board, user, role `admin` / `editor` / `updater` / `viewer`; unique per board and user), `board_invites` (email, SHA-256 token hash, 7-day expiry, used_at), `access_requests` (one per member per board). New boards get the creator as `admin` (`seed.build_from_data`); `sharing.backfill_admins` runs at startup for older boards (idempotent), so existing local databases keep working without a reset.
+- `app/access.py`: every lookup (`board_for`, `board_full_for`, `column_for`, `card_for`, `item_for`, `label_for`; `attachment_for` in `routes/files.py`) joins `board_members` for the user and takes the role the action needs. No row: 404. Lower role: 403 with "You can only view this board..." (viewer), "Ask the board admin for full access..." (updater), or "Only the board admin can do this." (admin-only). `board_role` returns the user's role.
+- Role per endpoint (UI "Viewer / Can update tasks / Full access" = `viewer / updater / editor`): view board, members, attachments, AI chat = viewer; move card, PATCH card with only `completed`, PATCH checklist with only `done` = updater; every other card / column / label / checklist / attachment change and AI checklist = editor; rename / delete board, background, invites, members, requests = admin. Cards cannot move to another board (404). Board count and storage quota stay with the creator; attachments count against the uploader.
+- `GET /boards` and `GET /boards/{id}` include `role`. `GET /boards/{id}/members` returns `role`, `members`, `invites` and `requests` (both empty for non-admins) and `requested` (the user has a pending request).
+- Invites (`routes/invites.py`): admin only, not guests ("Create an account to share this board."); any address (never says whether it has an account); re-inviting a pending address reuses that invite with a fresh token; `resend` gives a new link (old one stops working); `preview` needs no sign-in; `accept` needs a verified, non-guest account with the invited email and adds a Viewer. Link: `APP_URL/invite#token=...`.
+- Access requests (`routes/members.py`): Viewer or Can update tasks only; a second request while one is pending returns the same one without a new email; the admin gets an email linking to `APP_URL/?board={id}&members=1`. Approve (`updater` or `editor`) or decline (admin). Changing a member's role or removing them clears their pending request.
+- Limits: 50 members and 20 pending invites per board; rate limits `ratelimit.INVITES` (20/h per user) and `ACCESS_REQUESTS` (3/day per member per board); `frontend/e2e/server.py` lifts them for browser tests.
+- Tests: `tests/test_sharing_roles.py` (the role table over every endpoint), `test_sharing_invites.py`, `test_sharing_members.py`; helpers in `tests/sharing_helpers.py` (`join(admin, member, board_id, email, role)`).
+
+## Next steps: Phases 19-20
 
 Approved on 2026-10-21; details in PLAN.md. User decisions: public = read-only for anyone with the link, signed-in visitors can join as Viewer; every new member starts as Viewer; Request access button emails the admin; admin picks exactly one permission per member in a members panel; invites by email plus Copy / Share on WhatsApp. My calls (tell the user if questioned): any address can be invited (no user search, no account enumeration); public view hides attachments, member emails and AI; no live sync (board reloads on tab focus); Zoom meetings are links, not created by API.
 

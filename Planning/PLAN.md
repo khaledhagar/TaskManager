@@ -28,7 +28,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 15 - Integration Testing (Playwright) | 19 / 19 | Done |
 | Phase 16 - Done | 7 / 7 | Done |
 | Phase 17 - Password Strength | 7 / 7 | Done |
-| Phase 18 - Board Sharing (backend) | 0 / 9 | Not started |
+| Phase 18 - Board Sharing (backend) | 9 / 9 | Done |
 | Phase 19 - Board Sharing (UI) | 0 / 7 | Not started |
 | Phase 20 - Public Boards, Assignment and Meeting Link | 0 / 7 | Not started |
 | Phase 21 - Deployment (Vercel) | 0 / 14 | Not started |
@@ -180,7 +180,7 @@ Authorization rule (until Phase 17): a user can only read or change boards they 
 - Background: `PUT /boards/{id}/background` (multipart image), `PUT /boards/{id}/background/preset`, `DELETE /boards/{id}/background`, `GET /boards/{id}/background`
 
 - Members (Phase 18): `GET /boards/{id}/members`, `PATCH /boards/{id}/members/{user_id}` (role), `DELETE /boards/{id}/members/{user_id}` (remove, or leave when it is yourself)
-- Invites (Phase 18): `POST /boards/{id}/invites`, `DELETE /invites/{id}`, `POST /invites/preview`, `POST /invites/accept`
+- Invites (Phase 18): `POST /boards/{id}/invites`, `POST /invites/{id}/resend` (new link and email; the old link stops working, because only token hashes are stored), `DELETE /invites/{id}`, `POST /invites/preview` (no sign-in), `POST /invites/accept`
 - Access requests (Phase 18): `POST /boards/{id}/access-requests`, `POST /access-requests/{id}/approve` (with role), `DELETE /access-requests/{id}` (decline)
 - Public boards, assignment, meeting (Phase 20): `PUT /boards/{id}/visibility`, `GET /public/boards/{token}`, `GET /public/boards/{token}/background`, `POST /public/boards/{token}/join`, `PUT /cards/{id}/assignees`, `PUT /boards/{id}/meeting`, `POST /boards/{id}/meeting/email`
 
@@ -288,7 +288,7 @@ Roles (stored per member; the admin chooses exactly one per member in the member
 - Non-members get 404 (as today). A member without the right permission gets 403 with a translated message: Viewer: "You can only view this board. Ask the board admin for permission to edit."; Can update tasks: "Ask the board admin for full access to do this." The browser shows the same message as a toast with a **Request access** button, before sending anything.
 - **Request access** emails the admin ("{email} asks for more access to {board}") with a link that opens the members panel; the request shows there with Approve as Can update tasks / Full access, or Decline. One pending request per member per board.
 - **Invite:** the admin types an email. The app emails an invitation link (`/invite#token=...`, one use, 7 days) and shows the same link with Copy and Share on WhatsApp (`https://wa.me/?text=...`). Any address can be invited: the email says to sign in, or create an account, with that address. The app never says whether an address has an account and has no way to search or list users. Accepting needs a signed-in, verified account with the invited email; it adds a Viewer.
-- **Members panel** (board menu, "Members"): one row per member (email, initials) with Viewer / Can update tasks / Full access as a single choice (radio group), Remove; the admin row is fixed. Pending invites (Copy link, Share on WhatsApp, Cancel) and access requests below. Members who are not admins see the member list read-only and a Leave board button.
+- **Members panel** (board menu, "Members"): one row per member (email, initials) with Viewer / Can update tasks / Full access as a single choice (radio group), Remove; the admin row is fixed. Pending invites (Send again, which gives a fresh link to Copy or Share on WhatsApp; Cancel) and access requests below. Members who are not admins see the member list read-only and a Leave board button.
 - Guests cannot invite or be invited (no email); a guest admin sees "Create an account to share this board".
 - One admin per board (the creator). Deleting the board removes it for everyone; deleting an account removes its boards and memberships. Attachments count against the uploader's storage.
 - Board switcher: "Your boards" and "Shared with you". Others' changes appear when the board reloads; the board reloads when the tab regains focus (no live sync, N13 stays deferred).
@@ -482,15 +482,15 @@ Roles (stored per member; the admin chooses exactly one per member in the member
 
 ## Phase 18 - Board Sharing (backend)
 
-- [ ] `board_members`, `board_invites`, `access_requests` tables; existing boards get their owner as admin (on startup, idempotent)
-- [ ] One access helper replaces the owner checks: membership (404 otherwise) plus the role needed by each endpoint (403 with message)
-- [ ] Every existing endpoint mapped to a required role and tested for each role (permission table in the design)
-- [ ] Invites: create (email + link), preview, accept (matching verified email), cancel, expiry, single use
-- [ ] Members: list, change role (admin only, admin row fixed), remove, leave
-- [ ] Access requests: create (emails the admin), approve with role, decline
-- [ ] `GET /boards` returns owned and shared boards with the user's role; limits and rate limits
-- [ ] Emails (invite, access request) in English and Arabic
-- [ ] Tests T-510 to T-539 pass; SEC-160 to SEC-169 ticked
+- [x] `board_members`, `board_invites`, `access_requests` tables; existing boards get their owner as admin (on startup, idempotent)
+- [x] One access helper replaces the owner checks: membership (404 otherwise) plus the role needed by each endpoint (403 with message)
+- [x] Every existing endpoint mapped to a required role and tested for each role (permission table in the design)
+- [x] Invites: create (email + link), preview, accept (matching verified email), cancel, expiry, single use
+- [x] Members: list, change role (admin only, admin row fixed), remove, leave
+- [x] Access requests: create (emails the admin), approve with role, decline
+- [x] `GET /boards` returns owned and shared boards with the user's role; limits and rate limits
+- [x] Emails (invite, access request) in English and Arabic
+- [x] Tests T-510 to T-539 pass; SEC-160 to SEC-169 ticked (SEC-164 and SEC-168 are finished in Phase 20)
 
 ## Phase 19 - Board Sharing (UI)
 

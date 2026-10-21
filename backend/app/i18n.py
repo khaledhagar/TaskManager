@@ -36,6 +36,31 @@ AR: dict[str, str] = {
         "وتجنب الكلمات الشائعة وبريدك الإلكتروني."
     ),
     "Google sign-in is not configured": "تسجيل الدخول بحساب Google غير مُعد",
+    "You can only view this board. Ask the board admin for permission to edit.": (
+        "يمكنك عرض هذه اللوحة فقط. اطلب من المسؤول عن اللوحة صلاحية التعديل."
+    ),
+    "Ask the board admin for full access to do this.": (
+        "اطلب من المسؤول عن اللوحة صلاحية كاملة لتنفيذ ذلك."
+    ),
+    "Only the board admin can do this.": "هذا الإجراء متاح للمسؤول عن اللوحة فقط.",
+    "The board admin's role cannot be changed.": "لا يمكن تغيير دور المسؤول عن اللوحة.",
+    "The board admin cannot leave the board.": "لا يمكن للمسؤول عن اللوحة مغادرتها.",
+    "You already have full access to this board.": "لديك بالفعل صلاحية كاملة على هذه اللوحة.",
+    "Create an account to share this board.": "أنشئ حسابا لمشاركة هذه اللوحة.",
+    "This person is already a member of this board.": "هذا الشخص عضو بالفعل في هذه اللوحة.",
+    "Limit reached: at most {cap} pending invitations per board": (
+        "تم بلوغ الحد: {cap} دعوة معلقة كحد أقصى لكل لوحة"
+    ),
+    "Limit reached: at most {cap} members per board": "تم بلوغ الحد: {cap} عضو كحد أقصى لكل لوحة",
+    "This invitation link is invalid or has expired.": (
+        "رابط الدعوة هذا غير صالح أو منتهي الصلاحية."
+    ),
+    "Create an account or sign in with {email} to accept this invitation.": (
+        "أنشئ حسابا أو سجّل الدخول باستخدام {email} لقبول هذه الدعوة."
+    ),
+    "This invitation was sent to {email}. Sign in with that address to accept it.": (
+        "أُرسلت هذه الدعوة إلى {email}. سجّل الدخول بهذا العنوان لقبولها."
+    ),
     "Cross-site request blocked": "تم حظر طلب من موقع آخر",
     "Order must list every column once": "يجب أن يتضمن الترتيب كل عمود مرة واحدة",
     "Limit reached: at most {cap} boards": "تم بلوغ الحد: {cap} لوحة كحد أقصى",

@@ -4,10 +4,10 @@ from fastapi import APIRouter
 from sqlmodel import func, select
 
 from app import limits
-from app.access import board_labels, owned_card, owned_column, owned_item, renumber
+from app.access import board_labels, card_for, column_for, item_for, not_found, renumber
 from app.auth import CurrentUser
 from app.db import SessionDep
-from app.models import BoardColumn, Card, ChecklistItem
+from app.models import BoardColumn, Card, ChecklistItem, Role
 from app.schemas import (
     CardCreate,
     CardLabels,
@@ -25,7 +25,7 @@ router = APIRouter(prefix="/api", tags=["cards"])
 
 @router.post("/columns/{column_id}/cards", status_code=201)
 def add_card(column_id: int, body: CardCreate, user: CurrentUser, session: SessionDep) -> CardOut:
-    column = owned_column(session, user, column_id)
+    column = column_for(session, user, column_id, Role.editor)
     stmt = select(func.count()).select_from(Card).join(BoardColumn)
     count = session.exec(stmt.where(BoardColumn.board_id == column.board_id)).one()
     limits.check(
@@ -41,8 +41,10 @@ def add_card(column_id: int, body: CardCreate, user: CurrentUser, session: Sessi
 
 @router.patch("/cards/{card_id}")
 def update_card(card_id: int, body: CardUpdate, user: CurrentUser, session: SessionDep) -> CardOut:
-    card = owned_card(session, user, card_id)
-    for field, value in body.model_dump(exclude_unset=True).items():
+    changes = body.model_dump(exclude_unset=True)
+    need = Role.updater if set(changes) <= {"completed"} else Role.editor
+    card = card_for(session, user, card_id, need)
+    for field, value in changes.items():
         if value is not None or field == "due_date":
             setattr(card, field, value)
     session.commit()
@@ -51,7 +53,7 @@ def update_card(card_id: int, body: CardUpdate, user: CurrentUser, session: Sess
 
 @router.delete("/cards/{card_id}", status_code=204)
 def delete_card(card_id: int, user: CurrentUser, session: SessionDep) -> None:
-    card = owned_card(session, user, card_id)
+    card = card_for(session, user, card_id, Role.editor)
     column = card.column
     session.delete(card)
     session.flush()
@@ -62,9 +64,11 @@ def delete_card(card_id: int, user: CurrentUser, session: SessionDep) -> None:
 
 @router.post("/cards/{card_id}/move")
 def move_card(card_id: int, body: CardMove, user: CurrentUser, session: SessionDep) -> CardOut:
-    card = owned_card(session, user, card_id)
-    target = owned_column(session, user, body.column_id)
+    card = card_for(session, user, card_id, Role.updater)
+    target = column_for(session, user, body.column_id, Role.updater)
     source = card.column
+    if target.board_id != source.board_id:
+        raise not_found()
     remaining = [c for c in source.cards if c.id != card.id]
     renumber(remaining)
     dest = remaining if target.id == source.id else list(target.cards)
@@ -80,7 +84,7 @@ def move_card(card_id: int, body: CardMove, user: CurrentUser, session: SessionD
 def set_card_labels(
     card_id: int, body: CardLabels, user: CurrentUser, session: SessionDep
 ) -> CardOut:
-    card = owned_card(session, user, card_id)
+    card = card_for(session, user, card_id, Role.editor)
     card.labels = board_labels(session, card.column.board_id, body.label_ids)
     session.commit()
     return card_out(card)
@@ -88,7 +92,7 @@ def set_card_labels(
 
 @router.post("/cards/{card_id}/checklist", status_code=201)
 def add_item(card_id: int, body: ItemCreate, user: CurrentUser, session: SessionDep) -> ItemOut:
-    card = owned_card(session, user, card_id)
+    card = card_for(session, user, card_id, Role.editor)
     limits.check(
         len(card.checklist),
         limits.ITEMS_PER_CARD,
@@ -102,8 +106,10 @@ def add_item(card_id: int, body: ItemCreate, user: CurrentUser, session: Session
 
 @router.patch("/checklist/{item_id}")
 def update_item(item_id: int, body: ItemUpdate, user: CurrentUser, session: SessionDep) -> ItemOut:
-    item = owned_item(session, user, item_id)
-    for field, value in body.model_dump(exclude_unset=True, exclude_none=True).items():
+    changes = body.model_dump(exclude_unset=True, exclude_none=True)
+    need = Role.updater if set(changes) <= {"done"} else Role.editor
+    item = item_for(session, user, item_id, need)
+    for field, value in changes.items():
         setattr(item, field, value)
     session.commit()
     return ItemOut.model_validate(item)
@@ -111,7 +117,7 @@ def update_item(item_id: int, body: ItemUpdate, user: CurrentUser, session: Sess
 
 @router.delete("/checklist/{item_id}", status_code=204)
 def delete_item(item_id: int, user: CurrentUser, session: SessionDep) -> None:
-    item = owned_item(session, user, item_id)
+    item = item_for(session, user, item_id, Role.editor)
     card = item.card
     session.delete(item)
     session.flush()

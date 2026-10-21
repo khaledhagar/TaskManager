@@ -5,12 +5,12 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException, Request, Response, UploadFile, status
 
 from app import files, ratelimit
-from app.access import owned_board
+from app.access import board_for
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.file_cleanup import discard
 from app.i18n import tr
-from app.models import Board
+from app.models import Board, Role
 from app.routes.files import check_quota, read_upload
 from app.schemas import BackgroundOut, Strict, background_out
 from app.storage import new_key
@@ -38,7 +38,7 @@ def _save(session: SessionDep, board: Board) -> BackgroundOut:
 async def upload_background(
     board_id: int, file: UploadFile, request: Request, user: CurrentUser, session: SessionDep
 ) -> BackgroundOut:
-    board = owned_board(session, user, board_id)
+    board = board_for(session, user, board_id, Role.admin)
     ratelimit.enforce(request, f"upload:{user.id}", ratelimit.UPLOADS)
     data = files.make_background(await read_upload(request, file, files.MAX_BACKGROUND_UPLOAD))
     check_quota(session, user, len(data) - board.background_size)
@@ -54,7 +54,7 @@ async def upload_background(
 def set_preset(
     board_id: int, body: PresetIn, user: CurrentUser, session: SessionDep
 ) -> BackgroundOut:
-    board = owned_board(session, user, board_id)
+    board = board_for(session, user, board_id, Role.admin)
     _clear_image(session, board)
     board.background_kind, board.background_preset = "preset", body.preset
     return _save(session, board)
@@ -62,7 +62,7 @@ def set_preset(
 
 @router.delete("/{board_id}/background", status_code=204)
 def remove_background(board_id: int, user: CurrentUser, session: SessionDep) -> None:
-    board = owned_board(session, user, board_id)
+    board = board_for(session, user, board_id, Role.admin)
     _clear_image(session, board)
     board.background_kind, board.background_preset = "none", None
     _save(session, board)
@@ -72,7 +72,7 @@ def remove_background(board_id: int, user: CurrentUser, session: SessionDep) -> 
 def get_background(
     board_id: int, request: Request, user: CurrentUser, session: SessionDep
 ) -> Response:
-    board = owned_board(session, user, board_id)
+    board = board_for(session, user, board_id)
     data = request.app.state.storage.get(board.background_key) if board.background_key else None
     if data is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, tr("Not found"))

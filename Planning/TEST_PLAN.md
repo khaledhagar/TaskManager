@@ -275,36 +275,36 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 
 ### E2. Board sharing backend (Phase 18)
 
-- [ ] T-510 Existing boards get their owner as admin on startup; running it twice changes nothing
-- [ ] T-511 Each endpoint follows the permission table for Viewer, Can update tasks, Full access and Admin (parametrized over every endpoint) (SEC-160)
-- [ ] T-512 A non-member gets 404 on every board, column, card, checklist, label, attachment, background, member and invite endpoint (SEC-21, SEC-160)
-- [ ] T-513 A Viewer gets 403 with "You can only view this board..." in English and Arabic
-- [ ] T-514 Can update tasks: move, complete and tick checklist work; add, edit, delete get 403 "Ask the board admin for full access..."
-- [ ] T-515 Role sent by the browser is ignored; only the stored role counts (SEC-161)
-- [ ] T-516 Invite: admin only; emails a link; the raw token is stored only as a SHA-256 hash (SEC-162)
-- [ ] T-517 Invite link works once and expires after 7 days (SEC-162)
-- [ ] T-518 Accept needs a signed-in, verified account with the invited email; another email gets 403 and the invite stays usable (SEC-163)
-- [ ] T-519 Accepting adds the user as Viewer; inviting an existing member is refused
-- [ ] T-520 Invite response and email never say whether the address has an account (SEC-167, SEC-174)
-- [ ] T-521 Cancel invite: admin only; a cancelled link no longer works
-- [ ] T-522 Guests cannot invite and cannot accept invites (SEC-165)
-- [ ] T-523 Change role: admin only; one role per member; the admin's own row cannot be changed or removed (SEC-164)
-- [ ] T-524 Remove member: admin only; the removed user gets 404 on the board afterwards
-- [ ] T-525 Leave board: a member can remove themselves; the admin cannot leave
-- [ ] T-526 Access request: Viewer or Can update tasks only; emails the admin; one pending per member per board
-- [ ] T-527 Approve request sets the chosen role (Can update tasks or Full access); decline removes it; admin only
-- [ ] T-528 `GET /boards` lists owned and shared boards with the user's role
-- [ ] T-529 Members list: members see member emails of that board only; there is no endpoint to search or list users (SEC-167)
-- [ ] T-530 Limits: 51st member and 21st pending invite refused (SEC-169)
-- [ ] T-531 Rate limits: 21st invite in an hour, 4th access request in a day, 429 (SEC-166)
-- [ ] T-532 Deleting a board removes members, invites and requests; deleting an account removes its memberships
-- [ ] T-533 Attachments uploaded by a member count against the member's storage
-- [ ] T-534 AI chat works for every member; AI checklist needs Full access
-- [ ] T-535 Moving a card or setting a label across boards is still refused, even for a member of both (SEC-22, SEC-23, SEC-168)
-- [ ] T-536 Invite and access-request emails follow the request language
-- [ ] T-537 Guest cleanup removes guest memberships too
-- [ ] T-538 Board list, board and members load in a few queries whatever the number of members
-- [ ] T-539 Every new user-facing server message has Arabic (existing i18n source check)
+- [x] T-510 Existing boards get their owner as admin on startup; running it twice changes nothing
+- [x] T-511 Each endpoint follows the permission table for Viewer, Can update tasks, Full access and Admin (parametrized over every endpoint) (SEC-160)
+- [x] T-512 A non-member gets 404 on every board, column, card, checklist, label, attachment, background, member and invite endpoint (SEC-21, SEC-160)
+- [x] T-513 A Viewer gets 403 with "You can only view this board..." in English and Arabic
+- [x] T-514 Can update tasks: move, complete and tick checklist work; add, edit, delete get 403 "Ask the board admin for full access..."
+- [x] T-515 Role sent by the browser is ignored; only the stored role counts (SEC-161)
+- [x] T-516 Invite: admin only; emails a link; the raw token is stored only as a SHA-256 hash (SEC-162)
+- [x] T-517 Invite link works once and expires after 7 days (SEC-162)
+- [x] T-518 Accept needs a signed-in, verified account with the invited email; another email gets 403 and the invite stays usable (SEC-163)
+- [x] T-519 Accepting adds the user as Viewer; inviting an existing member is refused
+- [x] T-520 Invite response and email never say whether the address has an account (SEC-167, SEC-174)
+- [x] T-521 Cancel invite: admin only; a cancelled link no longer works
+- [x] T-522 Guests cannot invite and cannot accept invites (SEC-165)
+- [x] T-523 Change role: admin only; one role per member; the admin's own row cannot be changed or removed (SEC-164)
+- [x] T-524 Remove member: admin only; the removed user gets 404 on the board afterwards
+- [x] T-525 Leave board: a member can remove themselves; the admin cannot leave
+- [x] T-526 Access request: Viewer or Can update tasks only; emails the admin; one pending per member per board
+- [x] T-527 Approve request sets the chosen role (Can update tasks or Full access); decline removes it; admin only
+- [x] T-528 `GET /boards` lists owned and shared boards with the user's role
+- [x] T-529 Members list: members see member emails of that board only; there is no endpoint to search or list users (SEC-167)
+- [x] T-530 Limits: 51st member and 21st pending invite refused (SEC-169)
+- [x] T-531 Rate limits: 21st invite in an hour, 4th access request in a day, 429 (SEC-166)
+- [x] T-532 Deleting a board removes members, invites and requests; deleting an account removes its memberships
+- [x] T-533 Attachments uploaded by a member count against the member's storage
+- [x] T-534 AI chat works for every member; AI checklist needs Full access
+- [x] T-535 Moving a card or setting a label across boards is still refused, even for a member of both (SEC-22, SEC-23, SEC-168)
+- [x] T-536 Invite and access-request emails follow the request language
+- [x] T-537 Guest cleanup removes guest memberships too
+- [x] T-538 Board list, board and members load in a few queries whatever the number of members
+- [x] T-539 Every new user-facing server message has Arabic (existing i18n source check)
 
 ### E3. Board sharing UI (Phase 19)
 

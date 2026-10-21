@@ -80,15 +80,56 @@ RESET = {
 }
 
 
-def _email(texts: dict[str, tuple[str, str]], to: str, link: str) -> Email:
-    """The email in the request language, with the link filled in."""
+INVITE = {
+    "en": (
+        "{inviter} invited you to a board on Task Manager",
+        '{inviter} invited you to join the board "{board}" on Task Manager.\n\n'
+        "Open this link to accept:\n{link}\n\n"
+        "Sign in, or create an account, with this email address ({email}).\n"
+        "The link works once and expires in 7 days.\n"
+        "If you were not expecting this, you can ignore this email.",
+    ),
+    "ar": (
+        "دعاك {inviter} إلى لوحة في مدير المهام",
+        'دعاك {inviter} للانضمام إلى اللوحة "{board}" في مدير المهام.\n\n'
+        "افتح هذا الرابط لقبول الدعوة:\n{link}\n\n"
+        "سجّل الدخول، أو أنشئ حسابا، بعنوان البريد هذا ({email}).\n"
+        "يعمل الرابط مرة واحدة وتنتهي صلاحيته خلال 7 أيام.\n"
+        "إذا لم تكن تتوقع هذه الدعوة، يمكنك تجاهل هذه الرسالة.",
+    ),
+}
+
+ACCESS = {
+    "en": (
+        "{requester} asks for more access to {board}",
+        '{requester} is a member of the board "{board}" and asks you for more access.\n\n'
+        "Open the board's members panel to approve or decline:\n{link}",
+    ),
+    "ar": (
+        "يطلب {requester} صلاحيات أكثر في {board}",
+        '{requester} عضو في اللوحة "{board}" ويطلب منك صلاحيات أكثر.\n\n'
+        "افتح قائمة أعضاء اللوحة للموافقة أو الرفض:\n{link}",
+    ),
+}
+
+
+def _email(texts: dict[str, tuple[str, str]], to: str, **params: str) -> Email:
+    """The email in the request language, with the parameters filled in."""
     subject, text = texts[current_language()]
-    return Email(to=to, subject=subject, text=text.format(link=link))
+    return Email(to=to, subject=subject.format(**params), text=text.format(**params))
 
 
 def verification_email(to: str, link: str) -> Email:
-    return _email(VERIFY, to, link)
+    return _email(VERIFY, to, link=link)
 
 
 def reset_email(to: str, link: str) -> Email:
-    return _email(RESET, to, link)
+    return _email(RESET, to, link=link)
+
+
+def invite_email(to: str, inviter: str, board: str, link: str) -> Email:
+    return _email(INVITE, to, inviter=inviter, board=board, link=link, email=to)
+
+
+def access_email(to: str, requester: str, board: str, link: str) -> Email:
+    return _email(ACCESS, to, requester=requester, board=board, link=link)

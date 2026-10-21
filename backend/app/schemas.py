@@ -5,7 +5,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
-from app.models import Board, BoardColumn, Card, LabelColor, Priority
+from app.models import Board, BoardColumn, Card, LabelColor, Priority, Role
 
 
 def text(max_length: int, min_length: int = 1):
@@ -128,10 +128,10 @@ class ColumnOut(BaseModel):
 
 
 class BoardSummary(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
     id: int
     title: str
     created_at: datetime
+    role: Role
 
 
 class BoardOut(BaseModel):
@@ -140,6 +140,7 @@ class BoardOut(BaseModel):
     labels: list[LabelOut]
     columns: list[ColumnOut]
     background: BackgroundOut
+    role: Role
 
 
 def card_out(card: Card) -> CardOut:
@@ -166,13 +167,18 @@ def column_out(column: BoardColumn) -> ColumnOut:
     )
 
 
-def board_out(board: Board) -> BoardOut:
+def board_summary(board: Board, role: Role) -> BoardSummary:
+    return BoardSummary(id=board.id, title=board.title, created_at=board.created_at, role=role)
+
+
+def board_out(board: Board, role: Role) -> BoardOut:
     return BoardOut(
         id=board.id,
         title=board.title,
         labels=[LabelOut.model_validate(lbl) for lbl in board.labels],
         columns=[column_out(c) for c in board.columns],
         background=background_out(board),
+        role=role,
     )
 
 

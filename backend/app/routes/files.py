@@ -6,11 +6,11 @@ from fastapi import APIRouter, HTTPException, Request, Response, UploadFile, sta
 from sqlmodel import Session, func, select
 
 from app import files, ratelimit
-from app.access import owned_card
+from app.access import card_for, require
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.i18n import tr
-from app.models import Attachment, Board, BoardColumn, Card, User
+from app.models import Attachment, Board, BoardColumn, BoardMember, Card, Role, User
 from app.schemas import AttachmentOut
 from app.storage import new_key
 
@@ -49,25 +49,26 @@ async def read_upload(request: Request, file: UploadFile, limit: int) -> bytes:
     return data
 
 
-def owned_attachment(session: Session, user: User, attachment_id: int) -> Attachment:
+def attachment_for(session: Session, user: User, attachment_id: int, need: Role) -> Attachment:
     stmt = (
-        select(Attachment)
+        select(Attachment, BoardMember.role)
         .join(Card)
         .join(BoardColumn)
-        .join(Board)
-        .where(Attachment.id == attachment_id, Board.owner_id == user.id)
+        .join(BoardMember, BoardMember.board_id == BoardColumn.board_id)
+        .where(Attachment.id == attachment_id, BoardMember.user_id == user.id)
     )
-    attachment = session.exec(stmt).first()
-    if attachment is None:
+    row = session.exec(stmt).first()
+    if row is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, tr("Not found"))
-    return attachment
+    require(row[1], need)
+    return row[0]
 
 
 @router.post("/cards/{card_id}/attachments", status_code=201)
 async def upload_attachment(
     card_id: int, file: UploadFile, request: Request, user: CurrentUser, session: SessionDep
 ) -> AttachmentOut:
-    card = owned_card(session, user, card_id)
+    card = card_for(session, user, card_id, Role.editor)
     ratelimit.enforce(request, f"upload:{user.id}", ratelimit.UPLOADS)
     data = await read_upload(request, file, files.MAX_ATTACHMENT)
     if len(card.attachments) >= files.MAX_PER_CARD:
@@ -102,7 +103,7 @@ def download_attachment(
     session: SessionDep,
     inline: bool = False,
 ) -> Response:
-    attachment = owned_attachment(session, user, attachment_id)
+    attachment = attachment_for(session, user, attachment_id, Role.viewer)
     data = request.app.state.storage.get(attachment.storage_key)
     if data is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, tr("Not found"))
@@ -121,7 +122,7 @@ def download_attachment(
 
 @router.delete("/attachments/{attachment_id}", status_code=204)
 def delete_attachment(attachment_id: int, user: CurrentUser, session: SessionDep) -> None:
-    session.delete(owned_attachment(session, user, attachment_id))
+    session.delete(attachment_for(session, user, attachment_id, Role.editor))
     session.commit()
 
 

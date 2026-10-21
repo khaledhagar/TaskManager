@@ -9,6 +9,8 @@ COLUMNS_PER_BOARD = 20
 CARDS_PER_BOARD = 100
 ITEMS_PER_CARD = 50
 LABELS_PER_BOARD = 30
+MEMBERS_PER_BOARD = 50
+INVITES_PER_BOARD = 20
 
 
 def check(current: int, cap: int, message: str) -> None:
