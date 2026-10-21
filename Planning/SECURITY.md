@@ -162,7 +162,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [ ] Users are told, before first use, that the browser's speech service receives the audio (SEC-182)
 - [ ] Spoken text goes through the same paths as typed text (same length limits, plain text, AI actions still need confirmation); the server stores no audio (SEC-183)
 
-## 17. Further features (Phases 22-28)
+## 17. Further features (Phases 22-25)
 
 - [ ] Comments: Markdown without raw HTML, at most 5,000 characters; Viewers read only; authors edit or delete their own, the admin deletes any (SEC-200)
 - [ ] Mentions and suggestions reach only members of that board; there is still no user search (SEC-201)
@@ -170,17 +170,11 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [ ] Emails can be turned off; every email has a turn-off link that works only for that user; reminders are one email per user per day (SEC-203)
 - [ ] Scheduled job endpoints need `CRON_SECRET` (compared in constant time) (SEC-204)
 - [ ] Activity log keeps only short metadata (no descriptions or comment text), members only, 1,000 per board (SEC-205)
-- [ ] The live-update check returns only numbers and is rate limited (SEC-206)
-- [ ] Duplicates, templates and imports respect every limit; templates are private to their owner (SEC-207)
+- [ ] Duplicates and templates respect every limit; templates are private to their owner (SEC-207)
 - [ ] Exports for members only; CSV cells starting with = + - @ are escaped against spreadsheet formula injection (SEC-208)
-- [ ] Trello import: JSON only, 4 MB at most, structure checked, texts cut to limits, no remote fetching (SEC-209)
-- [ ] Automation: admin only, 20 rules per board, rules never trigger other rules, actions respect limits (SEC-210)
-- [ ] AI summary sends only the last 7 days of activity (titles, columns, dates), no emails, within the AI rate limits (SEC-211)
-- [ ] Installable app: the service worker caches app files and boards the user opened, never sign-in, account or file responses; the cache is cleared on sign out; CSP `worker-src 'self'` and `manifest-src 'self'` (SEC-212)
-- [ ] Dependencies and recurrence only between cards of the same board; cycles refused (SEC-213)
 - [ ] Focus sessions saved only for the signed-in user, at most 60 minutes each (SEC-214)
 
-## 16. Documentation (Phase 30)
+## 16. Documentation (Phase 27)
 
 - [ ] Documents and screenshots contain no secrets or personal data: no `.env` values, keys, tokens, passwords or real user emails (screenshots use test accounts) (SEC-190)
 

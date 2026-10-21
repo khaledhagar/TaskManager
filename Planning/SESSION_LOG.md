@@ -5,15 +5,15 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 ## Where the project stands (2026-10-21)
 
 - Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
-- Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Next: waiting for the user to check the plan.** Phases 21 to 28 and 30 are written into the plan but must NOT be built until the user has checked the plan and says go (user, 2026-10-21). Order: 21 Voice input; 22 Collaboration (Alembic moves here, comments, @mentions, activity); 23 Notifications, reminders, live updates; 24 Organize (archive, duplicates, templates, stars, WIP, auto-complete, covers); 25 Views and insights (list, calendar, stats, export); 26 Planning tools (focus sessions on cards, recurring cards, dependencies); 27 Automation rules and swimlanes; 28 Trello import, AI weekly summary, installable app; 29 Deployment (starts by asking before deleting local test data); 30 Documentation (Word files).
+- Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Next: Phase 21 (Voice input).** The user trimmed the plan (2026-10-21) and asked to build Phases 21-25 back to back without asking: finish each, test everything, push, update this log, then start the next. Stop before Phase 26 (Deployment). Order: 21 Voice input; 22 Collaboration (Alembic, comments, @mentions, activity); 23 Notifications and reminders; 24 Organize (archive, duplicates, templates, stars, WIP, auto-complete, covers, focus sessions on cards); 25 List view, export and full regression; 26 Deployment (starts by asking before deleting local test data); 27 Documentation (Word files). Deferred features are listed under "Deferred" in PLAN.md.
 - Tests: backend 390 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 282 passing; Playwright 75 passing (Edge full suite, Firefox and WebKit smoke). Lint, format, type checks and both audits are clean. Lighthouse: sign-in 94, board 98, accessibility 100.
 - Checklists: 308 tests ticked in `Planning/TEST_PLAN.md` (all), 126 items ticked in `Planning/SECURITY.md` (all).
 
 | Done | Phase |
 |------|-------|
 | Yes | 1 Scaffolding to 20 Public boards / assignment / meeting link |
-| Next | Waiting for the user's check of Phases 21-28 and 30 |
-| Later | 21 Voice input, 22-28 further features, 29 Deployment (Vercel), 30 Documentation (Word files) |
+| Next | 21 Voice input, then 22-25 (approved, building back to back) |
+| Later | 26 Deployment (Vercel), 27 Documentation (Word files) |
 
 ## How we work (the user's preferences)
 
@@ -112,11 +112,11 @@ PYTHONUTF8=1 uv run --no-project python Planning/tick_phase.py "Phase 14 - Secur
 
 ## Waiting on the user
 
-- **Voice input (Phase 21): planned, waiting for the user's check.** Design in "Voice Input Design" in PLAN.md, tests T-600 to T-614, security SEC-180 to SEC-183. Key point: the server's `Permissions-Policy` currently blocks the microphone (`microphone=()`); the phase changes it to `microphone=(self)`. Do not start until the user approves the plan.
-- **Documentation (Phase 30, after Deployment): planned, waiting for the user's check.** Eight Word files in `Documentation/` (overview with short and long description, full documentation with features and target audience, test plan and test files, project plan, security, user flows, pages with screenshots, phases as build prompts). Design in "Documentation Design" in PLAN.md; tests T-620 to T-627; SEC-190. My calls (tell the user): made after Deployment so they describe the live app; English only; the test document lists every test file and its tests rather than printing all test code. Use the `anthropic-skills:docx` skill when building.
-- **Further features (Phases 22-28): planned 2026-10-21, waiting for the user's check.** The user asked to add every feature suggested after comparing with Trello, Jira, Asana and Linear. Design in "Further Features Design (Phases 22-28)" in PLAN.md; tests T-640 to T-773; security SEC-200 to SEC-214. My calls (tell the user if questioned): Alembic moves from Deployment to the start of Phase 22 because these phases add columns to existing tables; live updates poll every 15 s (Vercel functions cannot hold WebSockets open); Viewers can read but not write comments; swimlanes are a "Group by" view (no new stored lanes); the AI summary runs only on request (free quota is 50 requests a day); offline mode is read-only.
+- **Voice input (Phase 21): approved; being built.** Design in "Voice Input Design" in PLAN.md, tests T-600 to T-614, security SEC-180 to SEC-183. Key point: the server's `Permissions-Policy` currently blocks the microphone (`microphone=()`); the phase changes it to `microphone=(self)`. Do not start until the user approves the plan.
+- **Documentation (Phase 27, after Deployment): planned.** Eight Word files in `Documentation/` (overview with short and long description, full documentation with features and target audience, test plan and test files, project plan, security, user flows, pages with screenshots, phases as build prompts). Design in "Documentation Design" in PLAN.md; tests T-620 to T-627; SEC-190. My calls (tell the user): made after Deployment so they describe the live app; English only; the test document lists every test file and its tests rather than printing all test code. Use the `anthropic-skills:docx` skill when building.
+- **Further features (Phases 22-25): approved 2026-10-21 after trimming.** Design in "Further Features Design (Phases 22-25)" in PLAN.md; tests T-640 to T-714; security SEC-200 to SEC-205, SEC-207, SEC-208, SEC-214. My calls: Alembic moves to the start of Phase 22; Viewers read but do not write comments; the notification count refreshes on load, focus and own actions (no timed polling).
 - Optional: 10 OpenRouter credits would raise the AI limit from 50 to 1,000 requests per day.
-- **First Phase 29 (Deployment) task:** delete `backend/taskmanager.db` and `backend/storage/` (stop the server first), only with the user's OK. On 2026-10-21 the user asked to remove their test accounts: all 3 users (and their boards) were deleted through the ORM; the database file itself is still there, empty.
+- **First Phase 26 (Deployment) task:** delete `backend/taskmanager.db` and `backend/storage/` (stop the server first), only with the user's OK. On 2026-10-21 the user asked to remove their test accounts: all 3 users (and their boards) were deleted through the ORM; the database file itself is still there, empty.
 - The free AI quota is 50 requests per day for the whole account; Phase 12 used 1 for the live check.
 
 ## Hardening (Phase 14): how it works

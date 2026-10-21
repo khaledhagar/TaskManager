@@ -399,7 +399,7 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [ ] T-654 E2E: activity shows a card moved by another member
 - [ ] T-655 Accessibility: no axe violations in comments, History and Activity
 
-### E8. Notifications, reminders and live updates (Phase 23)
+### E8. Notifications and reminders (Phase 23)
 
 - [ ] T-660 Assigning a card notifies the assignee (in app and by email if on)
 - [ ] T-661 A mention notifies the mentioned member
@@ -409,16 +409,13 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [ ] T-665 `POST /api/cron/reminders` without the right `CRON_SECRET` is refused (SEC-204)
 - [ ] T-666 `uv run python -m app.jobs reminders` runs the job locally
 - [ ] T-667 Bell shows the unread count; opening a notification opens the card; Mark all as read
-- [ ] T-668 Board version changes after any change and not otherwise; the endpoint returns only numbers (SEC-206)
-- [ ] T-669 The app checks every 15 s only while the tab is visible and reloads only when idle
-- [ ] T-670 Version and count endpoint is rate limited
+- [ ] T-668 The unread count refreshes on load, when the tab regains focus and after the user's own actions; there is no timed polling
 - [ ] T-671 Emails in English and Arabic
-- [ ] T-672 E2E: a change by one member appears for another within 20 seconds
 - [ ] T-673 E2E: assignment shows in the other member's bell and in the email outbox
 - [ ] T-674 Bell and notifications list at phone width, dark, Arabic; no axe violations
 - [ ] T-675 Gmail quota: reminder emails are batched per user (one per day)
 
-### E9. Organize (Phase 24)
+### E9. Organize and focus sessions (Phase 24)
 
 - [ ] T-680 Archive and restore a card; archived cards leave the board and the card limit
 - [ ] T-681 Archive and restore a board (admin only); archived boards in their own switcher section
@@ -436,72 +433,25 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [ ] T-693 New UI in Arabic, RTL, dark, phone width
 - [ ] T-694 Accessibility: no axe violations on the new panels
 - [ ] T-695 Migration for the new columns runs on an existing database
+- [ ] T-696 A finished focus period linked to a card is saved and shown on the card
+- [ ] T-697 Focus minutes over 60 per session are refused; sessions are saved only for the signed-in user (SEC-214)
+- [ ] T-698 E2E: point the focus timer at a card; after a period (fast clock) the card shows the session
 
-### E10. Views and insights (Phase 25)
+### E10. List view, export and full regression (Phase 25)
 
-- [ ] T-700 View switch Board / List / Calendar kept in the URL
+- [ ] T-700 View switch Board / List kept in the URL
 - [ ] T-701 List view shows every card, sorts by each column and follows the filters
-- [ ] T-702 Calendar shows cards on their due dates; undated cards listed beside it
-- [ ] T-703 Dragging a card to another day changes its due date (Full access only)
-- [ ] T-704 Stats: completed per week from the activity log; open, overdue, per member and per column counts
-- [ ] T-705 Charts have text alternatives (table or labels) for screen readers
 - [ ] T-706 CSV export has every card; cells starting with = + - @ are escaped (SEC-208)
-- [ ] T-707 JSON export contains the board without emails of other users' accounts beyond members (SEC-208)
+- [ ] T-707 JSON export contains the board and member emails only (SEC-208)
 - [ ] T-708 Export only for members (404 otherwise)
-- [ ] T-709 E2E: switch views, sort the list, move a card in the calendar
+- [ ] T-709 E2E: switch to the list, sort it, open a card from it
 - [ ] T-710 E2E: download CSV and JSON
-- [ ] T-711 Views in Arabic (calendar starts on the right day and runs right to left), dark, phone width
-- [ ] T-712 Accessibility: no axe violations in list, calendar and stats
-- [ ] T-713 Calendar and list stay fast with 100 cards
+- [ ] T-711 List view in Arabic, RTL, dark, phone width
+- [ ] T-712 Accessibility: no axe violations in the list view
+- [ ] T-713 List view stays fast with 100 cards
+- [ ] T-714 Full regression after Phases 21-25: backend, frontend, Playwright in all browsers, axe, Lighthouse, audits
 
-### E11. Planning tools (Phase 26)
-
-- [ ] T-720 A finished focus period linked to a card is saved and shown on the card
-- [ ] T-721 Focus minutes over 60 per session are refused; sessions are saved only for the signed-in user (SEC-214)
-- [ ] T-722 Completing a recurring card creates the next copy with the next due date (daily, weekly, monthly)
-- [ ] T-723 Turning recurrence off stops new copies
-- [ ] T-724 Dependencies only between cards on the same board (SEC-213)
-- [ ] T-725 A dependency that would make a cycle is refused (SEC-213)
-- [ ] T-726 "Blocked by" badge while the blocker is open; it goes when the blocker is completed
-- [ ] T-727 Moving a blocked card into the last column shows a warning
-- [ ] T-728 Permissions follow the role table
-- [ ] T-729 E2E: focus session on a card, recurring card, dependency badge
-- [ ] T-730 Arabic, RTL, dark, phone width
-- [ ] T-731 Accessibility: no axe violations
-
-### E12. Automation and swimlanes (Phase 27)
-
-- [ ] T-740 Admin creates, edits and deletes rules; others get 403; 20 at most per board (SEC-210)
-- [ ] T-741 Each trigger (moved into column, completed, overdue) runs its actions
-- [ ] T-742 Each action (complete, assign, add label, move, set priority) works and respects limits
-- [ ] T-743 A rule's change does not trigger other rules (no loops) (SEC-210)
-- [ ] T-744 Activity says "by automation"
-- [ ] T-745 Rules for overdue cards run in the daily job
-- [ ] T-746 Group by Priority / Assignee / Label shows lanes; None shows the normal board
-- [ ] T-747 Dragging a card to another lane changes that field (Full access only)
-- [ ] T-748 E2E: a rule moves a completed card to Done
-- [ ] T-749 E2E: group by assignee and drag a card to another person
-- [ ] T-750 Arabic, RTL, dark, phone width
-- [ ] T-751 Accessibility: no axe violations in the rules editor and lanes
-
-### E13. Import, AI summary and installable app (Phase 28)
-
-- [ ] T-760 A Trello JSON export becomes a board with lists, cards, labels, checklists, due dates; closed cards archived
-- [ ] T-761 Import refuses non-JSON, files over 4 MB and wrong structure; long texts are cut; nothing is fetched from the internet (SEC-209)
-- [ ] T-762 Import respects board and card limits
-- [ ] T-763 AI summary sends only the last 7 days of activity without emails and uses the AI limits (SEC-211)
-- [ ] T-764 AI summary shows in the chat panel in the app language (AI mocked)
-- [ ] T-765 The manifest and icons are served; the app can be installed (Lighthouse installable check)
-- [ ] T-766 Offline, a board opened earlier shows read-only with an "Offline" banner
-- [ ] T-767 Signing out clears the offline cache; another user never sees it (SEC-212)
-- [ ] T-768 The service worker does not cache sign-in, account or file responses (SEC-212)
-- [ ] T-769 CSP allows the service worker and manifest from this site only (SEC-212)
-- [ ] T-770 E2E: import a Trello file
-- [ ] T-771 E2E: go offline and view a board
-- [ ] T-772 Arabic, RTL, dark, phone width; no axe violations
-- [ ] T-773 Full regression after Phases 22-28: backend, frontend, Playwright in all browsers, Lighthouse, audits
-
-### E6. Documentation (Phase 30)
+### E6. Documentation (Phase 27)
 
 - [ ] T-620 The build script writes all 8 `.docx` files and each one opens (read back with `python-docx`)
 - [ ] T-621 Every file has a title page with "Task Manager", headings, and page numbers; long files have a table of contents
