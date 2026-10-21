@@ -8,7 +8,7 @@ export type Filters = {
   text: string
   labelId: number | null
   priority: Priority | null
-  status: 'all' | 'open' | 'done'
+  status: 'all' | 'open' | 'done' | 'overdue'
   /** The signed-in user's id when "Assigned to me" is chosen. */
   assignee: number | null
 }
@@ -58,6 +58,7 @@ export function matchesFilters(card: Card, f: Filters): boolean {
   if (f.priority !== null && card.priority !== f.priority) return false
   if (f.status === 'open' && card.completed) return false
   if (f.status === 'done' && !card.completed) return false
+  if (f.status === 'overdue' && dueStatus(card.due_date, card.completed) !== 'overdue') return false
   if (f.assignee !== null && !card.assignee_ids.includes(f.assignee)) return false
   return true
 }

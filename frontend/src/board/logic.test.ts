@@ -196,3 +196,13 @@ describe('auto-complete (T-687)', () => {
     expect(done(moveCard(board(), 1, 3, 0), 1)).toBe(false)
   })
 })
+
+describe('overdue filter (T-785)', () => {
+  test('keeps only open cards whose due date has passed', () => {
+    const late = card(1, { due_date: '2020-01-01' })
+    const lateDone = card(2, { due_date: '2020-01-01', completed: true })
+    const later = card(3, { due_date: '2999-01-01' })
+    const f = { ...EMPTY_FILTERS, status: 'overdue' as const }
+    expect([late, lateDone, later].filter((c) => matchesFilters(c, f)).map((c) => c.id)).toEqual([1])
+  })
+})

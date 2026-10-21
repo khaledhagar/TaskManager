@@ -128,6 +128,7 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
             isGuest={user.is_guest}
             starred={list?.find((b) => b.id === selectedId)?.starred ?? false}
             workspaces={workspaces}
+            allBoards={list ?? []}
             onRenamed={(id, title) => updated(id, { title })}
             onDeleted={deleted}
             onUpdated={updated}
@@ -141,6 +142,7 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
             onNewBoard={(workspaceId) => setCreating({ workspaceId: workspaceId ?? null })}
             onWorkspacesChange={setWorkspaces}
             onBoardCreated={created}
+            me={user.id}
             onBoardDeleted={(id) => setList((current) => current?.filter((b) => b.id !== id) ?? null)}
             onWorkspaceDeleted={(id) =>
               setList((current) => current?.map((b) => (b.workspace_id === id ? { ...b, workspace_id: null } : b)) ?? null)

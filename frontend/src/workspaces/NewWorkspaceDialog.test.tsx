@@ -25,7 +25,8 @@ const chips = (scope: HTMLElement) =>
   within(scope).getAllByRole('textbox', { name: /^Column \d+$/ }).map((i) => (i as HTMLInputElement).value)
 
 describe('new workspace dialog (T-730)', () => {
-  test('several boards, AI columns for all in one request, edit, summary, create', async () => {
+  // Types a lot: give it room when the whole suite runs in parallel.
+  test('several boards, AI columns for all in one request, edit, summary, create', { timeout: 15_000 }, async () => {
     vi.mocked(ai.suggestColumns).mockResolvedValue({
       ai: true,
       boards: [

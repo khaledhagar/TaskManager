@@ -6,6 +6,7 @@ import { useI18n } from '../i18n/context'
 import { navigate } from '../lib/router'
 import { byUnreadFirst, noticeLink, noticeText, OPEN_BELL } from '../shell/notices'
 import ui from '../ui/ui.module.css'
+import news from './news.module.css'
 import css from './start.module.css'
 
 const SHOWN = 5
@@ -26,8 +27,8 @@ export function WhatsNew() {
 
   if (!items) return null
   return (
-    <section className={css.news} aria-labelledby="whats-new">
-      <div className={css.newsHead}>
+    <section className={news.news} aria-labelledby="whats-new">
+      <div className={news.newsHead}>
         <h2 id="whats-new" className={css.groupTitle}>
           <Bell size={16} aria-hidden="true" /> {t('start.whatsNew')}
         </h2>
@@ -38,10 +39,10 @@ export function WhatsNew() {
         ) : null}
       </div>
       {items.length ? (
-        <ul className={css.newsList}>
+        <ul className={news.newsList}>
           {items.map((n) => (
             <li key={n.id}>
-              <button type="button" className={css.newsItem} data-unread={!n.read || undefined} onClick={() => open(n)}>
+              <button type="button" className={news.newsItem} data-unread={!n.read || undefined} onClick={() => open(n)}>
                 {n.read ? null : <span className="visually-hidden">{t('notify.unread')}: </span>}
                 <span dir="auto">{noticeText(n)}</span>
                 <time className={ui.hint} dateTime={n.created_at}>

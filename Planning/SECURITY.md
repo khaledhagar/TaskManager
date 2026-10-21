@@ -176,8 +176,8 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [x] Workspaces are private to their owner (404 otherwise); a board joins a workspace only when the user is the board's admin and the workspace's owner; limits on workspaces, names, boards per workspace and columns (SEC-215)
 - [x] AI column suggestions: at most 10 board names in, each answer validated (3-8 plain-text names, at most 40 characters), `max_tokens` set, AI rate limits apply, no card content is sent (SEC-216)
 - [x] Workspace members lists only for the owner and only people on its boards; card-change notifications only to current members assigned to the card, never to the person who made the change (SEC-217)
-- [ ] Voice commands change a board only through the same checked actions as the buttons (role checks on the server stay the only authority), and only after the user confirms (SEC-218)
-- [ ] Voice commands send nothing to the server or the AI until a change is confirmed or a phrase is passed to the AI chat; the browser's speech service is named before first use; no audio is stored (SEC-219)
+- [x] Voice commands change a board only through the same checked actions as the buttons (role checks on the server stay the only authority), and only after the user confirms (SEC-218)
+- [x] Voice commands send nothing to the server or the AI until a change is confirmed or a phrase is passed to the AI chat; the browser's speech service is named before first use; no audio is stored (SEC-219)
 
 ## 16. Documentation (Phase 29)
 

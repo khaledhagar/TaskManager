@@ -1,11 +1,14 @@
 import { Columns3, List, Plus } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { boards, type BoardSummary } from '../api/boards'
+import aiCss from '../ai/ai.module.css'
 import { ChatPanel } from '../ai/ChatPanel'
 import { Backdrop } from '../files/Backdrop'
 import { BackgroundPicker } from '../files/BackgroundPicker'
 import { useI18n } from '../i18n/context'
 import { navigate, useLocation } from '../lib/router'
+import { runChange, runLookup } from '../voice/run'
+import { VoiceCommand } from '../voice/VoiceCommand'
 import { MembersPanel } from '../sharing/MembersPanel'
 import { ActivityPanel } from '../collab/ActivityList'
 import { InlineText } from '../ui/InlineText'
@@ -35,6 +38,8 @@ type Props = {
   starred?: boolean
   /** The user's workspaces, for "Move to workspace". */
   workspaces?: Workspace[]
+  /** Every board the user can open, for the voice command "open board ...". */
+  allBoards?: BoardSummary[]
   onRenamed: (id: number, title: string) => void
   onDeleted: (id: number) => void
   onUpdated?: (id: number, changes: Partial<BoardSummary>) => void
@@ -42,7 +47,7 @@ type Props = {
 }
 
 /** The interactive board: header, filters, columns with drag and drop, card details. */
-export function BoardView({ boardId, userId, isGuest, starred = false, workspaces = [], onRenamed, onDeleted, onUpdated = () => {}, onCreated = () => {} }: Props) {
+export function BoardView({ boardId, userId, isGuest, starred = false, workspaces = [], allBoards = [], onRenamed, onDeleted, onUpdated = () => {}, onCreated = () => {} }: Props) {
   const { board, loadError, actions } = useBoard(boardId)
   const { params } = useLocation()
   // The access-request email links here with ?members=1 so the admin lands on the panel.
@@ -73,6 +78,8 @@ export function BoardView({ boardId, userId, isGuest, starred = false, workspace
   const [archivedOpen, setArchivedOpen] = useState(false)
   const [templating, setTemplating] = useState(false)
   const [moving, setMoving] = useState(false)
+  const [voiceOpen, setVoiceOpen] = useState(false)
+  const [ask, setAsk] = useState<{ text: string; id: number } | null>(null)
   const toast = useToast()
   const searchRef = useRef<HTMLInputElement>(null)
 
@@ -80,6 +87,7 @@ export function BoardView({ boardId, userId, isGuest, starred = false, workspace
     n: () => board?.columns[0] && setComposing(board.columns[0].id),
     '/': () => searchRef.current?.focus(),
     '?': () => setHelp(true),
+    v: () => setVoiceOpen(true),
   })
 
   if (loadError)
@@ -132,6 +140,25 @@ export function BoardView({ boardId, userId, isGuest, starred = false, workspace
         onStar={organize.star}
         extraItems={organize.menuItems}
         onFocusDone={organize.onFocusDone}
+        voice={
+          <VoiceCommand
+            open={voiceOpen}
+            onOpenChange={setVoiceOpen}
+            board={board}
+            boards={allBoards}
+            me={userId}
+            onChange={(change) => runChange(change, board, actions)}
+            onLookup={(found) =>
+              runLookup(found, { filters, setFilters, openCard: setOpenCardId, go: (path) => navigate(path) })
+            }
+            onAskAi={(text) => {
+              setChatting(true)
+              setAsk({ text, id: Date.now() })
+            }}
+            buttonClassName={`${ui.button} ${ui.secondary} ${aiCss.askButton}`}
+            labelClassName={aiCss.askLabel}
+          />
+        }
       />
       {organize.note}
       <FilterBar
@@ -202,7 +229,7 @@ export function BoardView({ boardId, userId, isGuest, starred = false, workspace
         onMove={organize.moveToWorkspace}
       />
       <TemplateDialog open={templating} onClose={() => setTemplating(false)} boardId={board.id} boardTitle={board.title} />
-      <ChatPanel open={chatting} board={board} actions={actions} onClose={() => setChatting(false)} />
+      <ChatPanel open={chatting} board={board} actions={actions} onClose={() => setChatting(false)} ask={ask} />
       <ActivityPanel
         open={activity}
         onClose={() => setActivity(false)}

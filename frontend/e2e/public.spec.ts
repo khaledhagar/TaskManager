@@ -3,8 +3,9 @@ import { expect, test } from '@playwright/test'
 import { card, column } from './helpers.ts'
 import { openMembers, person, share } from './sharingHelpers.ts'
 
-// Each test signs up two or three people in separate browsers; WebKit needs longer under load.
-test.describe.configure({ timeout: 120_000 })
+// Each test signs up two or three people in separate browsers; WebKit on Windows slows down with
+// several pages open (about 1 s per call measured), so give it room.
+test.describe.configure({ timeout: 180_000 })
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']
 

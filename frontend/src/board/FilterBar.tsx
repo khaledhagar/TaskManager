@@ -82,6 +82,7 @@ export function FilterBar({ filters, onChange, labels, shown, total, searchRef, 
         <option value="all">{t('filter.allCards')}</option>
         <option value="open">{t('filter.open')}</option>
         <option value="done">{t('filter.completed')}</option>
+        <option value="overdue">{t('filter.overdue')}</option>
         <option value="mine">{t('filter.mine')}</option>
       </select>
       {active ? (

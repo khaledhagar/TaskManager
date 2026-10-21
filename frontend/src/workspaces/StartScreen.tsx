@@ -2,6 +2,7 @@ import { FolderPlus, Menu as MenuIcon, MoreHorizontal, Plus, Star } from 'lucide
 import { useId, useState, type ReactNode } from 'react'
 import { boards as boardApi, type BoardSummary } from '../api/boards'
 import { workspaces as workspaceApi, type Workspace } from '../api/workspaces'
+import { EMPTY_FILTERS } from '../board/logic'
 import { useI18n } from '../i18n/context'
 import { Dialog } from '../ui/Dialog'
 import dialog from '../ui/dialog.module.css'
@@ -13,6 +14,10 @@ import ui from '../ui/ui.module.css'
 import { TemplateTiles } from './TemplateTiles'
 import { WhatsNew } from './WhatsNew'
 import { WorkspacePanel } from './WorkspacePanel'
+import { useShortcuts } from '../board/useShortcuts'
+import { navigate } from '../lib/router'
+import { runLookup } from '../voice/run'
+import { VoiceCommand } from '../voice/VoiceCommand'
 import css from './start.module.css'
 
 type Props = {
@@ -26,14 +31,18 @@ type Props = {
   /** A board made from a saved template; it opens. */
   onBoardCreated: (board: BoardSummary) => void
   onBoardDeleted: (boardId: number) => void
+  /** The signed-in user, for voice commands. */
+  me: number
 }
 
 /** After sign-in: workspaces and boards to open, or only the two ways to start when there are none. */
-export function StartScreen({ boards, workspaces, onNewWorkspace, onNewBoard, onWorkspacesChange, onWorkspaceDeleted, onBoardCreated, onBoardDeleted }: Props) {
+export function StartScreen({ boards, workspaces, onNewWorkspace, onNewBoard, onWorkspacesChange, onWorkspaceDeleted, onBoardCreated, onBoardDeleted, me }: Props) {
   const { t } = useI18n()
   const toast = useToast()
   const [deleting, setDeleting] = useState<Workspace | null>(null)
   const [deletingBoard, setDeletingBoard] = useState<BoardSummary | null>(null)
+  const [voiceOpen, setVoiceOpen] = useState(false)
+  useShortcuts({ v: () => setVoiceOpen(true) })
   const [panelOpen, setPanelOpen] = useState(false)
   const empty = boards.length === 0 && workspaces.length === 0
   const active = boards.filter((b) => !b.archived)
@@ -77,9 +86,24 @@ export function StartScreen({ boards, workspaces, onNewWorkspace, onNewBoard, on
       </div>
     )}
     <section className={css.start} aria-labelledby="start-title">
-      <h1 id="start-title" className={css.startTitle}>
-        {t('start.title')}
-      </h1>
+      <div className={css.startHead}>
+        <h1 id="start-title" className={css.startTitle}>
+          {t('start.title')}
+        </h1>
+        <VoiceCommand
+          open={voiceOpen}
+          onOpenChange={setVoiceOpen}
+          board={null}
+          boards={boards}
+          me={me}
+          onChange={() => {}}
+          onLookup={(found) =>
+            runLookup(found, { filters: EMPTY_FILTERS, setFilters: () => {}, openCard: () => {}, go: (path) => navigate(path) })
+          }
+          buttonClassName={`${ui.button} ${ui.secondary}`}
+          labelClassName=""
+        />
+      </div>
       <p className={ui.hint}>{t(empty ? 'start.empty' : 'start.intro')}</p>
       <div className={css.choiceCards}>
         <Choice icon={<FolderPlus size={22} aria-hidden="true" />} title={t('start.newWorkspace')} hint={t('start.workspaceHint')} onClick={onNewWorkspace} />

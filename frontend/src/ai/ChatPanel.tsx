@@ -14,13 +14,20 @@ import { useAiRequest } from './useAiRequest'
 type Status = 'proposed' | 'done' | 'dismissed'
 type Entry = ChatMessage & { actions: (ChatAction & { status: Status })[] }
 
-type Props = { open: boolean; board: Board; actions: BoardActions; onClose: () => void }
+type Props = {
+  open: boolean
+  board: Board
+  actions: BoardActions
+  onClose: () => void
+  /** A phrase from a voice command it could not understand: sent as the next message. */
+  ask?: { text: string; id: number } | null
+}
 
 /**
  * AI assistant side panel. The conversation lives here (kept while the panel is closed).
  * Proposed board changes wait for the user's Confirm; replies are shown as plain text.
  */
-export function ChatPanel({ open, board, actions, onClose }: Props) {
+export function ChatPanel({ open, board, actions, onClose, ask = null }: Props) {
   const { t } = useI18n()
   const request = useAiRequest()
   const [entries, setEntries] = useState<Entry[]>([])
@@ -34,9 +41,16 @@ export function ChatPanel({ open, board, actions, onClose }: Props) {
     end.current?.scrollIntoView?.({ block: 'end' })
   }, [entries, request.busy])
 
-  async function send(event?: FormEvent) {
+  // A voice command the board could not understand is passed here and sent once.
+  const askId = ask?.id
+  useEffect(() => {
+    if (ask) send(undefined, ask.text)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per new phrase
+  }, [askId])
+
+  async function send(event?: FormEvent, text = draft) {
     event?.preventDefault()
-    const content = draft.trim()
+    const content = text.trim()
     if (!content || request.busy) return
     const history = [...entries, { role: 'user' as const, content, actions: [] }]
     setEntries(history)

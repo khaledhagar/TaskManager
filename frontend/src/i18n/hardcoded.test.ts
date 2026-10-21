@@ -12,8 +12,8 @@ const ALLOWED = new Set([
   'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Task Manager', 'Instrument Sans Variable', 'noopener noreferrer', 'Notification', 'Esc',
 ])
 
-/** Data files that hold words but no interface text. */
-const DATA_FILES = new Set(['commonPasswords.ts'])
+/** Data files that hold words but no interface text (voice commands: the words people say). */
+const DATA_FILES = new Set(['commonPasswords.ts', 'commands.ts', 'when.ts'])
 
 type Node = { type: string; [key: string]: unknown }
 

@@ -1,5 +1,5 @@
 import { MoreHorizontal, Share2, Sparkles, Star, Video } from 'lucide-react'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import type { Board } from '../api/boards'
 import aiCss from '../ai/ai.module.css'
 import { useI18n } from '../i18n/context'
@@ -27,10 +27,12 @@ type Props = {
   /** Archive, duplicate, templates and auto-complete (Phase 24). */
   extraItems?: MenuItem[]
   onFocusDone?: (cardId: number, minutes: number) => void
+  /** The voice command button (Phase 27). */
+  voice?: ReactNode
 }
 
 /** Board title (click to rename), completion progress and board options. */
-export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, onChat, onMembers, onActivity, starred = false, onStar, extraItems = [], onFocusDone }: Props) {
+export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, onChat, onMembers, onActivity, starred = false, onStar, extraItems = [], onFocusDone, voice }: Props) {
   const { t } = useI18n()
   const [confirming, setConfirming] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -99,6 +101,7 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, o
         <span className={ui.hint}>{total ? t('board.progress', { done, total }) : t('board.noCards')}</span>
       </div>
       <div className={css.boardActions}>
+        {voice}
         <FocusTimer
           cards={board.role === 'viewer' ? [] : board.columns.flatMap((c) => c.cards)}
           onFocusDone={onFocusDone}

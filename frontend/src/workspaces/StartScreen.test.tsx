@@ -50,6 +50,7 @@ const props = {
   onWorkspaceDeleted: vi.fn(),
   onBoardCreated: vi.fn(),
   onBoardDeleted: vi.fn(),
+  me: 1,
 }
 
 function renderStart(list = BOARDS, ws = WS) {

@@ -5,16 +5,25 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 ## Where the project stands (2026-10-21)
 
 - Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
-- Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Phases 21-26 are done and pushed** (21 voice, waiting only for the user's real-microphone check; 22 comments, activity, Alembic; 23 notifications and reminders; 24 organize; 25 list view and export; 26 workspaces, start page, AI column suggestions, the user's bug list and the full regression). **Next: Phase 27 Voice Commands, planned 2026-10-22 and waiting for the user's approval (design in "Voice Commands Design" in PLAN.md; tests T-780 to T-794; SEC-218, SEC-219). Then Phase 28 (Deployment), which starts by asking the user before deleting local test data; do not start it without the user.** Phase 29 is Documentation (Word files). Deferred features are listed under "Deferred" in PLAN.md.
-- Tests after the second round of fixes: backend 529 passing (99% coverage; plus 1 live AI test, skipped by default); frontend 360 passing; Playwright 120 passing (Edge full suite, Firefox and WebKit smoke); Lighthouse performance 92-95 and accessibility 100 on sign-in, start page and board; `npm audit --omit=dev` and `pip-audit` clean; ruff, oxlint and tsc clean.
-- Checklists: every test up to T-770 is ticked except T-620 to T-627 (Phase 29) and T-780 to T-794 (Phase 27, planned); open security items are only Deployment and Documentation ones.
+- Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Phases 21-26 are done and pushed** (21 voice, waiting only for the user's real-microphone check; 22 comments, activity, Alembic; 23 notifications and reminders; 24 organize; 25 list view and export; 26 workspaces, start page, AI column suggestions, the user's bug list and the full regression). **Phase 27 (Voice Commands) is done and pushed (approved 2026-10-22). Next: Phase 28 (Deployment), which starts by asking the user before deleting local test data; do not start it without the user.** Phase 29 is Documentation (Word files). Deferred features are listed under "Deferred" in PLAN.md.
+- Tests at the end of Phase 27 (full regression, T-794): backend 529 passing (99% coverage); frontend 385 passing; Playwright 126 (Edge full suite; 4 first-run failures were load timing, each passed alone; T-578 WebKit limit raised to 3 min after measuring about 1 s per call with three users open, the same with and without Phase 27) passing (Edge full suite, Firefox and WebKit smoke); Lighthouse not rerun this phase (last: performance 92-95, accessibility 100); `npm audit --omit=dev` and `pip-audit` clean; ruff, oxlint and tsc clean.
+- Checklists: every test up to T-794 is ticked except T-620 to T-627 (Phase 29, Documentation); open security items are only Deployment and Documentation ones.
 
 | Done | Phase |
 |------|-------|
 | Yes | 1 Scaffolding to 20 Public boards / assignment / meeting link |
 | Yes | 21 Voice (waits for the mic check), 22 Collaboration, 23 Notifications, 24 Organize, 25 List view and export, 26 Workspaces and start page |
-| Next | 27 Voice commands (planned, waiting for approval) |
-| Later | 28 Deployment (Vercel): ask the user first; 29 Documentation (Word files) |
+| Yes | 27 Voice commands |
+| Next | 28 Deployment (Vercel): ask the user first |
+| Later | 29 Documentation (Word files) |
+
+## Phase 27 notes (voice commands)
+
+- **What it is:** one "Voice command" button (board header and start page) and the **V** shortcut. It listens in the app's language, shows the words, then either does a look-up at once (open card or board, search, filters including the new **Overdue** status filter, all boards, help) or shows a change as a sentence with **Confirm** / **Cancel** (add, move, complete, reopen, delete, rename, priority, due date, assign, add column). Several close names are offered as a choice. Phrases it does not understand (two words or more) are sent to the AI chat panel (`ChatPanel` `ask` prop). The window also has "Or type a command", so it works without a microphone (Firefox, keyboard users).
+- **Code:** `src/voice/text.ts` (clean, `fold` keeps lengths so titles keep their Arabic spelling, `findMatches` with exact / contains / small-slip tiers), `when.ts` (due words and priorities), `commands.ts` (patterns in English and Arabic, `NEED` roles per change, `needBoard` on the start page), `describe.ts` (confirm sentences), `run.ts` (runs changes through the board's own actions, look-ups through filters and navigation), `VoiceCommand.tsx` (button and window). Texts under `vc.*` in `en.ts` / `ar.ts`.
+- **Tests (all ticked):** T-780 to T-783 parser (`voice/commands.test.ts`), T-784 to T-788 window and board (`voice/VoiceCommand.test.tsx`, `board/voice.test.tsx`), T-789 to T-793 browser (`e2e/voiceCommands.spec.ts`, fake speech and a faked AI reply), T-794 full regression.
+- **Security (both ticked):** SEC-218: a change goes only through the same actions as the buttons (the server's role checks stay the authority) and only after Confirm; the window checks the role first and explains whom to ask. SEC-219: nothing reaches the server or the AI until a change is confirmed or a phrase (two words or more) is passed to the AI chat; no audio is stored; the browser's speech-service notice is the one from Phase 21.
+- **Gotchas:** the hard-coded-English test exempts `commands.ts` and `when.ts` (they hold the words people say, no interface text); boards made through the API in e2e have English column names; `npm run build` runs `tsc -b`, so a type error in an e2e file stops the build and the old frontend is served.
 
 ## Phase 26 notes (workspaces, start page, the user's bug list)
 

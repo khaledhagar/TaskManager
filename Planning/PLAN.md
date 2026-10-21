@@ -37,7 +37,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 24 - Organize: Archive, Copies, Templates, Stars, WIP, Auto-complete, Covers, Focus Sessions | 6 / 6 | Done |
 | Phase 25 - List View and Export | 3 / 3 | Done |
 | Phase 26 - Workspaces, Start Page and Full Regression | 11 / 11 | Done |
-| Phase 27 - Voice Commands (proposed) | 0 / 6 | Not started |
+| Phase 27 - Voice Commands | 6 / 6 | Done |
 | Phase 28 - Deployment (Vercel) | 0 / 14 | Not started |
 | Phase 29 - Documentation (Word files) | 0 / 8 | Not started |
 
@@ -104,7 +104,7 @@ The app will be published, so two companion checklists are part of every phase:
 42. Further features (Phases 22-25, before Deployment; trimmed by the user on 2026-10-21): comments with @mentions, activity log, notifications with emails and a daily reminder, archive and restore, duplicate cards and boards, own templates, starred boards, WIP limits, auto-complete in the last column, card covers, focus sessions on cards, list view, export
 41. Project documentation as Word files (Phase 29, after Deployment; requested 2026-10-21)
 43. Workspaces that group related boards, a start page after sign-in (left panel with each workspace's boards and members, boards by workspace in the middle, What's new notifications), notifications for invitations and for changes to your assigned cards, and AI-suggested columns from a board's name with no demo cards (Phase 26, before Deployment; requested 2026-10-21)
-44. Voice commands: one microphone button that understands spoken commands (add, move, complete, delete, rename, priority, due date, assign, open, search, filters) in English and Arabic, shows each change for Confirm, and sends anything else to the AI chat (Phase 27, before Deployment; proposed 2026-10-22, waiting for approval)
+44. Voice commands: one microphone button that understands spoken commands (add, move, complete, delete, rename, priority, due date, assign, open, search, filters) in English and Arabic, shows each change for Confirm, and sends anything else to the AI chat (Phase 27, before Deployment; approved 2026-10-22)
 40. Voice input for people who cannot type: a microphone button on the main text fields and the AI chat, in English and Arabic (approved for planning 2026-10-21; build after the user checks the plan)
 39. Meeting link on the board (Zoom, Google Meet, Teams or any https link): Start meeting opens it (Zoom links open the Zoom app); the admin can email the link to all members (approved 2026-10-21)
 30. Pomodoro focus timer on the board, opt-in: off by default and turned on with a "Focus timer" button; 25 / 5 or 50 / 10 minutes, start, pause, reset focus, reset break, skip; chip with time left, chime and optional notification
@@ -396,7 +396,7 @@ Requested by the user on 2026-10-21 (first as "projects"; renamed "workspaces" a
 
 ## Voice Commands Design (Phase 27)
 
-Requested by the user on 2026-10-22 ("plan it"), after Voice Input (Phase 21). Choices made by the user: common commands are understood in the browser with the AI as a fallback; a change is shown first and done only after Confirm. **Proposed, waiting for the user's approval.**
+Requested by the user on 2026-10-22 ("plan it"), after Voice Input (Phase 21). Choices made by the user: common commands are understood in the browser with the AI as a fallback; a change is shown first and done only after Confirm. **Approved by the user on 2026-10-22.**
 
 - **One button:** "Voice command" (microphone with a spark) in the board header and on the start page, and the shortcut **V**. It listens in the app's language (English or Arabic), shows the words live in a small panel, then shows what it understood.
 - **What happens next:**
@@ -712,14 +712,14 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 - [x] Full regression after Phases 21-26 (backend, frontend, Playwright in all browsers, axe, Lighthouse, audits)
 - [x] Tests T-714, T-720 to T-745 and T-750 to T-757 pass; SEC-215 to SEC-217 ticked
 
-## Phase 27 - Voice Commands (proposed, waiting for approval)
+## Phase 27 - Voice Commands
 
-- [ ] Command parser in the browser (English and Arabic) with name matching for cards, columns, boards and members; unit tested phrase by phrase
-- [ ] Voice command button and panel (board header, start page, shortcut V): live words, understood command, Confirm / Cancel, choose among several matches, help list
-- [ ] Changes run through the existing board actions (same permissions, optimistic updates, Undo for delete); look-ups run at once
-- [ ] AI fallback: phrases not understood go to the AI chat panel
-- [ ] English and Arabic, right to left, light and dark, phone to desktop, keyboard and screen reader
-- [ ] Tests T-780 to T-794 pass; SEC-218 and SEC-219 ticked; full regression
+- [x] Command parser in the browser (English and Arabic) with name matching for cards, columns, boards and members; unit tested phrase by phrase
+- [x] Voice command button and panel (board header, start page, shortcut V): live words, understood command, Confirm / Cancel, choose among several matches, help list
+- [x] Changes run through the existing board actions (same permissions, optimistic updates, Undo for delete); look-ups run at once
+- [x] AI fallback: phrases not understood go to the AI chat panel
+- [x] English and Arabic, right to left, light and dark, phone to desktop, keyboard and screen reader
+- [x] Tests T-780 to T-794 pass; SEC-218 and SEC-219 ticked; full regression
 
 ## Phase 28 - Deployment (Vercel)
 
