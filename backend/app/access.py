@@ -69,6 +69,7 @@ def full_board_options():
         cards.selectinload(Card.checklist),
         cards.selectinload(Card.attachments),
         cards.selectinload(Card.assignees),
+        cards.selectinload(Card.focus_sessions),
     )
 
 

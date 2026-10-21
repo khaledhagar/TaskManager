@@ -162,7 +162,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [x] Users are told, before first use, that the browser's speech service receives the audio (SEC-182)
 - [x] Spoken text goes through the same paths as typed text (same length limits, plain text, AI actions still need confirmation); the server stores no audio (SEC-183)
 
-## 17. Further features (Phases 22-25)
+## 17. Further features (Phases 22-26)
 
 - [x] Comments: Markdown without raw HTML, at most 5,000 characters; Viewers read only; authors edit or delete their own, the admin deletes any (SEC-200)
 - [x] Mentions and suggestions reach only members of that board; there is still no user search (SEC-201)
@@ -170,11 +170,13 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 - [x] Emails can be turned off; every email has a turn-off link that works only for that user; reminders are one email per user per day (SEC-203)
 - [x] Scheduled job endpoints need `CRON_SECRET` (compared in constant time) (SEC-204)
 - [x] Activity log keeps only short metadata (no descriptions or comment text), members only, 1,000 per board (SEC-205)
-- [ ] Duplicates and templates respect every limit; templates are private to their owner (SEC-207)
+- [x] Duplicates and templates respect every limit; templates are private to their owner (SEC-207)
 - [ ] Exports for members only; CSV cells starting with = + - @ are escaped against spreadsheet formula injection (SEC-208)
-- [ ] Focus sessions saved only for the signed-in user, at most 60 minutes each (SEC-214)
+- [x] Focus sessions saved only for the signed-in user, at most 60 minutes each (SEC-214)
+- [ ] Projects are private to their owner (404 otherwise); a board joins a project only when the user is the board's admin and the project's owner; limits on projects, names, boards per project and columns (SEC-215)
+- [ ] AI column suggestions: at most 10 board names in, each answer validated (3-8 plain-text names, at most 40 characters), `max_tokens` set, AI rate limits apply, no card content is sent (SEC-216)
 
-## 16. Documentation (Phase 27)
+## 16. Documentation (Phase 28)
 
 - [ ] Documents and screenshots contain no secrets or personal data: no `.env` values, keys, tokens, passwords or real user emails (screenshots use test accounts) (SEC-190)
 

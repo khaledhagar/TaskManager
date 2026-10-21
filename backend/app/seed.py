@@ -15,7 +15,10 @@ def build_board(session: Session, owner_id: int, template: str, title: str | Non
 
 
 def build_from_data(session: Session, owner_id: int, data: dict, title: str | None = None) -> Board:
-    """Create a board with the data's labels, columns, cards and checklists."""
+    """Create a board with the data's labels, columns, cards and checklists.
+
+    Cards take `due` (days from today) or `due_date` (ISO date, used by board copies).
+    """
     board = Board(owner_id=owner_id, title=title or data["title"])
     board.members = [BoardMember(user_id=owner_id, role=Role.admin)]
     labels = {name: Label(name=name, color=color) for name, color in data.get("labels", [])}
@@ -36,12 +39,15 @@ def build_from_data(session: Session, owner_id: int, data: dict, title: str | No
 
 def _card(data: dict, position: int, labels: dict[str, Label]) -> Card:
     due = data.get("due")
+    due_date = date.today() + timedelta(days=due) if due is not None else None
+    if data.get("due_date"):
+        due_date = date.fromisoformat(data["due_date"])
     return Card(
         title=data["title"],
         details=data.get("details", ""),
         priority=data.get("priority", "medium"),
         completed=data.get("completed", False),
-        due_date=date.today() + timedelta(days=due) if due is not None else None,
+        due_date=due_date,
         position=position,
         labels=[labels[name] for name in data.get("labels", [])],
         checklist=[

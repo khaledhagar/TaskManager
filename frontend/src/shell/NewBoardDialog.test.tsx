@@ -3,9 +3,11 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { ai } from '../api/ai'
 import { boards } from '../api/boards'
+import { templates } from '../api/templates'
 import { NewBoardDialog } from './NewBoardDialog'
 
-vi.mock('../api/boards', () => ({ boards: { create: vi.fn() } }))
+vi.mock('../api/boards', () => ({ boards: { create: vi.fn(), createFromTemplate: vi.fn() } }))
+vi.mock('../api/templates', () => ({ templates: { list: vi.fn(async () => []), remove: vi.fn(async () => undefined) } }))
 vi.mock('../api/ai', () => ({ ai: { startBoard: vi.fn() } }))
 
 const board = { id: 9, title: 'Made', created_at: '', role: 'admin' as const }
@@ -75,5 +77,27 @@ describe('new board dialog (T-247)', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Cancel request' }))
     expect(signal?.aborted).toBe(true)
     expect(onCreated).not.toHaveBeenCalled()
+  })
+})
+
+describe('own templates in the New board dialog (T-684)', () => {
+  test('a saved template is listed, named for you and used to create the board', async () => {
+    vi.mocked(templates.list).mockResolvedValue([{ id: 3, name: 'Launch kit', created_at: '' }])
+    vi.mocked(boards.createFromTemplate).mockResolvedValue(board)
+    open()
+    await userEvent.click(await screen.findByRole('radio', { name: 'Launch kit' }))
+    expect(screen.getByLabelText('Board name')).toHaveValue('Launch kit')
+    expect(screen.getByText('Starts from your saved template.')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Create board' }))
+    expect(boards.createFromTemplate).toHaveBeenCalledWith('Launch kit', 3)
+    expect(onCreated).toHaveBeenCalledWith(board)
+  })
+
+  test('a template can be deleted', async () => {
+    vi.mocked(templates.list).mockResolvedValue([{ id: 3, name: 'Launch kit', created_at: '' }])
+    open()
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete template Launch kit' }))
+    expect(templates.remove).toHaveBeenCalledWith(3)
+    expect(screen.queryByRole('radio', { name: 'Launch kit' })).toBeNull()
   })
 })

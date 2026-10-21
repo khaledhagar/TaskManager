@@ -16,6 +16,7 @@ from app.ratelimit import MemoryStore, RateLimiter
 from app.routes import (
     account,
     ai,
+    archive,
     background,
     boards,
     cards,
@@ -24,6 +25,7 @@ from app.routes import (
     meeting,
     members,
     notifications,
+    organize,
     public,
 )
 from app.routes import files as file_routes
@@ -69,7 +71,8 @@ def create_app(settings: Settings) -> FastAPI:
         return {"status": "ok", "database": "ok"}
 
     routers = (auth, account, google_routes, boards, cards, ai, file_routes, background)
-    for module in (*routers, members, invites, public, meeting, comments, notifications):
+    sharing = (members, invites, public, meeting, comments, notifications)
+    for module in (*routers, *sharing, archive, organize):
         app.include_router(module.router)
     mount_frontend(app, settings.frontend_dist)
     return app

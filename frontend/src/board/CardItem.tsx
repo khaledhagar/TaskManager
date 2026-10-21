@@ -1,10 +1,12 @@
-import { AlignLeft, CalendarDays, Check, ListChecks, MessageSquare, Paperclip } from 'lucide-react'
+import { AlignLeft, CalendarDays, Check, ListChecks, MessageSquare, Paperclip, Timer } from 'lucide-react'
 import { memo, type ButtonHTMLAttributes, type ReactNode, type Ref } from 'react'
 import type { Board, Card, Label } from '../api/boards'
+import { files } from '../api/files'
 import { useI18n } from '../i18n/context'
 import css from './card.module.css'
 import { LABEL_SWATCH, priorityLabel } from './display'
 import { dueLabel, dueStatus } from './logic'
+import organize from './organize.module.css'
 
 type Props = {
   card: Card
@@ -60,6 +62,9 @@ export const CardItem = memo(function CardItem({ card, labels, members = [], rea
         </button>
       )}
       <CardBody readOnly={readOnly} activatorRef={activatorRef} onOpen={onOpen} attributes={{ ...activatorAttributes, ...activatorListeners }}>
+        {card.cover_attachment_id && !readOnly ? (
+          <img className={organize.cover} src={files.url(card.cover_attachment_id, true)} alt="" loading="lazy" />
+        ) : null}
         {readOnly && card.completed ? <span className="visually-hidden">{t('card.completed')} </span> : null}
         <span className={css.cardTitle} dir="auto">
           {card.title}
@@ -101,6 +106,15 @@ export const CardItem = memo(function CardItem({ card, labels, members = [], rea
               <MessageSquare size={12} className="flip-rtl" aria-hidden="true" />
               <span className="visually-hidden">{t('comments.count')} </span>
               {card.comment_count}
+            </span>
+          ) : null}
+          {card.focus_count ? (
+            <span className={css.metaItem}>
+              <Timer size={12} aria-hidden="true" />
+              <span className="visually-hidden">
+                {t('focus.stats', { count: card.focus_count, minutes: card.focus_minutes ?? 0 })}
+              </span>
+              <span aria-hidden="true">{t('focus.short', { minutes: card.focus_minutes ?? 0 })}</span>
             </span>
           ) : null}
           {card.details.trim() ? (

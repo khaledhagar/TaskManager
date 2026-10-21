@@ -12,10 +12,20 @@ const MODE_LABEL: Record<Mode, Key> = {
   '50/10': 'timer.mode50',
 }
 
+type Props = {
+  /** Cards the timer can be pointed at; each finished focus period is saved on the chosen one. */
+  cards?: { id: number; title: string }[]
+  onFocusDone?: (cardId: number, minutes: number) => void
+}
+
 /** Opt-in Pomodoro timer: a plain button until turned on, then a chip with a control panel. */
-export function FocusTimer() {
-  const timer = useFocusTimer()
+export function FocusTimer({ cards = [], onFocusDone }: Props) {
+  const [cardId, setCardId] = useState<number | null>(null)
+  const timer = useFocusTimer((minutes) => {
+    if (cardId !== null && cards.some((c) => c.id === cardId)) onFocusDone?.(cardId, minutes)
+  })
   const { t } = useI18n()
+  const cardSelectId = useId()
   const [open, setOpen] = useState(false)
   const root = useRef<HTMLDivElement>(null)
   const panelId = useId()
@@ -81,6 +91,27 @@ export function FocusTimer() {
               </button>
             ))}
           </div>
+
+          {cards.length && onFocusDone ? (
+            <div className={ui.field}>
+              <label className={ui.label} htmlFor={cardSelectId}>
+                {t('timer.card')}
+              </label>
+              <select
+                id={cardSelectId}
+                className={ui.input}
+                value={cardId ?? ''}
+                onChange={(e) => setCardId(e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">{t('timer.noCard')}</option>
+                {cards.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
 
           <div className={css.clock} data-phase={state.phase}>
             <span className={css.clockTime}>{time}</span>

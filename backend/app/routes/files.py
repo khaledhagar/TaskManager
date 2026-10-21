@@ -129,6 +129,8 @@ def delete_attachment(attachment_id: int, user: CurrentUser, session: SessionDep
     record(
         session, card.column.board_id, user, "attachment.deleted", card, file=attachment.filename
     )
+    if card.cover_attachment_id == attachment.id:
+        card.cover_attachment_id = None
     session.delete(attachment)
     session.commit()
 

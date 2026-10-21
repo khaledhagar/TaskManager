@@ -11,7 +11,7 @@ from sqlmodel import Session, select
 
 from app.config import Settings
 from app.mailer import Mailer
-from app.models import BoardColumn, Card, CardAssignee, User
+from app.models import Board, BoardColumn, Card, CardAssignee, User
 from app.models_notify import Notification, NotificationSetting
 from app.notify import DUE, build_email, emails_on
 
@@ -29,6 +29,8 @@ def send_reminders(session: Session, mailer: Mailer, settings: Settings, today: 
         select(Card, CardAssignee.user_id, BoardColumn.board_id)
         .join(CardAssignee, CardAssignee.card_id == Card.id)
         .join(BoardColumn, BoardColumn.id == Card.column_id)
+        .join(Board, Board.id == BoardColumn.board_id)
+        .where(Card.archived_at == None, Board.archived_at == None)  # noqa: E711
         .where(Card.completed == False, Card.due_date != None)  # noqa: E711, E712
         .where(Card.due_date <= today + timedelta(days=1))
         .order_by(Card.due_date)

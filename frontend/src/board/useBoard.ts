@@ -5,6 +5,7 @@ import { sharing } from '../api/sharing'
 import { t } from '../i18n/language'
 import { useToast } from '../ui/toastContext'
 import * as logic from './logic'
+import { useOrganizeActions } from './useOrganizeActions'
 import { can, deniedKey, needFor } from './permissions'
 
 export const UNDO_MS = 5000
@@ -225,12 +226,15 @@ export function useBoard(boardId: number) {
     deleteAttachment: (cardId: number, attachmentId: number) =>
       allowed('editor') &&
       mutate(
-        withCard(cardId, (c) => ({ attachments: c.attachments.filter((a) => a.id !== attachmentId) })),
+        withCard(cardId, (c) => ({
+          attachments: c.attachments.filter((a) => a.id !== attachmentId),
+          cover_attachment_id: c.cover_attachment_id === attachmentId ? null : c.cover_attachment_id,
+        })),
         () => files.remove(attachmentId),
       ),
     setBackground: (background: Background) => commit({ ...ref.current!, background }),
     /** Public link and meeting link, after the admin changed them in the members panel. */
-    setBoardInfo: (changes: Partial<Pick<Board, 'public' | 'public_link' | 'meeting_url'>>) =>
+    setBoardInfo: (changes: Partial<Pick<Board, 'public' | 'public_link' | 'meeting_url' | 'archived'>>) =>
       commit({ ...ref.current!, ...changes }),
     setCommentCount: (cardId: number, count: number) =>
       commit(logic.updateCard(ref.current!, cardId, { comment_count: count })),
@@ -259,7 +263,18 @@ export function useBoard(boardId: number) {
       ),
   }
 
-  return { board, loadError, actions: { ...actions, allowed } }
+  const organize = useOrganizeActions({
+    boardId,
+    ref,
+    commit,
+    mutate,
+    create,
+    allowed,
+    reload,
+    fail,
+    toast,
+  })
+  return { board, loadError, actions: { ...actions, ...organize, allowed } }
 }
 
 export type BoardActions = ReturnType<typeof useBoard>['actions']

@@ -3,7 +3,7 @@
 from datetime import UTC, date, datetime
 from enum import StrEnum
 
-from sqlalchemy import UniqueConstraint
+from sqlalchemy import UniqueConstraint, false
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -86,6 +86,8 @@ class Board(SQLModel, table=True):
     background_key: str | None = None
     background_size: int = 0
     background_version: int = 0
+    archived_at: datetime | None = None
+    auto_complete: bool = Field(default=False, sa_column_kwargs={"server_default": false()})
 
     owner: User = Relationship(back_populates="boards")
     columns: list["BoardColumn"] = Relationship(
@@ -178,12 +180,25 @@ class BoardColumn(SQLModel, table=True):
     board_id: int = Field(foreign_key="boards.id", ondelete="CASCADE", index=True)
     title: str
     position: int
+    wip_limit: int | None = None
 
     board: Board = Relationship(back_populates="columns")
+    # Only cards that are not archived: archived ones leave the board, its limit and its order.
     cards: list["Card"] = Relationship(
         back_populates="column",
         cascade_delete=True,
-        sa_relationship_kwargs={"order_by": "Card.position"},
+        sa_relationship_kwargs={
+            "order_by": "Card.position",
+            "primaryjoin": "and_(BoardColumn.id == Card.column_id, Card.archived_at == None)",
+        },
+    )
+    # Deleting a column deletes its archived cards one by one too, so their files are removed.
+    archived_cards: list["Card"] = Relationship(
+        cascade_delete=True,
+        sa_relationship_kwargs={
+            "primaryjoin": "and_(BoardColumn.id == Card.column_id, Card.archived_at != None)",
+            "overlaps": "cards,column",
+        },
     )
 
 
@@ -213,6 +228,8 @@ class Card(SQLModel, table=True):
     due_date: date | None = None
     position: int
     created_at: datetime = Field(default_factory=utcnow)
+    archived_at: datetime | None = None
+    cover_attachment_id: int | None = None
 
     column: BoardColumn = Relationship(back_populates="cards")
     checklist: list["ChecklistItem"] = Relationship(
@@ -227,6 +244,7 @@ class Card(SQLModel, table=True):
         cascade_delete=True,
         sa_relationship_kwargs={"order_by": "Attachment.id"},
     )
+    focus_sessions: list["FocusSession"] = Relationship(cascade_delete=True)
 
 
 class Attachment(SQLModel, table=True):
@@ -274,3 +292,4 @@ class Label(SQLModel, table=True):
 # Collaboration tables (Phase 22) live in their own module to keep this one short.
 from app.models_collab import Activity, Comment  # noqa: E402, F401
 from app.models_notify import Notification, NotificationSetting  # noqa: E402, F401
+from app.models_organize import BoardStar, FocusSession, UserTemplate  # noqa: E402, F401

@@ -84,6 +84,17 @@ export function AttachmentsSection({ card, actions }: { card: Card; actions: Boa
                   {a.filename}
                 </a>
                 <span className={ui.hint}>{formatSize(a.size)}</span>
+                {a.is_image ? (
+                  <button
+                    type="button"
+                    className={ui.linkButton}
+                    aria-pressed={card.cover_attachment_id === a.id}
+                    aria-label={t(card.cover_attachment_id === a.id ? 'files.removeCover' : 'files.makeCover', { name: a.filename })}
+                    onClick={() => actions.setCover(card.id, card.cover_attachment_id === a.id ? null : a.id)}
+                  >
+                    {t(card.cover_attachment_id === a.id ? 'files.removeCoverShort' : 'files.makeCoverShort')}
+                  </button>
+                ) : null}
               </span>
               {confirmId === a.id ? (
                 <span className={boardCss.inline}>

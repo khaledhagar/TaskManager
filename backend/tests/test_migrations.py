@@ -63,3 +63,26 @@ def test_running_twice_changes_nothing(tmp_path):
 def test_migration_files_live_in_the_backend():
     assert (MIGRATIONS / "env.py").exists()
     assert any((MIGRATIONS / "versions").glob("0001_baseline_*.py"))
+
+
+def test_organize_columns_are_added_to_existing_boards(tmp_path):
+    engine = create_engine(f"sqlite:///{tmp_path / 'p23.db'}")
+    with engine.begin() as conn:
+        command.upgrade(alembic_config(conn), "0003_notifications")
+        conn.execute(
+            text(
+                "INSERT INTO users (email, is_guest, email_verified, token_version, language,"
+                " created_at) VALUES ('old@example.com', 0, 1, 0, 'en', '2026-10-01')"
+            )
+        )
+        conn.execute(
+            text(
+                "INSERT INTO boards (owner_id, title, created_at, background_kind,"
+                " background_size, background_version)"
+                " VALUES (1, 'Old', '2026-10-01', 'none', 0, 0)"
+            )
+        )
+    migrate(engine)
+    with engine.connect() as conn:
+        row = conn.execute(text("SELECT archived_at, auto_complete FROM boards")).one()
+    assert tuple(row) == (None, 0)

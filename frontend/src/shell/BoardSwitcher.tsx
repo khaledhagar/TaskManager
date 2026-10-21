@@ -2,6 +2,7 @@ import { ChevronDown } from 'lucide-react'
 import type { BoardSummary } from '../api/boards'
 import { useI18n } from '../i18n/context'
 import { Menu } from '../ui/Menu'
+import { boardSections } from './boardSections'
 import css from './shell.module.css'
 
 type Props = { boards: BoardSummary[]; selectedId?: number; onSelect: (id: number) => void }
@@ -11,8 +12,9 @@ export function BoardSwitcher({ boards, selectedId, onSelect }: Props) {
   const current = boards.find((b) => b.id === selectedId)
   const { t } = useI18n()
   const title = current?.title ?? t('shell.boards')
-  const own = boards.filter((b) => b.role === 'admin')
-  const shared = boards.filter((b) => b.role !== 'admin')
+  const { starred, own, shared, archived } = boardSections(boards)
+  const section = (label: string, list: BoardSummary[]) =>
+    list.length ? [{ kind: 'note' as const, label }, ...list.map(item)] : []
   const item = (b: BoardSummary) => ({
     kind: 'action' as const,
     label: b.title,
@@ -32,9 +34,10 @@ export function BoardSwitcher({ boards, selectedId, onSelect }: Props) {
         </>
       }
       items={[
-        { kind: 'note', label: t('shell.yourBoards') },
-        ...own.map(item),
-        ...(shared.length ? [{ kind: 'note' as const, label: t('shell.sharedBoards') }, ...shared.map(item)] : []),
+        ...section(t('shell.starred'), starred),
+        ...section(t('shell.yourBoards'), own),
+        ...section(t('shell.sharedBoards'), shared),
+        ...section(t('shell.archivedBoards'), archived),
       ]}
     />
   )

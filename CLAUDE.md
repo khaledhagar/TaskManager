@@ -49,6 +49,7 @@
 - Public boards (read-only link, no sign-in needed; signed-in visitors can join as Viewer)
 - Assign cards to members; meeting link (Zoom, Meet, Teams) with Start meeting and Email to members
 - Voice input: microphone buttons on the main text fields and the AI chat (browser speech recognition, English and Arabic)
+- Projects and start screen (Phase 26): projects group related boards; a start screen after sign-in lists projects and boards, or only "New project" and "New board" when there are none; AI suggests column names from a board's name, with no demo cards
 - Further features (Phases 22-25): comments and @mentions, activity log, notifications and reminder emails, archive, duplicates, own templates, stars, WIP limits, auto-complete, card covers, focus sessions on cards, list view, export (deferred: see "Deferred" in PLAN.md)
 - Documentation: 8 Word files in `Documentation/` (overview, documentation, tests, plan, security, user flows, pages, build prompts), made last
 

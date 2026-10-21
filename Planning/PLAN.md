@@ -34,10 +34,11 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 21 - Voice Input | 6 / 7 | In progress |
 | Phase 22 - Collaboration: Comments and Activity | 6 / 6 | Done |
 | Phase 23 - Notifications and Reminders | 4 / 4 | Done |
-| Phase 24 - Organize: Archive, Copies, Templates, Stars, WIP, Auto-complete, Covers, Focus Sessions | 0 / 6 | Not started |
-| Phase 25 - List View, Export and Full Regression | 0 / 4 | Not started |
-| Phase 26 - Deployment (Vercel) | 0 / 14 | Not started |
-| Phase 27 - Documentation (Word files) | 0 / 8 | Not started |
+| Phase 24 - Organize: Archive, Copies, Templates, Stars, WIP, Auto-complete, Covers, Focus Sessions | 6 / 6 | Done |
+| Phase 25 - List View and Export | 0 / 3 | Not started |
+| Phase 26 - Projects, Start Screen and Full Regression | 0 / 8 | Not started |
+| Phase 27 - Deployment (Vercel) | 0 / 14 | Not started |
+| Phase 28 - Documentation (Word files) | 0 / 8 | Not started |
 
 ## Stack
 
@@ -100,7 +101,8 @@ The app will be published, so two companion checklists are part of every phase:
 37. Public boards: anyone with the link can view read-only without signing in; a signed-in visitor can join as a Viewer (approved 2026-10-21)
 38. Assign cards to board members; "Assigned to me" filter (approved 2026-10-21)
 42. Further features (Phases 22-25, before Deployment; trimmed by the user on 2026-10-21): comments with @mentions, activity log, notifications with emails and a daily reminder, archive and restore, duplicate cards and boards, own templates, starred boards, WIP limits, auto-complete in the last column, card covers, focus sessions on cards, list view, export
-41. Project documentation as Word files (Phase 27, after Deployment; requested 2026-10-21)
+41. Project documentation as Word files (Phase 28, after Deployment; requested 2026-10-21)
+43. Projects that group related boards, a start screen after sign-in, and AI-suggested columns from a board's name with no demo cards (Phase 26, before Deployment; requested 2026-10-21)
 40. Voice input for people who cannot type: a microphone button on the main text fields and the AI chat, in English and Arabic (approved for planning 2026-10-21; build after the user checks the plan)
 39. Meeting link on the board (Zoom, Google Meet, Teams or any https link): Start meeting opens it (Zoom links open the Zoom app); the admin can email the link to all members (approved 2026-10-21)
 30. Pomodoro focus timer on the board, opt-in: off by default and turned on with a "Focus timer" button; 25 / 5 or 50 / 10 minutes, start, pause, reset focus, reset break, skip; chip with time left, chime and optional notification
@@ -361,13 +363,30 @@ All of these follow the existing rules: membership and role checks on every endp
 - Card cover: an attached image can be made the card's cover (`cards.cover_attachment_id`), shown at the top of the card.
 - Focus sessions on cards: the focus timer can be pointed at a card; each finished focus period is saved (`focus_sessions`: card, user, minutes up to 60) and the card shows "3 focus sessions, 75 min".
 
-**Phase 25 - List view, export and full regression**
+**Phase 25 - List view and export**
 - View switch in the board header: Board / List (kept in the URL, `?view=`).
 - List view: one table of all cards (title, column, priority, due date, assignees, labels, done), sortable, filtered by the same filters; clicking a row opens the card.
 - Export: download the board as CSV (opens in Excel) or JSON (any member).
-- Full regression of the whole app after Phases 21-25: backend, frontend, Playwright in all browsers, accessibility scans, Lighthouse, audits.
+- The full regression of Phases 21-26 runs at the end of Phase 26.
 
-## Documentation Design (Phase 27)
+## Projects and Start Screen Design (Phase 26)
+
+Requested by the user on 2026-10-21. Too large for Phase 25 (a new table, a new screen and a new AI request), so it is its own phase before Deployment. The full regression moves from Phase 25 to the end of this phase, so it runs right before Deployment.
+
+- **Project:** a named group of related boards (`projects`: owner, name up to 100 characters, created; `boards.project_id`, optional, so a board is in at most one project). Projects are private to their owner, up to 20 each. A board shared with you shows under "Shared with you", never inside someone else's project. Deleting a project keeps its boards: they become boards on their own.
+- **Start screen** (`/` with no board chosen): shown after sign-in and from an "All boards" button in the header. Two buttons at the top, "New project" and "New board", then: Starred, each project (its name and its boards as tiles with progress), Boards (not in a project), Shared with you, Archived (folded). With no boards and no projects it shows only the two choices, as two large cards with their explanations. A new guest still lands on the demo board (the original requirement: the app opens with demo data); the start screen is one click away.
+- **Messages that tell the two apart** (on the two choice cards and at the top of each dialog):
+  - New project: "A project groups related boards. For example, "Website relaunch" with boards for Design, Development and Marketing."
+  - New board: "A board is one workspace with columns and cards. Keep it on its own or add it to a project."
+  - Before creating a project: "Creates the project "{name}" with {count} boards." (singular and plural, English and Arabic)
+- **New project dialog:** project name, then board names ("Add another board", up to 10, each removable). "Suggest columns with AI" fills an editable list of column names for every board in one AI request. Every board starts with its columns and no cards; cards are added with each column's "Add card". Without AI (daily limit reached, model error or offline) each board starts with To Do, In Progress, Done and a short note says so.
+- **New board dialog:** a new first option "Name it, AI suggests columns": board name, "Suggest columns" (3 to 8 editable column chips: rename, remove, add), and a Project select (none or one of your projects). The board starts with those columns and no cards. The existing templates (built-in and your own) and "Describe it to AI" stay as other options.
+- **Move to project:** board menu item for the board's admin; lists the admin's projects and "No project".
+- **AI column suggestion:** `POST /api/ai/columns` with up to 10 board names (and the project name): for each board 3 to 8 column names, each at most 40 characters, plain text, in the user's language, never cards. `max_tokens` is set; the AI rate limits and the free-tier fallback apply; the reply is validated and cut to the limits.
+- **Board switcher:** boards grouped by project (Starred first, archived last), so the switcher and the start screen agree.
+- **API:** `GET/POST /api/projects` (POST takes the name and up to 10 boards, each with a title and 1 to 20 columns), `PATCH/DELETE /api/projects/{id}`, `POST /api/boards` takes optional `columns` and `project_id`, `PATCH /api/boards/{id}` takes `project_id` (null removes), `BoardSummary` gains `project_id`.
+
+## Documentation Design (Phase 28)
 
 Eight Word (`.docx`) files in a new `Documentation/` folder, written after Deployment so they describe the finished, live app (real address, final features, final test results). English, the app's name "Task Manager" on every title page, consistent styling (title page, table of contents for long files, headings, page numbers), the project colors from `CLAUDE.md`, and no secrets (no `.env` values, keys, passwords or personal emails).
 
@@ -626,21 +645,31 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 
 ## Phase 24 - Organize: Archive, Copies, Templates, Stars, WIP, Auto-complete, Covers, Focus Sessions
 
-- [ ] Archive and restore cards and boards; Archived panel and switcher section
-- [ ] Duplicate card and board; save board as own template; templates in the New board dialog
-- [ ] Starred boards first in the switcher
-- [ ] WIP limit per column with warning; auto-complete setting for the last column; card cover image
-- [ ] Focus sessions linked to cards and shown on cards
-- [ ] Tests T-680 to T-698 pass; SEC-207, SEC-214 ticked
+- [x] Archive and restore cards and boards; Archived panel and switcher section
+- [x] Duplicate card and board; save board as own template; templates in the New board dialog
+- [x] Starred boards first in the switcher
+- [x] WIP limit per column with warning; auto-complete setting for the last column; card cover image
+- [x] Focus sessions linked to cards and shown on cards
+- [x] Tests T-680 to T-698 pass; SEC-207, SEC-214 ticked
 
-## Phase 25 - List View, Export and Full Regression
+## Phase 25 - List View and Export
 
 - [ ] Board / List switch (URL `?view=`); list view sortable and filtered
 - [ ] Export CSV and JSON
-- [ ] Full regression after Phases 21-25 (backend, frontend, Playwright in all browsers, axe, Lighthouse, audits)
-- [ ] Tests T-700 to T-714 pass; SEC-208 ticked
+- [ ] Tests T-700 to T-713 pass; SEC-208 ticked
 
-## Phase 26 - Deployment (Vercel)
+## Phase 26 - Projects, Start Screen and Full Regression
+
+- [ ] `projects` table and `boards.project_id` with a migration; project API with ownership checks
+- [ ] Boards created with chosen columns and no cards; boards move into and out of projects
+- [ ] AI column suggestion endpoint with validation and fallback
+- [ ] Start screen after sign-in; empty state with only "New project" and "New board" and their explanations
+- [ ] New project dialog (several boards, AI columns, summary message) and New board dialog (AI columns, project)
+- [ ] Board switcher grouped by project; "Move to project" in the board menu
+- [ ] Full regression after Phases 21-26 (backend, frontend, Playwright in all browsers, axe, Lighthouse, audits)
+- [ ] Tests T-714 and T-720 to T-737 pass; SEC-215, SEC-216 ticked
+
+## Phase 27 - Deployment (Vercel)
 
 - [ ] FIRST TASK (remind the user, do it only with their OK): delete the local test data `backend/taskmanager.db` and `backend/storage/`
 - [ ] Use a dedicated Gmail account for the app's emails (sender shows as "Task Manager")
@@ -657,7 +686,7 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 - [ ] Playwright smoke suite passes against the deployed URL
 - [ ] Security headers, Secure cookie and HSTS verified on the deployed URL
 
-## Phase 27 - Documentation (Word files)
+## Phase 28 - Documentation (Word files)
 
 - [ ] `Documentation/build/` script with shared styles (title page, contents, headings, page numbers, colors)
 - [ ] `01_Overview.docx`: name, short and long description

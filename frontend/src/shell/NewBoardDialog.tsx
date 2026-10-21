@@ -1,7 +1,8 @@
-import { Sparkles } from 'lucide-react'
-import { useId, useState, type FormEvent } from 'react'
+import { Sparkles, X } from 'lucide-react'
+import { useEffect, useId, useState, type FormEvent } from 'react'
 import { ai } from '../api/ai'
-import { boards, type BoardSummary, type Template } from '../api/boards'
+import { boards, type BoardSummary, type Template, type UserTemplate } from '../api/boards'
+import { templates } from '../api/templates'
 import aiCss from '../ai/ai.module.css'
 import { useAiRequest } from '../ai/useAiRequest'
 import { useI18n } from '../i18n/context'
@@ -15,7 +16,8 @@ import voice from '../voice/voice.module.css'
 import css from './shell.module.css'
 
 type Props = { open: boolean; onClose: () => void; onCreated: (board: BoardSummary) => void }
-type Choice = Template | 'ai'
+/** A built-in template, the AI, or the id of one of the user's own templates. */
+type Choice = Template | 'ai' | number
 
 const CHOICES: { value: Choice; label: Key; hint: Key }[] = [
   { value: 'blank', label: 'newBoard.blank', hint: 'newBoard.hint' },
@@ -45,7 +47,24 @@ function NewBoardForm({ onClose, onCreated }: Omit<Props, 'open'>) {
   const [fieldError, setFieldError] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
-  const hint = CHOICES.find((c) => c.value === choice)!.hint
+  const [own, setOwn] = useState<UserTemplate[]>([])
+  const hint = typeof choice === 'number' ? 'newBoard.templateHint' : CHOICES.find((c) => c.value === choice)!.hint
+
+  useEffect(() => {
+    templates.list().then(setOwn, () => setOwn([]))
+  }, [])
+
+  function pick(next: Choice, name?: string) {
+    setChoice(next)
+    setFieldError(null)
+    if (name && !title.trim()) setTitle(name)
+  }
+
+  async function removeTemplate(id: number) {
+    await templates.remove(id).catch((e: Error) => setError(e.message))
+    setOwn((all) => all.filter((x) => x.id !== id))
+    if (choice === id) setChoice('blank')
+  }
 
   function done(board: BoardSummary) {
     onCreated(board)
@@ -58,7 +77,11 @@ function NewBoardForm({ onClose, onCreated }: Omit<Props, 'open'>) {
     if (!title.trim()) return setFieldError(t('newBoard.nameMissing'))
     setBusy(true)
     try {
-      done(await boards.create(title.trim(), choice))
+      done(
+        await (typeof choice === 'number'
+          ? boards.createFromTemplate(title.trim(), choice)
+          : boards.create(title.trim(), choice)),
+      )
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
       setBusy(false)
@@ -89,16 +112,41 @@ function NewBoardForm({ onClose, onCreated }: Omit<Props, 'open'>) {
               name="start"
               checked={choice === c.value}
               disabled={request.busy}
-              onChange={() => {
-                setChoice(c.value)
-                setFieldError(null)
-              }}
+              onChange={() => pick(c.value)}
             />
             {c.value === 'ai' ? <Sparkles size={14} aria-hidden="true" /> : null}
             {t(c.label)}
           </label>
         ))}
       </fieldset>
+
+      {own.length ? (
+        <fieldset className={css.choices}>
+          <legend className={ui.label}>{t('newBoard.yourTemplates')}</legend>
+          {own.map((x) => (
+            <span key={x.id} className={css.ownTemplate}>
+              <label className={css.choice}>
+                <input
+                  type="radio"
+                  name="start"
+                  checked={choice === x.id}
+                  disabled={request.busy}
+                  onChange={() => pick(x.id, x.name)}
+                />
+                <span dir="auto">{x.name}</span>
+              </label>
+              <button
+                type="button"
+                className={ui.iconButton}
+                aria-label={t('newBoard.deleteTemplate', { name: x.name })}
+                onClick={() => removeTemplate(x.id)}
+              >
+                <X size={14} aria-hidden="true" />
+              </button>
+            </span>
+          ))}
+        </fieldset>
+      ) : null}
 
       {choice === 'ai' ? (
         <div className={ui.field}>

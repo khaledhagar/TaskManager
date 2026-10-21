@@ -1,4 +1,4 @@
-import { Check, Trash2 } from 'lucide-react'
+import { Archive, Check, Copy, Timer, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import type { Board, Card, Label, Priority, Role } from '../api/boards'
 import { ActivityList } from '../collab/ActivityList'
@@ -113,6 +113,29 @@ export function CardModal({ card, labels, members, actions, onClose, boardId, ro
           <LabelPicker card={card} labels={labels} actions={actions} />
 
           <AssigneePicker card={card} members={members} actions={actions} />
+
+          {card.focus_count ? (
+            <p className={`${ui.hint} ${css.inline}`}>
+              <Timer size={14} aria-hidden="true" />
+              {t('focus.stats', { count: card.focus_count, minutes: card.focus_minutes ?? 0 })}
+            </p>
+          ) : null}
+
+          <button type="button" className={`${ui.button} ${ui.secondary}`} onClick={() => actions.duplicateCard(card.id)}>
+            <Copy size={16} aria-hidden="true" />
+            {t('card.duplicate')}
+          </button>
+          <button
+            type="button"
+            className={`${ui.button} ${ui.secondary}`}
+            onClick={() => {
+              actions.archiveCard(card.id)
+              onClose()
+            }}
+          >
+            <Archive size={16} aria-hidden="true" />
+            {t('card.archive')}
+          </button>
 
           <button
             type="button"

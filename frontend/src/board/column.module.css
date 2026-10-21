@@ -105,6 +105,12 @@
   text-align: center;
 }
 
+/* Over the column's WIP limit: a warning, nothing is blocked. */
+.count[data-over] {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
 .cards {
   display: grid;
   gap: 8px;

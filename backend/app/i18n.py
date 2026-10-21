@@ -71,6 +71,9 @@ AR: dict[str, str] = {
     "Cross-site request blocked": "تم حظر طلب من موقع آخر",
     "Order must list every column once": "يجب أن يتضمن الترتيب كل عمود مرة واحدة",
     "Limit reached: at most {cap} boards": "تم بلوغ الحد: {cap} لوحة كحد أقصى",
+    "Limit reached: at most {cap} templates": "تم بلوغ الحد: {cap} قالب كحد أقصى",
+    " (copy)": " (نسخة)",
+    "Only an image can be a cover": "يمكن استخدام صورة فقط كغلاف",
     "Limit reached: at most {cap} columns per board": "تم بلوغ الحد: {cap} عمود كحد أقصى لكل لوحة",
     "Maximum cards in a board is {cap}. Delete a card to add a new one.": (
         "الحد الأقصى للبطاقات في اللوحة هو {cap} بطاقة. احذف بطاقة لإضافة بطاقة جديدة."

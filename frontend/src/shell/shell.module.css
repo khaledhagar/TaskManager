@@ -183,3 +183,17 @@
     height: 40px;
   }
 }
+
+/* An own template in the New board dialog: the choice with a delete button next to it. */
+.ownTemplate {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ownTemplate .choice {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

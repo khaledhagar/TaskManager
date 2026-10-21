@@ -30,6 +30,14 @@
   gap: 8px 20px;
 }
 
+/* Title and star stay together on one row. */
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
 .boardTitle {
   min-width: 0;
   font-size: var(--text-xl);
@@ -68,9 +76,11 @@
 }
 
 /* Focus timer, Ask AI and the board menu wrap together as one group. */
+/* When the header wraps, the actions stay at the end, so the timer panel opens on screen. */
 .boardActions {
   display: flex;
   flex: none;
+  margin-inline-start: auto;
   align-items: center;
   gap: 8px;
 }
@@ -233,7 +243,7 @@
     gap: 8px;
   }
 
-  .boardTitle,
+  .titleRow,
   .progress {
     flex-basis: 100%;
     max-width: none;

@@ -1,7 +1,7 @@
 """Card, move, checklist and card-label routes."""
 
 from fastapi import APIRouter, Request
-from sqlmodel import func, select
+from sqlmodel import select
 
 from app import limits
 from app.access import board_labels, card_for, column_for, item_for, not_found, renumber
@@ -10,6 +10,7 @@ from app.auth import CurrentUser
 from app.db import SessionDep
 from app.models import BoardColumn, BoardMember, Card, ChecklistItem, Role, User
 from app.notify import notify
+from app.organize import check_card_limit
 from app.schemas import (
     CardAssignees,
     CardCreate,
@@ -29,13 +30,7 @@ router = APIRouter(prefix="/api", tags=["cards"])
 @router.post("/columns/{column_id}/cards", status_code=201)
 def add_card(column_id: int, body: CardCreate, user: CurrentUser, session: SessionDep) -> CardOut:
     column = column_for(session, user, column_id, Role.editor)
-    stmt = select(func.count()).select_from(Card).join(BoardColumn)
-    count = session.exec(stmt.where(BoardColumn.board_id == column.board_id)).one()
-    limits.check(
-        count,
-        limits.CARDS_PER_BOARD,
-        "Maximum cards in a board is {cap}. Delete a card to add a new one.",
-    )
+    check_card_limit(session, column.board_id)
     card = Card(**body.model_dump(), position=len(column.cards))
     column.cards.append(card)
     record(session, column.board_id, user, "card.added", card, column=column.title)
@@ -87,10 +82,23 @@ def move_card(card_id: int, body: CardMove, user: CurrentUser, session: SessionD
     dest.insert(min(body.position, len(dest)), card)
     card.column_id = target.id
     renumber(dest)
+    auto_complete(card, source, target)
     record(session, target.board_id, user, "card.moved", card, column=target.title)
     session.commit()
     session.refresh(card)
     return card_out(card)
+
+
+def auto_complete(card: Card, source: BoardColumn, target: BoardColumn) -> None:
+    """With the board setting on, the last column means done (T-687)."""
+    board = target.board
+    if not board.auto_complete or source.id == target.id:
+        return
+    last = board.columns[-1].id
+    if target.id == last:
+        card.completed = True
+    elif source.id == last:
+        card.completed = False
 
 
 @router.put("/cards/{card_id}/labels")

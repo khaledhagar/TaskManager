@@ -107,3 +107,28 @@ describe('timer display and alerts (T-230)', () => {
     expect(within(panel).getByRole('button', { name: 'Start focus' })).toBeInTheDocument()
   })
 })
+
+describe('focus sessions on a card (T-696)', () => {
+  test('a finished focus period is reported for the chosen card', async () => {
+    const done = vi.fn()
+    render(<FocusTimer cards={[{ id: 4, title: 'Fix bug' }]} onFocusDone={done} />)
+    const panel = await turnOn()
+    await user().selectOptions(within(panel).getByLabelText('Focus on a card'), 'Fix bug')
+    await user().click(within(panel).getByRole('button', { name: 'Start focus' }))
+    await act(() => vi.advanceTimersByTime(25 * MIN + 1000))
+    expect(done).toHaveBeenCalledTimes(1)
+    expect(done).toHaveBeenCalledWith(4, 25)
+  })
+
+  test('without a chosen card nothing is saved; viewers get no card list', async () => {
+    const done = vi.fn()
+    const first = render(<FocusTimer cards={[{ id: 4, title: 'Fix bug' }]} onFocusDone={done} />)
+    const panel = await turnOn()
+    await user().click(within(panel).getByRole('button', { name: 'Start focus' }))
+    await act(() => vi.advanceTimersByTime(25 * MIN + 1000))
+    expect(done).not.toHaveBeenCalled()
+    first.unmount()
+    render(<FocusTimer cards={[]} onFocusDone={done} />)
+    expect(screen.queryByLabelText('Focus on a card')).toBeNull()
+  })
+})

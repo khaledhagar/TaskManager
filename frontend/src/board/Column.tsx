@@ -1,6 +1,7 @@
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, MoreHorizontal, Plus } from 'lucide-react'
+import { useState } from 'react'
 import type { Board, Card, Column as ColumnType, Label } from '../api/boards'
 import { useI18n } from '../i18n/context'
 import { InlineText } from '../ui/InlineText'
@@ -10,6 +11,7 @@ import { CardComposer } from './CardComposer'
 import { CardItem } from './CardItem'
 import { cardKey, columnKey } from './logic'
 import type { BoardActions } from './useBoard'
+import { WipDialog } from './WipDialog'
 
 type Props = {
   column: ColumnType
@@ -32,6 +34,12 @@ export function Column({ column, cards, labels, members, actions, dragDisabled, 
     disabled: dragDisabled,
   })
   const { t } = useI18n()
+  const [settingWip, setSettingWip] = useState(false)
+  const limit = column.wip_limit
+  const over = limit ? cards.length > limit : false
+  const countLabel = over
+    ? t('column.overLimit', { count: cards.length, limit: limit! })
+    : t('column.cardCount', { count: cards.length })
 
   return (
     <section
@@ -63,8 +71,8 @@ export function Column({ column, cards, labels, members, actions, dragDisabled, 
             onSave={(title) => actions.renameColumn(column.id, title)}
           />
         </h2>
-        <span className={css.count} aria-label={t('column.cardCount', { count: cards.length })}>
-          {cards.length}
+        <span className={css.count} aria-label={countLabel} data-over={over || undefined}>
+          {limit ? t('column.wipCount', { count: cards.length, limit }) : cards.length}
         </span>
         <Menu
           label={t('column.options', { title: column.title })}
@@ -73,6 +81,7 @@ export function Column({ column, cards, labels, members, actions, dragDisabled, 
           trigger={<MoreHorizontal size={16} aria-hidden="true" />}
           items={[
             { kind: 'action', label: t('column.addCard'), onSelect: () => onCompose(true) },
+            { kind: 'action', label: t('column.wipLimit'), onSelect: () => setSettingWip(true) },
             { kind: 'action', label: t('column.delete'), danger: true, onSelect: () => actions.deleteColumn(column.id) },
           ]}
         />
@@ -104,6 +113,11 @@ export function Column({ column, cards, labels, members, actions, dragDisabled, 
           {t('column.addCard')}
         </button>
       )}
+      <WipDialog
+        column={settingWip ? column : null}
+        onClose={() => setSettingWip(false)}
+        onSave={(value) => actions.setWipLimit(column.id, value)}
+      />
     </section>
   )
 }

@@ -174,7 +174,7 @@ def test_board_with_500_cards_loads_in_under_300_ms(client, ids):
 
 
 def test_board_loads_in_a_few_queries_whatever_its_size(client, ids):
-    """Cards, labels, checklists and attachments come in one batch each, not one query per card."""
+    """Cards, labels, checklists, files and focus sessions come in one batch each, not per card."""
     with Session(client.app.state.engine) as s:
         s.add_all(
             Card(column_id=ids["column"], title=f"Card {i}", position=10 + i) for i in range(50)
@@ -183,7 +183,7 @@ def test_board_loads_in_a_few_queries_whatever_its_size(client, ids):
     queries = []
     event.listen(client.app.state.engine, "before_cursor_execute", lambda *a: queries.append(1))
     client.get(f"/api/boards/{ids['board']}")
-    assert len(queries) <= 12
+    assert len(queries) <= 13  # one batch per relation, focus sessions included
 
 
 # --- NFR-42 short modules ------------------------------------------------------------------------

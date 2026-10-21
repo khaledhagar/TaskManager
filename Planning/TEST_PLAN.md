@@ -417,27 +417,27 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 
 ### E9. Organize and focus sessions (Phase 24)
 
-- [ ] T-680 Archive and restore a card; archived cards leave the board and the card limit
-- [ ] T-681 Archive and restore a board (admin only); archived boards in their own switcher section
-- [ ] T-682 Duplicate a card copies title, details, labels, checklist, priority and due date only
-- [ ] T-683 Duplicate a board copies columns, cards, labels and checklists only; board limit applies (SEC-207)
-- [ ] T-684 Save a board as template; it is private and appears in the New board dialog; 20 at most (SEC-207)
-- [ ] T-685 Star and unstar boards; starred first in the switcher
-- [ ] T-686 WIP limit set per column (1-100); over-limit count shows a warning
-- [ ] T-687 Auto-complete setting: moving into the last column completes, moving out reopens
-- [ ] T-688 Only an image attachment of the same card can be its cover; cover shows on the card
-- [ ] T-689 Permissions for every new endpoint follow the role table
-- [ ] T-690 E2E: archive a card and restore it
-- [ ] T-691 E2E: duplicate a board and create a board from a saved template
-- [ ] T-692 E2E: WIP warning and auto-complete in the browser
-- [ ] T-693 New UI in Arabic, RTL, dark, phone width
-- [ ] T-694 Accessibility: no axe violations on the new panels
-- [ ] T-695 Migration for the new columns runs on an existing database
-- [ ] T-696 A finished focus period linked to a card is saved and shown on the card
-- [ ] T-697 Focus minutes over 60 per session are refused; sessions are saved only for the signed-in user (SEC-214)
-- [ ] T-698 E2E: point the focus timer at a card; after a period (fast clock) the card shows the session
+- [x] T-680 Archive and restore a card; archived cards leave the board and the card limit
+- [x] T-681 Archive and restore a board (admin only); archived boards in their own switcher section
+- [x] T-682 Duplicate a card copies title, details, labels, checklist, priority and due date only
+- [x] T-683 Duplicate a board copies columns, cards, labels and checklists only; board limit applies (SEC-207)
+- [x] T-684 Save a board as template; it is private and appears in the New board dialog; 20 at most (SEC-207)
+- [x] T-685 Star and unstar boards; starred first in the switcher
+- [x] T-686 WIP limit set per column (1-100); over-limit count shows a warning
+- [x] T-687 Auto-complete setting: moving into the last column completes, moving out reopens
+- [x] T-688 Only an image attachment of the same card can be its cover; cover shows on the card
+- [x] T-689 Permissions for every new endpoint follow the role table
+- [x] T-690 E2E: archive a card and restore it
+- [x] T-691 E2E: duplicate a board and create a board from a saved template
+- [x] T-692 E2E: WIP warning and auto-complete in the browser
+- [x] T-693 New UI in Arabic, RTL, dark, phone width
+- [x] T-694 Accessibility: no axe violations on the new panels
+- [x] T-695 Migration for the new columns runs on an existing database
+- [x] T-696 A finished focus period linked to a card is saved and shown on the card
+- [x] T-697 Focus minutes over 60 per session are refused; sessions are saved only for the signed-in user (SEC-214)
+- [x] T-698 E2E: point the focus timer at a card; after a period (fast clock) the card shows the session
 
-### E10. List view, export and full regression (Phase 25)
+### E10. List view and export (Phase 25)
 
 - [ ] T-700 View switch Board / List kept in the URL
 - [ ] T-701 List view shows every card, sorts by each column and follows the filters
@@ -449,9 +449,30 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [ ] T-711 List view in Arabic, RTL, dark, phone width
 - [ ] T-712 Accessibility: no axe violations in the list view
 - [ ] T-713 List view stays fast with 100 cards
-- [ ] T-714 Full regression after Phases 21-25: backend, frontend, Playwright in all browsers, axe, Lighthouse, audits
 
-### E6. Documentation (Phase 27)
+### E11. Projects, start screen and full regression (Phase 26)
+
+- [ ] T-720 Create, rename and delete a project; deleting it keeps its boards as boards on their own
+- [ ] T-721 Projects are private: another user's project gives 404 for reading, renaming, deleting and adding a board (SEC-215)
+- [ ] T-722 Limits: 20 projects per user, names 1-100 characters, at most 10 boards per new project, 1-20 columns per board; the board limit still applies (SEC-215)
+- [ ] T-723 Create a project with several boards in one request; each board has the given columns and no cards
+- [ ] T-724 Create a board with chosen columns and an optional project; move a board into and out of a project (board admin and project owner only) (SEC-215)
+- [ ] T-725 AI column suggestion: 3-8 names per board, at most 40 characters, plain text, in the request language, never cards; `max_tokens` set; input limited (SEC-216)
+- [ ] T-726 AI suggestion falls back to To Do, In Progress, Done when the model fails or the daily limit is reached; AI rate limits apply (SEC-216)
+- [ ] T-727 Start screen lists starred boards, projects with their boards, boards on their own, shared boards and archived boards
+- [ ] T-728 With no boards and no projects the start screen shows only "New project" and "New board" with their explanations
+- [ ] T-729 After sign-in the start screen shows; a new guest lands on the demo board; "All boards" returns to the start screen
+- [ ] T-730 New project dialog: add and remove boards, suggest columns, edit them, summary message, create
+- [ ] T-731 New board dialog: suggest columns from the name, edit the chips, choose a project
+- [ ] T-732 E2E: create a project with two boards and AI columns (faked model); open a board: its columns are there and empty; add a card
+- [ ] T-733 E2E: an empty account shows only the two choices; create a board; the start screen then lists it
+- [ ] T-734 Start screen and new dialogs in Arabic, right to left, dark, at phone, tablet and desktop widths
+- [ ] T-735 Accessibility: no axe violations on the start screen and the new dialogs; the whole flow works with the keyboard
+- [ ] T-736 Migration adds `projects` and `boards.project_id` to an existing database
+- [ ] T-737 Board switcher groups boards by project; "Move to project" updates the switcher and the start screen
+- [ ] T-714 Full regression after Phases 21-26: backend, frontend, Playwright in all browsers, axe, Lighthouse, audits
+
+### E6. Documentation (Phase 28)
 
 - [ ] T-620 The build script writes all 8 `.docx` files and each one opens (read back with `python-docx`)
 - [ ] T-621 Every file has a title page with "Task Manager", headings, and page numbers; long files have a table of contents

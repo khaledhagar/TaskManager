@@ -1,6 +1,6 @@
 import { Plus } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { boards } from '../api/boards'
+import { boards, type BoardSummary } from '../api/boards'
 import { ChatPanel } from '../ai/ChatPanel'
 import { Backdrop } from '../files/Backdrop'
 import { BackgroundPicker } from '../files/BackgroundPicker'
@@ -9,14 +9,18 @@ import { useLocation } from '../lib/router'
 import { MembersPanel } from '../sharing/MembersPanel'
 import { ActivityPanel } from '../collab/ActivityList'
 import { InlineText } from '../ui/InlineText'
+import { useToast } from '../ui/toastContext'
 import ui from '../ui/ui.module.css'
 import css from './board.module.css'
+import { ArchivedPanel } from './ArchivedPanel'
 import { BoardColumns } from './BoardColumns'
 import { BoardHeader } from './BoardHeader'
+import { boardOrganize } from './boardOrganize'
 import { CardModal } from './CardModal'
 import { FilterBar } from './FilterBar'
 import { EMPTY_FILTERS, filtersActive, findCard, matchesFilters } from './logic'
 import { ShortcutsHelp } from './ShortcutsHelp'
+import { TemplateDialog } from './TemplateDialog'
 import { useBoard } from './useBoard'
 import { useShortcuts } from './useShortcuts'
 
@@ -24,12 +28,15 @@ type Props = {
   boardId: number
   userId: number
   isGuest: boolean
+  starred?: boolean
   onRenamed: (id: number, title: string) => void
   onDeleted: (id: number) => void
+  onUpdated?: (id: number, changes: Partial<BoardSummary>) => void
+  onCreated?: (board: BoardSummary) => void
 }
 
 /** The interactive board: header, filters, columns with drag and drop, card details. */
-export function BoardView({ boardId, userId, isGuest, onRenamed, onDeleted }: Props) {
+export function BoardView({ boardId, userId, isGuest, starred = false, onRenamed, onDeleted, onUpdated = () => {}, onCreated = () => {} }: Props) {
   const { board, loadError, actions } = useBoard(boardId)
   const { params } = useLocation()
   // The access-request email links here with ?members=1 so the admin lands on the panel.
@@ -49,6 +56,9 @@ export function BoardView({ boardId, userId, isGuest, onRenamed, onDeleted }: Pr
   const [help, setHelp] = useState(false)
   const [picking, setPicking] = useState(false)
   const [chatting, setChatting] = useState(false)
+  const [archivedOpen, setArchivedOpen] = useState(false)
+  const [templating, setTemplating] = useState(false)
+  const toast = useToast()
   const searchRef = useRef<HTMLInputElement>(null)
 
   useShortcuts({
@@ -69,6 +79,16 @@ export function BoardView({ boardId, userId, isGuest, onRenamed, onDeleted }: Pr
   const shown = cards.filter((c) => matchesFilters(c, filters)).length
   const filtering = filtersActive(filters)
   const openCard = openCardId === null ? undefined : findCard(board, openCardId)?.card
+  const organize = boardOrganize({
+    board,
+    actions,
+    starred,
+    toast,
+    onUpdated,
+    onCreated,
+    openArchived: () => setArchivedOpen(true),
+    openTemplate: () => setTemplating(true),
+  })
 
   return (
     <section
@@ -92,7 +112,12 @@ export function BoardView({ boardId, userId, isGuest, onRenamed, onDeleted }: Pr
         onChat={() => setChatting(true)}
         onMembers={() => setMembers(true)}
         onActivity={() => setActivity(true)}
+        starred={starred}
+        onStar={organize.star}
+        extraItems={organize.menuItems}
+        onFocusDone={organize.onFocusDone}
       />
+      {organize.note}
       <FilterBar
         filters={filters}
         onChange={setFilters}
@@ -136,6 +161,8 @@ export function BoardView({ boardId, userId, isGuest, onRenamed, onDeleted }: Pr
         />
       ) : null}
       <ShortcutsHelp open={help} onClose={() => setHelp(false)} />
+      <ArchivedPanel open={archivedOpen} onClose={() => setArchivedOpen(false)} boardId={board.id} actions={actions} />
+      <TemplateDialog open={templating} onClose={() => setTemplating(false)} boardId={board.id} boardTitle={board.title} />
       <ChatPanel open={chatting} board={board} actions={actions} onClose={() => setChatting(false)} />
       <ActivityPanel
         open={activity}

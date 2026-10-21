@@ -9,7 +9,8 @@ from app.activity import record
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.i18n import tr
-from app.models import Board, BoardColumn, BoardMember, Card, Comment, Label, Role
+from app.models import Board, BoardColumn, BoardMember, BoardStar, Card, Comment, Label, Role
+from app.organize import own_template
 from app.schemas import (
     BoardCreate,
     BoardOut,
@@ -23,7 +24,8 @@ from app.schemas import (
     board_summary,
     column_out,
 )
-from app.seed import build_board
+from app.schemas_organize import BoardUpdate, ColumnUpdate
+from app.seed import build_board, build_from_data
 
 router = APIRouter(prefix="/api", tags=["boards"])
 
@@ -36,14 +38,19 @@ def list_boards(user: CurrentUser, session: SessionDep) -> list[BoardSummary]:
         .where(BoardMember.user_id == user.id)
         .order_by(Board.created_at, Board.id)
     )
-    return [board_summary(board, role) for board, role in session.exec(stmt)]
+    starred = set(session.exec(select(BoardStar.board_id).where(BoardStar.user_id == user.id)))
+    return [board_summary(b, role, b.id in starred) for b, role in session.exec(stmt)]
 
 
 @router.post("/boards", status_code=201)
 def create_board(body: BoardCreate, user: CurrentUser, session: SessionDep) -> BoardSummary:
     count = session.exec(select(func.count()).where(Board.owner_id == user.id)).one()
     limits.check(count, limits.BOARDS_PER_USER, "Limit reached: at most {cap} boards")
-    board = build_board(session, user.id, body.template, body.title)
+    if body.template_id is not None:
+        data = own_template(session, user, body.template_id).data
+        board = build_from_data(session, user.id, data, body.title)
+    else:
+        board = build_board(session, user.id, body.template, body.title)
     record(session, board.id, user, "board.created", board=board.title)
     session.commit()
     return board_summary(board, Role.admin)
@@ -65,12 +72,17 @@ def get_board(board_id: int, request: Request, user: CurrentUser, session: Sessi
 
 
 @router.patch("/boards/{board_id}")
-def rename_board(
-    board_id: int, body: TitleUpdate, user: CurrentUser, session: SessionDep
+def update_board(
+    board_id: int, body: BoardUpdate, user: CurrentUser, session: SessionDep
 ) -> BoardSummary:
+    """Rename, or turn auto-complete on or off (admin)."""
     board = board_for(session, user, board_id, Role.admin)
-    record(session, board_id, user, "board.renamed", board=body.title, old=board.title)
-    board.title = body.title
+    if body.title is not None:
+        record(session, board_id, user, "board.renamed", board=body.title, old=board.title)
+        board.title = body.title
+    if body.auto_complete is not None:
+        board.auto_complete = body.auto_complete
+        record(session, board_id, user, "board.autocomplete", on=body.auto_complete)
     session.commit()
     return board_summary(board, Role.admin)
 
@@ -112,12 +124,18 @@ def reorder_columns(
 
 
 @router.patch("/columns/{column_id}")
-def rename_column(
-    column_id: int, body: TitleUpdate, user: CurrentUser, session: SessionDep
+def update_column(
+    column_id: int, body: ColumnUpdate, user: CurrentUser, session: SessionDep
 ) -> ColumnOut:
+    """Rename, or set the WIP limit (null clears it)."""
     column = column_for(session, user, column_id, Role.editor)
-    record(session, column.board_id, user, "column.renamed", column=body.title, old=column.title)
-    column.title = body.title
+    board_id = column.board_id
+    if body.title is not None:
+        record(session, board_id, user, "column.renamed", column=body.title, old=column.title)
+        column.title = body.title
+    if "wip_limit" in body.model_fields_set:
+        column.wip_limit = body.wip_limit
+        record(session, board_id, user, "column.wip", column=column.title, cap=body.wip_limit)
     session.commit()
     return column_out(column)
 

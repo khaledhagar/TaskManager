@@ -22,8 +22,12 @@ function message(event: logic.TimerEvent, state: logic.TimerState): string {
 }
 
 /** Focus timer state saved per browser, with chime, notification, tab title and announcements. */
-export function useFocusTimer() {
+export function useFocusTimer(onFocusEnded?: (minutes: number) => void) {
   const [state, setState] = useState(read)
+  const focusEnded = useRef(onFocusEnded)
+  useEffect(() => {
+    focusEnded.current = onFocusEnded
+  })
   const [now, setNow] = useState(() => Date.now())
   const [announcement, setAnnouncement] = useState('')
   // Latest state, updated at once so back-to-back ticks never handle the same phase end twice.
@@ -47,6 +51,7 @@ export function useFocusTimer() {
       const { state: next, event } = logic.tick(latest.current, at)
       if (!event) return
       update(next)
+      if (event === 'focus-ended') focusEnded.current?.(logic.MODES[next.mode].focus / 60_000)
       const text = message(event, next)
       setAnnouncement(text)
       if (!next.muted) playChime()

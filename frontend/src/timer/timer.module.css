@@ -46,6 +46,8 @@
   top: calc(100% + 8px);
   inset-inline-end: 0;
   display: grid;
+  /* A long card title in the select must not widen the panel. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   width: 300px;
   padding: 16px;

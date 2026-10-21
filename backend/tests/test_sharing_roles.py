@@ -1,4 +1,7 @@
-"""Board roles: what Viewer, Can update tasks, Full access and Admin may do (T-510 to T-515)."""
+"""Board roles: what Viewer, Can update tasks, Full access and Admin may do.
+
+T-510 to T-515, and T-689 for the Phase 24 endpoints.
+"""
 
 import pytest
 from fastapi.testclient import TestClient
@@ -49,6 +52,9 @@ def requests_for(i):
         ("viewer", "get", f"/api/boards/{b}", None),
         ("viewer", "get", f"/api/boards/{b}/members", None),
         ("viewer", "get", f"/api/attachments/{i['attachment']}", None),
+        ("viewer", "get", f"/api/boards/{b}/archived", None),
+        ("viewer", "put", f"/api/boards/{b}/star", None),
+        ("updater", "post", f"/api/cards/{card}/focus-sessions", {"minutes": 25}),
         ("updater", "post", f"/api/cards/{card}/move", {"column_id": col, "position": 0}),
         ("updater", "patch", f"/api/cards/{card}", {"completed": True}),
         ("updater", "patch", f"/api/checklist/{item}", {"done": True}),
@@ -64,9 +70,19 @@ def requests_for(i):
         ("editor", "delete", f"/api/checklist/{item}", None),
         ("editor", "delete", f"/api/labels/{i['label']}", None),
         ("editor", "delete", f"/api/attachments/{i['attachment']}", None),
+        ("editor", "post", f"/api/cards/{card}/archive", None),
+        ("editor", "post", f"/api/cards/{card}/restore", None),
+        ("editor", "post", f"/api/cards/{card}/duplicate", None),
+        ("editor", "put", f"/api/cards/{card}/cover", {"attachment_id": None}),
+        ("editor", "patch", f"/api/columns/{col}", {"wip_limit": 3}),
+        ("editor", "post", f"/api/boards/{b}/duplicate", None),
+        ("editor", "post", "/api/templates", {"board_id": b, "name": "x"}),
         ("editor", "delete", f"/api/cards/{card}", None),
         ("editor", "delete", f"/api/columns/{col}", None),
         ("admin", "patch", f"/api/boards/{b}", {"title": "x"}),
+        ("admin", "patch", f"/api/boards/{b}", {"auto_complete": True}),
+        ("admin", "post", f"/api/boards/{b}/archive", None),
+        ("admin", "post", f"/api/boards/{b}/restore", None),
         ("admin", "put", f"/api/boards/{b}/background/preset", {"preset": "dusk"}),
         ("admin", "delete", f"/api/boards/{b}/background", None),
         ("admin", "post", f"/api/boards/{b}/invites", {"email": "carol@example.com"}),

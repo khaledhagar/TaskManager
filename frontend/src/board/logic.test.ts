@@ -5,6 +5,7 @@ import {
   dueStatus,
   EMPTY_FILTERS,
   filtersActive,
+  findCard,
   insertCard,
   insertColumn,
   matchesFilters,
@@ -177,5 +178,21 @@ describe('board edits', () => {
     updateCard(original, 1, { title: 'changed' })
     expect(ids(original, 0)).toEqual([1, 2, 3])
     expect(original.columns[0].cards[0].title).toBe('Card 1')
+  })
+})
+
+describe('auto-complete (T-687)', () => {
+  const done = (b: Board, id: number) => findCard(b, id)!.card.completed
+
+  test('the last column completes a card and leaving it reopens the card', () => {
+    const b = { ...board(), auto_complete: true }
+    const moved = moveCard(b, 1, 3, 0)
+    expect(done(moved, 1)).toBe(true)
+    expect(done(moveCard(moved, 1, 2, 0), 1)).toBe(false)
+    expect(done(moveCard(b, 1, 2, 0), 1)).toBe(false)
+  })
+
+  test('off: moves keep the card as it was', () => {
+    expect(done(moveCard(board(), 1, 3, 0), 1)).toBe(false)
   })
 })

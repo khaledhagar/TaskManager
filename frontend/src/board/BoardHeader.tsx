@@ -1,4 +1,4 @@
-import { MoreHorizontal, Sparkles, Video } from 'lucide-react'
+import { MoreHorizontal, Sparkles, Star, Video } from 'lucide-react'
 import { useState } from 'react'
 import type { Board } from '../api/boards'
 import aiCss from '../ai/ai.module.css'
@@ -10,6 +10,7 @@ import { InlineText } from '../ui/InlineText'
 import { Menu, type MenuItem } from '../ui/Menu'
 import ui from '../ui/ui.module.css'
 import css from './board.module.css'
+import organize from './organize.module.css'
 import { progress } from './logic'
 
 type Props = {
@@ -21,10 +22,15 @@ type Props = {
   onChat: () => void
   onMembers: () => void
   onActivity: () => void
+  starred?: boolean
+  onStar?: () => void
+  /** Archive, duplicate, templates and auto-complete (Phase 24). */
+  extraItems?: MenuItem[]
+  onFocusDone?: (cardId: number, minutes: number) => void
 }
 
 /** Board title (click to rename), completion progress and board options. */
-export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, onChat, onMembers, onActivity }: Props) {
+export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, onChat, onMembers, onActivity, starred = false, onStar, extraItems = [], onFocusDone }: Props) {
   const { t } = useI18n()
   const [confirming, setConfirming] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -35,6 +41,7 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, o
     { kind: 'action', label: t('board.activity'), onSelect: onActivity },
     ...(admin ? [{ kind: 'action' as const, label: t('board.changeBackground'), onSelect: onBackground }] : []),
     { kind: 'action', label: t('board.shortcuts'), onSelect: onHelp },
+    ...(extraItems.length ? [{ kind: 'separator' as const }, ...extraItems] : []),
     ...(admin
       ? [
           { kind: 'separator' as const },
@@ -53,6 +60,7 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, o
 
   return (
     <div className={css.boardHead}>
+      <div className={css.titleRow}>
       <h1 className={css.boardTitle}>
         <InlineText
           value={board.title}
@@ -64,6 +72,19 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, o
           {board.title}
         </InlineText>
       </h1>
+      {onStar ? (
+        <button
+          type="button"
+          className={`${ui.iconButton} ${organize.star}`}
+          aria-label={t('board.star')}
+          title={t('board.star')}
+          aria-pressed={starred}
+          onClick={onStar}
+        >
+          <Star size={18} aria-hidden="true" />
+        </button>
+      ) : null}
+      </div>
       <div className={css.progress}>
         <div
           className={css.bar}
@@ -78,7 +99,10 @@ export function BoardHeader({ board, onRename, onDelete, onHelp, onBackground, o
         <span className={ui.hint}>{total ? t('board.progress', { done, total }) : t('board.noCards')}</span>
       </div>
       <div className={css.boardActions}>
-        <FocusTimer />
+        <FocusTimer
+          cards={board.role === 'viewer' ? [] : board.columns.flatMap((c) => c.cards)}
+          onFocusDone={onFocusDone}
+        />
         {board.meeting_url ? (
           <a
             className={`${ui.button} ${ui.secondary} ${aiCss.askButton}`}

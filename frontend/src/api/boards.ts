@@ -6,7 +6,14 @@ export type LabelColor = 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purpl
 
 /** A member's permission: Viewer, Can update tasks, Full access, or Admin (the board's creator). */
 export type Role = 'viewer' | 'updater' | 'editor' | 'admin'
-export type BoardSummary = { id: number; title: string; created_at: string; role: Role }
+export type BoardSummary = {
+  id: number
+  title: string
+  created_at: string
+  role: Role
+  archived?: boolean
+  starred?: boolean
+}
 export type Label = { id: number; name: string; color: LabelColor }
 export type ChecklistItem = { id: number; text: string; done: boolean; position: number }
 export type Attachment = {
@@ -32,8 +39,14 @@ export type Card = {
   assignee_ids: number[]
   /** Sent with the board; 0 when a single card comes back. */
   comment_count?: number
+  cover_attachment_id?: number | null
+  focus_count?: number
+  focus_minutes?: number
 }
-export type Column = { id: number; title: string; position: number; cards: Card[] }
+export type Column = { id: number; title: string; position: number; wip_limit?: number | null; cards: Card[] }
+export type ArchivedCard = { id: number; title: string; column_id: number; column_title: string; archived_at: string }
+export type UserTemplate = { id: number; name: string; created_at: string }
+export type FocusStats = { focus_count: number; focus_minutes: number }
 export type Board = {
   id: number
   title: string
@@ -46,6 +59,8 @@ export type Board = {
   public_link: string | null
   meeting_url: string | null
   members: { user_id: number; email: string | null }[]
+  archived?: boolean
+  auto_complete?: boolean
 }
 export type CardPatch = Partial<
   Pick<Card, 'title' | 'details' | 'completed' | 'priority' | 'due_date'>
@@ -59,12 +74,21 @@ export const boards = {
   get: (id: number) => api<Board>(`/boards/${id}`),
   create: (title: string, template: Template = 'blank') =>
     api<BoardSummary>('/boards', { body: { title, template } }),
+  createFromTemplate: (title: string, templateId: number) =>
+    api<BoardSummary>('/boards', { body: { title, template_id: templateId } }),
+  setAutoComplete: (id: number, on: boolean) => patch<BoardSummary>(`/boards/${id}`, { auto_complete: on }),
+  archive: (id: number) => api<BoardSummary>(`/boards/${id}/archive`, { method: 'POST' }),
+  restore: (id: number) => api<BoardSummary>(`/boards/${id}/restore`, { method: 'POST' }),
+  duplicate: (id: number) => api<BoardSummary>(`/boards/${id}/duplicate`, { method: 'POST' }),
+  star: (id: number, on: boolean) => api<void>(`/boards/${id}/star`, { method: on ? 'PUT' : 'DELETE' }),
+  archived: (id: number) => api<ArchivedCard[]>(`/boards/${id}/archived`),
   rename: (id: number, title: string) => patch<BoardSummary>(`/boards/${id}`, { title }),
   remove: (id: number) => del(`/boards/${id}`),
 
   addColumn: (boardId: number, title: string) =>
     api<Column>(`/boards/${boardId}/columns`, { body: { title } }),
   renameColumn: (id: number, title: string) => patch<Column>(`/columns/${id}`, { title }),
+  setWipLimit: (id: number, limit: number | null) => patch<Column>(`/columns/${id}`, { wip_limit: limit }),
   removeColumn: (id: number) => del(`/columns/${id}`),
   reorderColumns: (boardId: number, columnIds: number[]) =>
     api<void>(`/boards/${boardId}/columns/order`, { body: { column_ids: columnIds } }),
@@ -73,6 +97,12 @@ export const boards = {
     api<Card>(`/columns/${columnId}/cards`, { body: { title } }),
   updateCard: (id: number, changes: CardPatch) => patch<Card>(`/cards/${id}`, changes),
   removeCard: (id: number) => del(`/cards/${id}`),
+  archiveCard: (id: number) => api<void>(`/cards/${id}/archive`, { method: 'POST' }),
+  restoreCard: (id: number) => api<Card>(`/cards/${id}/restore`, { method: 'POST' }),
+  duplicateCard: (id: number) => api<Card>(`/cards/${id}/duplicate`, { method: 'POST' }),
+  setCover: (id: number, attachmentId: number | null) =>
+    api<Card>(`/cards/${id}/cover`, { method: 'PUT', body: { attachment_id: attachmentId } }),
+  addFocus: (id: number, minutes: number) => api<FocusStats>(`/cards/${id}/focus-sessions`, { body: { minutes } }),
   moveCard: (id: number, columnId: number, position: number) =>
     api<Card>(`/cards/${id}/move`, { body: { column_id: columnId, position } }),
   setCardLabels: (id: number, labelIds: number[]) =>

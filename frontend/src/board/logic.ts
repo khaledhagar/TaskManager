@@ -111,7 +111,15 @@ export function insertCard(board: Board, columnId: number, index: number, card: 
 export function moveCard(board: Board, cardId: number, columnId: number, index: number): Board {
   const found = findCard(board, cardId)
   if (!found) return board
-  return insertCard(removeCard(board, cardId), columnId, index, found.card)
+  const completed = autoCompleted(board, found.column.id, columnId, found.card.completed)
+  return insertCard(removeCard(board, cardId), columnId, index, { ...found.card, completed })
+}
+
+/** With auto-complete on, the last column means done; leaving it reopens the card. */
+export function autoCompleted(board: Board, from: number, to: number, completed: boolean): boolean {
+  if (!board.auto_complete || from === to) return completed
+  const last = board.columns.at(-1)?.id
+  return to === last ? true : from === last ? false : completed
 }
 
 export function reorderColumns(board: Board, columnIds: number[]): Board {

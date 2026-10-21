@@ -28,6 +28,7 @@ class Strict(BaseModel):
 class BoardCreate(Strict):
     title: Title | None = None
     template: Template = "blank"
+    template_id: int | None = None
 
 
 class TitleUpdate(Strict):
@@ -124,12 +125,16 @@ class CardOut(BaseModel):
     attachments: list[AttachmentOut]
     assignee_ids: list[int]
     comment_count: int = 0
+    cover_attachment_id: int | None = None
+    focus_count: int = 0
+    focus_minutes: int = 0
 
 
 class ColumnOut(BaseModel):
     id: int
     title: str
     position: int
+    wip_limit: int | None
     cards: list[CardOut]
 
 
@@ -138,6 +143,8 @@ class BoardSummary(BaseModel):
     title: str
     created_at: datetime
     role: Role
+    archived: bool = False
+    starred: bool = False
 
 
 class BoardOut(BaseModel):
@@ -151,6 +158,8 @@ class BoardOut(BaseModel):
     public_link: str | None
     meeting_url: str | None
     members: list["MemberBrief"]
+    archived: bool
+    auto_complete: bool
 
 
 class MemberBrief(BaseModel):
@@ -200,6 +209,9 @@ def card_out(card: Card, comments: int = 0) -> CardOut:
         attachments=[AttachmentOut.model_validate(a) for a in card.attachments],
         assignee_ids=sorted(u.id for u in card.assignees),
         comment_count=comments,
+        cover_attachment_id=card.cover_attachment_id,
+        focus_count=len(card.focus_sessions),
+        focus_minutes=sum(f.minutes for f in card.focus_sessions),
     )
 
 
@@ -208,12 +220,20 @@ def column_out(column: BoardColumn, counts: dict[int, int] | None = None) -> Col
         id=column.id,
         title=column.title,
         position=column.position,
+        wip_limit=column.wip_limit,
         cards=[card_out(c, (counts or {}).get(c.id, 0)) for c in column.cards],
     )
 
 
-def board_summary(board: Board, role: Role) -> BoardSummary:
-    return BoardSummary(id=board.id, title=board.title, created_at=board.created_at, role=role)
+def board_summary(board: Board, role: Role, starred: bool = False) -> BoardSummary:
+    return BoardSummary(
+        id=board.id,
+        title=board.title,
+        created_at=board.created_at,
+        role=role,
+        archived=board.archived_at is not None,
+        starred=starred,
+    )
 
 
 def public_url(app_url: str, token: str) -> str:
@@ -236,6 +256,8 @@ def board_out(
         public_link=public_url(app_url, link.token) if link and role == Role.admin else None,
         meeting_url=board.meeting_link.url if board.meeting_link else None,
         members=[MemberBrief(user_id=m.user_id, email=m.user.email) for m in board.members],
+        archived=board.archived_at is not None,
+        auto_complete=board.auto_complete,
     )
 
 

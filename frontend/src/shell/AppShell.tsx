@@ -9,6 +9,7 @@ import { navigate, useLocation } from '../lib/router'
 import { Logo } from '../ui/Logo'
 import ui from '../ui/ui.module.css'
 import { AccountMenu } from './AccountMenu'
+import { firstBoard } from './boardSections'
 import { BoardSwitcher } from './BoardSwitcher'
 import { NewBoardDialog } from './NewBoardDialog'
 import { NotificationBell } from './NotificationBell'
@@ -31,17 +32,18 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
     boards.list().then(setList, (e) => setError(e.message))
   }, [])
 
-  const selectedId = Number(params.get('board')) || list?.[0]?.id
+  const selectedId = Number(params.get('board')) || firstBoard(list ?? [])?.id
   const select = (id: number) => navigate(`/?board=${id}`)
 
-  function renamed(id: number, title: string) {
-    setList((current) => current?.map((b) => (b.id === id ? { ...b, title } : b)) ?? null)
+  function updated(id: number, changes: Partial<BoardSummary>) {
+    setList((current) => current?.map((b) => (b.id === id ? { ...b, ...changes } : b)) ?? null)
   }
 
   function deleted(id: number) {
     const rest = (list ?? []).filter((b) => b.id !== id)
     setList(rest)
-    navigate(rest.length ? `/?board=${rest[0].id}` : '/', { replace: true })
+    const next = firstBoard(rest)
+    navigate(next ? `/?board=${next.id}` : '/', { replace: true })
   }
 
   function created(board: BoardSummary) {
@@ -97,8 +99,11 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
             boardId={selectedId}
             userId={user.id}
             isGuest={user.is_guest}
-            onRenamed={renamed}
+            starred={list?.find((b) => b.id === selectedId)?.starred ?? false}
+            onRenamed={(id, title) => updated(id, { title })}
             onDeleted={deleted}
+            onUpdated={updated}
+            onCreated={created}
           />
         ) : list?.length === 0 ? (
           <div className={css.empty}>
