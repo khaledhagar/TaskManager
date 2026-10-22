@@ -531,6 +531,7 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-803 Sending the meeting link emails each member and leaves each one a notification ("... invites you to a meeting for ...") that opens the board; the admin gets none
 - [x] T-804 A new account's first board has To Do, In Progress and Done with no cards or labels (like a guest's)
 - [x] T-805 The Task Manager name in the header opens the start page
+- [x] T-810 `/privacy` shows the privacy policy signed in or out (English and Arabic, contact email link); the sign-in page links to it; no axe violations (light, dark, Arabic)
 
 ### E6. Documentation (Phase 29)
 

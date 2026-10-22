@@ -52,6 +52,7 @@ describe('auth screen (T-202, T-217)', () => {
       '/forgot-password',
     )
     expect(screen.getByRole('link', { name: 'Create an account' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Privacy policy' })).toHaveAttribute('href', '/privacy')
   })
 
   test('hides the Google button when Google is not configured', async () => {

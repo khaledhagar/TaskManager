@@ -9,6 +9,7 @@ import { InvitePage } from './sharing/InvitePage'
 import { savedInvite, takeReturn } from './sharing/inviteStore'
 import { PublicBoardPage } from './sharing/PublicBoardPage'
 import { AppShell } from './shell/AppShell'
+import { PrivacyPage } from './shell/PrivacyPage'
 import { UnsubscribePage } from './shell/UnsubscribePage'
 
 const SIGNED_OUT_ONLY = ['/signin', '/signup']
@@ -50,6 +51,7 @@ export default function App() {
   if (path === '/check-inbox') return <CheckInbox />
   if (path === '/forgot-password') return <ForgotPassword />
   if (path === '/unsubscribe') return <UnsubscribePage />
+  if (path === '/privacy') return <PrivacyPage />
   if (user === undefined) return <div role="status" aria-label={t('app.loading')} />
   if (path.startsWith('/p/')) return <PublicBoardPage token={path.slice(3)} user={user} />
   if (path === '/invite')

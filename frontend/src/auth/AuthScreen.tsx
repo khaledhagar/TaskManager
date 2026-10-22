@@ -163,6 +163,9 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: (user: User) => void })
           ),
         })}
       </p>
+      <Link to="/privacy" className={css.privacy}>
+        {t('privacy.title')}
+      </Link>
     </AuthLayout>
   )
 }

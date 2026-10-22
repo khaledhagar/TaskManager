@@ -59,6 +59,13 @@ describe('app routing', () => {
     expect(location.pathname).toBe('/')
   })
 
+  test('/privacy opens the privacy policy without signing in (T-810)', async () => {
+    history.replaceState(null, '', '/privacy')
+    vi.mocked(auth.me).mockRejectedValue(new ApiError(401, 'Not signed in'))
+    renderApp()
+    expect(await screen.findByRole('heading', { name: 'Privacy policy', level: 1 })).toBeInTheDocument()
+  })
+
   test('the verification link signs in and opens the start page (T-801)', async () => {
     history.replaceState(null, '', '/verify#token=tok-1234567890')
     vi.mocked(auth.me).mockRejectedValue(new ApiError(401, 'Not signed in'))
