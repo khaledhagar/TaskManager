@@ -38,7 +38,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 25 - List View and Export | 3 / 3 | Done |
 | Phase 26 - Workspaces, Start Page and Full Regression | 11 / 11 | Done |
 | Phase 27 - Voice Commands | 7 / 7 | Done |
-| Phase 28 - Deployment (Vercel) | 10 / 16 | In progress |
+| Phase 28 - Deployment (Vercel) | 11 / 16 | In progress |
 | Phase 29 - Documentation (Word files) | 0 / 8 | Not started |
 
 ## Stack
@@ -735,7 +735,7 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 - [ ] Test deploy confirms the function bundle (including LiteLLM) fits Vercel's size limit; cold start measured
 - [x] Production environment variables set in Vercel; `ENV=production`, `ALLOWED_HOSTS`, `APP_URL`, `EMAIL_MODE=smtp` set
 - [x] Production callback URL added to the Google OAuth client (sign-in tested on the live site 2026-10-22)
-- [ ] File storage provider chosen (Cloudflare R2, or Supabase Storage if the database is Supabase); `S3Storage` added with `uv add boto3`; upload, download and delete verified on the deployed URL; uploads stay under Vercel's 4.5 MB limit
+- [x] File storage provider chosen (Cloudflare R2, or Supabase Storage if the database is Supabase); `S3Storage` added with `uv add boto3`; upload, download and delete verified on the deployed URL; uploads stay under Vercel's 4.5 MB limit
 - [x] Public privacy policy page `/privacy` (contact datasharingks@gmail.com), linked from the sign-in page: Google requires it before the sign-in app can be published (T-810)
 - [x] Google sign-in app published ("In production") so any Google account can sign in
 - [ ] Playwright smoke suite passes against the deployed URL
