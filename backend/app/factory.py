@@ -13,7 +13,7 @@ from app.hardening import add_hardening
 from app.i18n import add_language, tr
 from app.mailer import MAIL_FAILED, Mailer, MailError
 from app.middleware import add_origin_check
-from app.ratelimit import MemoryStore, RateLimiter
+from app.ratelimit import RateLimiter, make_store
 from app.routes import (
     account,
     ai,
@@ -22,6 +22,7 @@ from app.routes import (
     boards,
     cards,
     comments,
+    cron,
     export,
     invites,
     meeting,
@@ -34,7 +35,7 @@ from app.routes import (
 from app.routes import files as file_routes
 from app.routes import google as google_routes
 from app.sharing import backfill_admins
-from app.storage import LocalStorage
+from app.storage import make_storage
 from app.users import cleanup_guests
 
 
@@ -49,8 +50,8 @@ def create_app(settings: Settings) -> FastAPI:
     app.state.settings = settings
     app.state.engine = make_engine(settings.database_url)
     app.state.mailer = Mailer(settings)
-    app.state.limiter = RateLimiter(MemoryStore())
-    app.state.storage = LocalStorage(settings.storage_dir)
+    app.state.limiter = RateLimiter(make_store(settings.database_url, app.state.engine))
+    app.state.storage = make_storage(settings)
     app.state.oauth = google.make_oauth(settings) if settings.google_enabled else None
     # Short-lived cookie holding only the Google sign-in state, nonce and PKCE verifier.
     app.add_middleware(
@@ -79,7 +80,7 @@ def create_app(settings: Settings) -> FastAPI:
 
     routers = (auth, account, google_routes, boards, cards, ai, file_routes, background)
     sharing = (members, invites, public, meeting, comments, notifications)
-    for module in (*routers, *sharing, archive, organize, export, workspaces):
+    for module in (*routers, *sharing, archive, organize, export, workspaces, cron):
         app.include_router(module.router)
     mount_frontend(app, settings.frontend_dist)
     return app

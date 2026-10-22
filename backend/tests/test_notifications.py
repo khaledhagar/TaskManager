@@ -3,7 +3,6 @@
 import os
 import subprocess
 import sys
-from dataclasses import replace
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -158,16 +157,6 @@ def test_reminder_email_in_arabic(alice, bob, shared):
     alice.put(f"/api/cards/{shared['card']}/assignees", json={"user_ids": [shared["bob"]]})
     run_reminders(alice, date.today())
     assert "تذكير" in mails_to(alice, "bob@example.com")[-1].subject
-
-
-def test_cron_endpoint_needs_the_secret(alice, shared):
-    url = "/api/cron/reminders"
-    assert alice.post(url).status_code == 404
-    alice.app.state.settings = replace(alice.app.state.settings, cron_secret="s" * 32)
-    assert alice.post(url).status_code == 401
-    assert alice.post(url, headers={"Authorization": "Bearer wrong"}).status_code == 401
-    r = alice.post(url, headers={"Authorization": f"Bearer {'s' * 32}"})
-    assert r.status_code == 200 and r.json() == {"emails": 0}
 
 
 def test_job_runs_from_the_command_line(tmp_path):

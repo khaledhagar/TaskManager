@@ -1,4 +1,4 @@
-# Task Manager - Implementation Plan
+ Task Manager - Implementation Plan
 
 A professional Kanban task manager: FastAPI + SQLite backend, statically built React frontend served by FastAPI, with an AI assistant.
 Each phase is small and must have all success criteria checked before the next phase starts.
@@ -38,7 +38,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 25 - List View and Export | 3 / 3 | Done |
 | Phase 26 - Workspaces, Start Page and Full Regression | 11 / 11 | Done |
 | Phase 27 - Voice Commands | 7 / 7 | Done |
-| Phase 28 - Deployment (Vercel) | 1 / 14 | In progress |
+| Phase 28 - Deployment (Vercel) | 5 / 14 | In progress |
 | Phase 29 - Documentation (Word files) | 0 / 8 | Not started |
 
 ## Stack
@@ -725,13 +725,13 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 ## Phase 28 - Deployment (Vercel)
 
 - [x] FIRST TASK (remind the user, do it only with their OK): delete the local test data `backend/taskmanager.db` and `backend/storage/`
-- [ ] Use a dedicated Gmail account for the app's emails (sender shows as "Task Manager")
-- [ ] Choose Postgres provider (Neon or Supabase); add Postgres driver with `uv add`
+- [x] Gmail for the app's emails: the user keeps their current Gmail (App Password), decided 2026-10-22
+- [x] Postgres provider: Supabase (project in eu-west-1, RLS on for every table, Data API unused); `psycopg[binary]` added with `uv add`; `postgresql://` addresses use the psycopg 3 driver
 - [ ] Full backend test suite passes against Postgres
 - [ ] Alembic migrations (set up in Phase 22) run against Postgres
-- [ ] Redis rate-limit store (Upstash) behind the same interface; tests pass for both stores
-- [ ] `POST /api/cron/cleanup` protected by `CRON_SECRET`, scheduled in `vercel.json`
-- [ ] `vercel.json`: frontend served from Vercel's CDN, `/api/*` routed to FastAPI
+- [x] Rate-limit counters shared by every server instance: kept in the Supabase database (`rate_counts` table, migration 0007; the user chose this over Upstash Redis on 2026-10-22); memory store on SQLite; on Vercel the visitor's IP comes from `x-real-ip`
+- [x] `GET /api/cron/cleanup` (old guests, ended counters) and `GET /api/cron/reminders` protected by `CRON_SECRET`, scheduled daily in `backend/vercel.json` (Vercel Cron calls with GET)
+- [ ] Vercel project with Root Directory `backend`: the build step makes the website into `backend/frontend_dist` and FastAPI serves it with its security headers (Vercel keeps static files in the function when the app has middleware); region `dub1` next to the database
 - [ ] Test deploy confirms the function bundle (including LiteLLM) fits Vercel's size limit; cold start measured
 - [ ] Production environment variables set in Vercel; `ENV=production`, `ALLOWED_HOSTS`, `APP_URL`, `EMAIL_MODE=smtp` set
 - [ ] Production callback URL added to the Google OAuth client

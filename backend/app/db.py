@@ -11,10 +11,18 @@ from app import file_cleanup, models  # noqa: F401  (registers tables and file c
 from app.migrate import migrate
 
 
+def engine_url(url: str) -> str:
+    """Hosting providers give `postgresql://` or `postgres://`; use the psycopg 3 driver."""
+    for prefix in ("postgresql://", "postgres://"):
+        if url.startswith(prefix):
+            return "postgresql+psycopg://" + url.removeprefix(prefix)
+    return url
+
+
 def make_engine(url: str) -> Engine:
     """Create the engine and bring the tables up to date; SQLite gets foreign keys and WAL."""
     if not url.startswith("sqlite"):
-        engine = create_engine(url, pool_pre_ping=True)
+        engine = create_engine(engine_url(url), pool_pre_ping=True)
     else:
         engine = create_engine(url, connect_args={"check_same_thread": False})
         event.listen(engine, "connect", _sqlite_pragmas)

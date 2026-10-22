@@ -32,6 +32,14 @@ class Settings:
     allowed_hosts: tuple[str, ...] = ()
     # Protects the scheduled-job endpoints; empty turns them off (SEC-204).
     cron_secret: str = ""
+    # S3-compatible bucket for uploaded files (Supabase Storage); empty uses `storage_dir`.
+    s3_endpoint: str = ""
+    s3_region: str = ""
+    s3_bucket: str = ""
+    s3_access_key_id: str = ""
+    s3_secret_access_key: str = ""
+    # Vercel sets VERCEL=1; its proxy puts the visitor's real address in x-real-ip.
+    on_vercel: bool = False
 
     def __post_init__(self) -> None:
         if len(self.jwt_secret) < 32:
@@ -63,7 +71,9 @@ def load_settings() -> Settings:
         openrouter_api_key=env("OPENROUTER_API_KEY", ""),
         env=env("ENV", d.env),
         database_url=env("DATABASE_URL", d.database_url),
-        frontend_dist=Path(env("FRONTEND_DIST", d.frontend_dist)),
+        # A relative FRONTEND_DIST is inside backend/ (Vercel builds the website there).
+        frontend_dist=Path(__file__).resolve().parents[1]
+        / env("FRONTEND_DIST", str(d.frontend_dist)),
         storage_dir=Path(env("STORAGE_DIR", d.storage_dir)),
         app_url=app_url,
         email_mode=env("EMAIL_MODE", d.email_mode),
@@ -75,4 +85,10 @@ def load_settings() -> Settings:
         google_client_secret=env("GOOGLE_CLIENT_SECRET", ""),
         allowed_hosts=tuple(h.strip() for h in hosts.split(",") if h.strip()),
         cron_secret=env("CRON_SECRET", ""),
+        s3_endpoint=env("S3_ENDPOINT", ""),
+        s3_region=env("S3_REGION", ""),
+        s3_bucket=env("S3_BUCKET", ""),
+        s3_access_key_id=env("S3_ACCESS_KEY_ID", ""),
+        s3_secret_access_key=env("S3_SECRET_ACCESS_KEY", ""),
+        on_vercel=env("VERCEL") == "1",
     )

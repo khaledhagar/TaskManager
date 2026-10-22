@@ -1,8 +1,8 @@
 """Rate limits (SEC-50 to SEC-53, SEC-121, SEC-138) with a swappable counter store.
 
-Counters use fixed time windows. `MemoryStore` keeps them in this process; production
-swaps in a Redis store with the same `increment` method (Phase 17). The limits are read
-at call time, so tests can change them.
+Counters use fixed time windows. `MemoryStore` keeps them in this process (SQLite, development
+and tests); with Postgres, `DbStore` keeps them in the database so every server instance shares
+them (Phase 28). The limits are read at call time, so tests can change them.
 """
 
 import math
@@ -11,8 +11,11 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from fastapi import HTTPException, Request, status
+from sqlalchemy import Engine, delete, text
+from sqlmodel import Session
 
 from app.i18n import tr
+from app.models import RateCount
 
 
 @dataclass(frozen=True)
@@ -51,8 +54,38 @@ class MemoryStore:
         return count
 
 
+class DbStore:
+    """Counters in the `rate_counts` table: one atomic upsert per hit."""
+
+    def __init__(self, engine: Engine):
+        self.engine = engine
+
+    def increment(self, key: str, expires: float, now: float) -> int:
+        with self.engine.begin() as conn:
+            return conn.execute(
+                text(
+                    "INSERT INTO rate_counts (key, count, expires_at) VALUES (:key, 1, :expires) "
+                    "ON CONFLICT (key) DO UPDATE SET count = rate_counts.count + 1 "
+                    "RETURNING count"
+                ),
+                {"key": key, "expires": expires},
+            ).scalar_one()
+
+
+def make_store(database_url: str, engine: Engine) -> MemoryStore | DbStore:
+    """Shared database counters on Postgres; in-process counters on SQLite."""
+    return MemoryStore() if database_url.startswith("sqlite") else DbStore(engine)
+
+
+def drop_expired(session: Session, now: float) -> int:
+    """Delete counters whose window has ended (run by the cleanup job). Returns the count."""
+    result = session.exec(delete(RateCount).where(RateCount.expires_at < now))
+    session.commit()
+    return result.rowcount
+
+
 class RateLimiter:
-    def __init__(self, store: MemoryStore, clock: Callable[[], float] = time.time):
+    def __init__(self, store: MemoryStore | DbStore, clock: Callable[[], float] = time.time):
         self.store = store
         self.clock = clock
 
@@ -70,6 +103,9 @@ class RateLimiter:
 
 
 def client_ip(request: Request) -> str:
+    """The visitor's address. On Vercel the proxy's x-real-ip header (it cannot be faked there)."""
+    if request.app.state.settings.on_vercel and "x-real-ip" in request.headers:
+        return request.headers["x-real-ip"]
     return request.client.host if request.client else "unknown"
 
 

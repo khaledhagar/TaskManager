@@ -1,9 +1,8 @@
 """Notifications, email setting, unsubscribe link and the reminder job endpoint (Phase 23)."""
 
-import hmac
-from datetime import UTC, date, datetime
+from datetime import UTC, datetime
 
-from fastapi import APIRouter, Header, HTTPException, Request, status
+from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel
 from sqlalchemy.orm import selectinload
 from sqlmodel import func, or_, select
@@ -12,7 +11,6 @@ from app.access import not_found
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.i18n import tr
-from app.jobs import send_reminders
 from app.models import BoardMember
 from app.models_notify import Notification, NotificationSetting
 from app.notify import unsubscribe_user
@@ -126,16 +124,3 @@ def unsubscribe(body: TokenIn, request: Request, session: SessionDep) -> None:
     setting.email = False
     session.add(setting)
     session.commit()
-
-
-@router.post("/cron/reminders")
-def cron_reminders(
-    request: Request, session: SessionDep, authorization: str = Header(default="")
-) -> dict:
-    """Run by the scheduler with `Authorization: Bearer <CRON_SECRET>` (SEC-204)."""
-    settings = request.app.state.settings
-    if not settings.cron_secret:
-        raise not_found()
-    if not hmac.compare_digest(authorization, f"Bearer {settings.cron_secret}"):
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, tr("Not signed in"))
-    return {"emails": send_reminders(session, request.app.state.mailer, settings, date.today())}

@@ -162,3 +162,12 @@ def test_server_shows_app_info_logs(monkeypatch, tmp_path):
     monkeypatch.setattr(logging.getLogger("taskmanager"), "level", logging.NOTSET)
     importlib.import_module("app.main")
     assert logging.getLogger("taskmanager.mail").isEnabledFor(logging.INFO)
+
+
+def test_a_relative_frontend_folder_is_inside_backend(monkeypatch):
+    """Phase 28: Vercel builds the website into backend/frontend_dist; FRONTEND_DIST names it."""
+    from pathlib import Path
+
+    backend = Path(__file__).resolve().parents[1]
+    monkeypatch.setenv("FRONTEND_DIST", "frontend_dist")
+    assert load_settings().frontend_dist == backend / "frontend_dist"

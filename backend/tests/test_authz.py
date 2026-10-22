@@ -110,6 +110,7 @@ def test_every_data_endpoint_requires_sign_in(client):
         "/api/public/boards/{token}/background",
         "/api/notifications/unsubscribe",
         "/api/cron/reminders",
+        "/api/cron/cleanup",
     }
     checked = 0
     for path, operations in client.app.openapi()["paths"].items():

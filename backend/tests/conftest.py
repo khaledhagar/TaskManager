@@ -34,12 +34,48 @@ def dist(tmp_path):
     return tmp_path
 
 
+# Set to a Postgres test database to run every test against Postgres (Phase 28).
+TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
+
+
+_built = False
+
+
+def empty_postgres(url: str) -> None:
+    """Start each test from an empty database, like the SQLite file.
+
+    The first test drops everything (the app then builds the tables); later tests only empty the
+    tables, which is much faster over the network.
+    """
+    global _built
+    from sqlalchemy import create_engine, text
+
+    from app.db import engine_url
+
+    engine = create_engine(engine_url(url))
+    with engine.begin() as conn:
+        if not _built:
+            conn.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public"))
+        else:
+            names = conn.execute(
+                text(
+                    "SELECT string_agg(quote_ident(tablename), ', ') FROM pg_tables "
+                    "WHERE schemaname = 'public' AND tablename <> 'alembic_version'"
+                )
+            ).scalar()
+            conn.execute(text(f"TRUNCATE {names} RESTART IDENTITY CASCADE"))
+    engine.dispose()
+    _built = True
+
+
 @pytest.fixture
 def settings(dist, tmp_path):
+    if TEST_DATABASE_URL:
+        empty_postgres(TEST_DATABASE_URL)
     return Settings(
         jwt_secret="x" * 64,
         frontend_dist=dist,
-        database_url=f"sqlite:///{tmp_path / 'test.db'}",
+        database_url=TEST_DATABASE_URL or f"sqlite:///{tmp_path / 'test.db'}",
         app_url="http://app.test",
         storage_dir=tmp_path / "storage",
     )

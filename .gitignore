@@ -40,3 +40,6 @@ Thumbs.db
 # Claude Code personal settings
 .claude/settings.local.json
 
+
+# Website built by Vercel into the backend (Phase 28)
+backend/frontend_dist/
