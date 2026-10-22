@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { accountMenu, DEMO, emailLink, newEmail, openBoard, PASSWORD, signIn, signUp, startAsGuest } from './helpers.ts'
+import { accountMenu, DEMO, emailLink, newEmail, openBoard, PASSWORD, signIn, signUp, startAsGuest, openFirstBoard } from './helpers.ts'
 
 test('T-300 T-764 continue as guest opens a board with the column names only, no example cards @smoke', async ({ page }) => {
   await startAsGuest(page)
@@ -37,7 +37,7 @@ test('T-321 an unverified account sees the verify message and can resend the ema
   await expect(page.getByText('We sent a new link.', { exact: false })).toBeVisible()
   await expect.poll(() => emailLink(page.request, email)).not.toBe(first)
   await page.goto(await emailLink(page.request, email))
-  await expect(page.getByRole('heading', { name: DEMO })).toBeVisible()
+  await openFirstBoard(page)
 })
 
 test('T-318 forgot password: reset link sets a new password; the old one fails', async ({ page }) => {
@@ -81,7 +81,7 @@ test('T-320 continue with Google (fake provider in test mode)', async ({ page })
   await page.request.post('/__e2e/google/identity', { data: { email, sub: `sub-${email}` } })
   await page.goto('/signin')
   await page.getByRole('link', { name: 'Continue with Google' }).click()
-  await expect(page.getByRole('heading', { name: DEMO })).toBeVisible()
+  await openFirstBoard(page)
   await page.getByRole('button', { name: 'Account' }).click()
   await expect(page.getByText(email)).toBeVisible()
 })

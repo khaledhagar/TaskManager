@@ -196,7 +196,7 @@ export function ResetPassword({ onSignedIn }: { onSignedIn: (user: User) => void
 }
 
 /** Opened from the verification email: confirms the address and signs in. */
-export function VerifyEmail({ onSignedIn }: { onSignedIn: (user: User, landing?: string) => void }) {
+export function VerifyEmail({ onSignedIn }: { onSignedIn: (user: User) => void }) {
   const token = linkToken()
   const { t, rich } = useI18n()
   const [error, setError] = useState<string | null>(null)
@@ -206,7 +206,7 @@ export function VerifyEmail({ onSignedIn }: { onSignedIn: (user: User, landing?:
     if (started.current) return
     started.current = true
     // A just-verified account opens its demo board.
-    auth.verify(token).then((user) => onSignedIn(user, '/?open=first'), (e) => setError(message(e)))
+    auth.verify(token).then((user) => onSignedIn(user), (e) => setError(message(e)))
   }, [token, onSignedIn])
 
   return (

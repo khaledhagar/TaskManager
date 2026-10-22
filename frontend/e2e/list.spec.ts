@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
-import { openBoard, seedCards, startAsGuest } from './helpers.ts'
+import { openBoard, seedCards, startAsGuest, openFirstBoard } from './helpers.ts'
 
 const titles = (page: import('@playwright/test').Page) =>
   page.getByRole('region', { name: /^Cards on/ }).locator('tbody tr td:first-child').allTextContents()
@@ -54,7 +54,7 @@ test('T-711 T-712 list view in Arabic, right to left, dark, at phone width; no a
   const page = await context.newPage()
   await page.goto('/signin')
   await page.getByRole('button', { name: 'المتابعة كضيف' }).click()
-  await expect(page.getByRole('heading', { name: 'إطلاق الموقع' })).toBeVisible()
+  await openFirstBoard(page, 'إطلاق الموقع')
   await seedCards(page, [['تصميم الصفحة', 'كتابة الإعلان']])
   await page.getByRole('group', { name: 'طريقة العرض' }).getByRole('button', { name: 'قائمة' }).click()
   const table = page.getByRole('region', { name: 'بطاقات إطلاق الموقع' })

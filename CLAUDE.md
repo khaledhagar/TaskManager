@@ -22,7 +22,7 @@
 
 - The priority is a slick, professional, gorgeous UI/UX with very simple features
 
-- The app should open with dummy data populated for the single board
+- The app should open with dummy data populated for the single board (changed by the user on 2026-10-22: the first board starts with empty To Do, In Progress and Done columns, and every sign-in opens the start page)
 
 ### Approved enhancements
 

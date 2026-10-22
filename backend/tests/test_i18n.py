@@ -156,6 +156,7 @@ def test_emails_stay_english_by_default(client):
 # --- T-193 demo board and templates ---------------------------------------------------
 
 
+@pytest.mark.real_start
 def test_guest_gets_the_arabic_demo_board(client):
     client.post("/api/auth/guest", headers=AR_HEADER)
     board = first_board(client)

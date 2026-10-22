@@ -59,12 +59,12 @@ describe('app routing', () => {
     expect(location.pathname).toBe('/')
   })
 
-  test('the verification link signs in and opens the app', async () => {
+  test('the verification link signs in and opens the start page (T-801)', async () => {
     history.replaceState(null, '', '/verify#token=tok-1234567890')
     vi.mocked(auth.me).mockRejectedValue(new ApiError(401, 'Not signed in'))
     vi.mocked(auth.verify).mockResolvedValue(member)
     renderApp()
-    expect(await screen.findByRole('heading', { name: 'Website Launch' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Your work', level: 1 })).toBeInTheDocument()
     expect(location.pathname).toBe('/')
   })
 })

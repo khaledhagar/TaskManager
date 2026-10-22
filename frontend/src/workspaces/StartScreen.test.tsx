@@ -11,7 +11,7 @@ import { StartScreen } from './StartScreen'
 
 vi.mock('../api/workspaces', () => ({ workspaces: { members: vi.fn(), rename: vi.fn(), remove: vi.fn() } }))
 vi.mock('../api/notifications', () => ({ notifications: { list: vi.fn(), read: vi.fn(async () => undefined) } }))
-vi.mock('../api/templates', () => ({ templates: { list: vi.fn() } }))
+vi.mock('../api/templates', () => ({ templates: { list: vi.fn(), remove: vi.fn() } }))
 vi.mock('../api/boards', () => ({ boards: { createFromTemplate: vi.fn(), remove: vi.fn(async () => undefined) } }))
 
 const board = (id: number, title: string, extra: Partial<BoardSummary> = {}): BoardSummary => ({
@@ -175,6 +175,18 @@ describe("What's new and templates (T-744, T-756)", () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Use template Release kit' }))
     expect(boards.createFromTemplate).toHaveBeenCalledWith('Release kit', 3)
     expect(props.onBoardCreated).toHaveBeenCalledWith(expect.objectContaining({ id: 9 }))
+  })
+
+  test('a saved template is deleted from its tile after confirming (T-802)', async () => {
+    vi.mocked(templates.list).mockResolvedValue([{ id: 3, name: 'Release kit', created_at: '' }])
+    vi.mocked(templates.remove).mockResolvedValue(undefined)
+    renderStart()
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete template Release kit' }))
+    const confirm = screen.getByRole('dialog', { name: 'Delete this template?' })
+    expect(confirm).toHaveTextContent('"Release kit"')
+    await userEvent.click(within(confirm).getByRole('button', { name: 'Delete template' }))
+    expect(templates.remove).toHaveBeenCalledWith(3)
+    expect(screen.queryByRole('button', { name: 'Use template Release kit' })).toBeNull()
   })
 })
 

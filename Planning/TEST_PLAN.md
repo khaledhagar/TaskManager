@@ -497,7 +497,7 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-761 A guest upgrade whose email cannot be sent is undone; forgot-password and resend keep their neutral answer
 - [x] T-762 Assignment and mention emails that fail never block the action; the in-app notification is still saved
 - [x] T-763 An invitation whose email failed can be sent again
-- [x] T-764 A guest starts with the board's column names only: no example cards or labels; new accounts keep the example cards
+- [x] T-764 A guest starts with the board's column names only: no example cards or labels (since T-804, new accounts too)
 - [x] T-765 Voice in one-line fields (search, titles) drops the trailing "." or "?" the speech service adds; longer text keeps it
 - [x] T-766 The Excel (CSV) download is laid out like the board: each column's name heads its tasks, with a Status column beside it (in the user's language)
 - [x] T-767 Voice in a one-line field (a card or board name) replaces the old text; longer text gets it added at the end
@@ -522,6 +522,15 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-792 E2E: voice commands in Arabic, right to left, dark, at phone width
 - [x] T-793 Accessibility: no axe violations with the voice panel open; keyboard only
 - [x] T-794 Full regression after Phase 27: backend, frontend, Playwright in all browsers, axe, Lighthouse, audits
+
+### E15. Fixes from the user's third check (2026-10-22, Phase 27)
+
+- [x] T-800 A long card title keeps the focus timer's "Focus on a card" list inside its panel, on desktop and phone (form fields never grow past their container)
+- [x] T-801 Every sign-in opens the start page: the email confirmation link, Google sign-in (new or returning) and Continue as guest
+- [x] T-802 A saved template is deleted from its tile on the start page, after confirming; boards made from it stay
+- [x] T-803 Sending the meeting link emails each member and leaves each one a notification ("... invites you to a meeting for ...") that opens the board; the admin gets none
+- [x] T-804 A new account's first board has To Do, In Progress and Done with no cards or labels (like a guest's)
+- [x] T-805 The Task Manager name in the header opens the start page
 
 ### E6. Documentation (Phase 29)
 

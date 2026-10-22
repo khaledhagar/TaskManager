@@ -55,7 +55,7 @@ test('T-579 admin assigns a card; the member filters "Assigned to me" and sees i
   await expect(card(bob.page, 'Write announcement')).toHaveCount(0)
 })
 
-test('T-580 admin saves a Zoom link; members see Start meeting; Email the link to members', async ({ browser, request }) => {
+test('T-580 T-803 admin saves a Zoom link and sends it; members get the email and a notification, and see Start meeting', async ({ browser, request }) => {
   const alice = await person(browser, 'alice')
   const bob = await person(browser, 'bob')
   await share(alice.page, bob.page, bob.email)
@@ -63,14 +63,16 @@ test('T-580 admin saves a Zoom link; members see Start meeting; Email the link t
   const panel = await openMembers(alice.page)
   await panel.getByLabel('Meeting link (Zoom, Google Meet, Teams)').fill(zoom)
   await panel.getByRole('button', { name: 'Save link' }).click()
-  await panel.getByRole('button', { name: 'Email the link to members' }).click()
-  await expect(panel.getByText('The meeting link was emailed to the members.')).toBeVisible()
+  await panel.getByRole('button', { name: 'Send the link to members' }).click()
+  await expect(panel.getByText('The meeting link was emailed to the members, and each one has a notification.')).toBeVisible()
   await expect(async () => {
     const mail = await (await request.get(`/__e2e/outbox?to=${encodeURIComponent(bob.email)}`)).json()
     expect(mail.subject).toBe('Meeting for Team plan')
     expect(mail.text).toContain(zoom)
   }).toPass()
   await bob.page.reload()
+  await bob.page.getByRole('button', { name: /^Notifications, [1-9] unread/ }).click()
+  await bob.page.getByRole('button', { name: new RegExp(`invites you to a meeting for "Team plan"`) }).click()
   const start = bob.page.getByRole('link', { name: 'Start meeting' })
   await expect(start).toHaveAttribute('href', zoom)
   await expect(start).toHaveAttribute('rel', 'noopener noreferrer')

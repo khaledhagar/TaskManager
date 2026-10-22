@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
-import { api, column, openBoard, signIn, signUp, startAsGuest } from './helpers.ts'
+import { api, column, openBoard, signIn, signUp, startAsGuest, openFirstBoard } from './helpers.ts'
 import { openMembers, person, setRole } from './sharingHelpers.ts'
 
 test.describe.configure({ timeout: 120_000 })
@@ -61,14 +61,16 @@ test('T-733 an empty account sees only the two start cards; a new board is then 
   await expect(main(page).getByRole('link', { name: /^Reading list/ })).toBeVisible()
 })
 
-test('T-729 sign-in opens the start page; a new guest opens the demo board', async ({ page, browser }) => {
+test('T-729 T-801 sign-in, a verified account and a new guest all open the start page', async ({ page, browser }) => {
   const email = await signUp(page)
   const other = await (await browser.newContext()).newPage()
   await signIn(other, email)
   await expect(main(other).getByRole('heading', { name: 'Your work', level: 1 })).toBeVisible()
   const guest = await (await browser.newContext()).newPage()
-  await startAsGuest(guest)
-  await expect(guest).toHaveURL(/open=first/)
+  await guest.goto('/')
+  await guest.getByRole('button', { name: 'Continue as guest' }).click()
+  await expect(main(guest).getByRole('heading', { name: 'Your work', level: 1 })).toBeVisible()
+  expect(new URL(guest.url()).search).toBe('')
 })
 
 test('T-737 T-738 left panel boards and members; Move to workspace updates switcher and start page', async ({ browser }) => {
@@ -152,7 +154,7 @@ test('T-734 T-735 start page and dialogs in Arabic, right to left, dark, at thre
   await page.emulateMedia({ colorScheme: 'dark' })
   await page.goto('/signin')
   await page.getByRole('button', { name: 'المتابعة كضيف' }).click()
-  await expect(page.getByRole('heading', { name: 'إطلاق الموقع' })).toBeVisible()
+  await openFirstBoard(page, 'إطلاق الموقع')
   await api(page, 'POST', '/api/workspaces', { name: 'إعادة إطلاق الموقع', boards: [{ title: 'التصميم', columns: ['أفكار', 'مسودات'] }] })
   await page.goto('/')
   const found: string[] = []

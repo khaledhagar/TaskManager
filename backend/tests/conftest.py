@@ -7,10 +7,22 @@ from fastapi.testclient import TestClient
 from helpers import FakeLLM
 from sqlmodel import Session
 
-from app import ai, ratelimit
+from app import ai, ratelimit, users
 from app.config import Settings
 
 os.environ.setdefault("JWT_SECRET", "test-" + "x" * 60)
+
+
+@pytest.fixture(autouse=True)
+def example_cards(request, monkeypatch):
+    """New accounts in tests get the demo board's example cards as test data.
+
+    Tests marked `real_start` see the real first board: empty columns.
+    """
+    if request.node.get_closest_marker("real_start"):
+        return
+    build = users.build_board
+    monkeypatch.setattr(users, "build_board", lambda s, uid, name, empty: build(s, uid, name))
 
 
 @pytest.fixture

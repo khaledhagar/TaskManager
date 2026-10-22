@@ -147,8 +147,8 @@ describe('auth screen (T-202, T-217)', () => {
     const onSignedIn = vi.fn()
     render(<AuthScreen onSignedIn={onSignedIn} />)
     await userEvent.click(screen.getByRole('button', { name: 'Continue as guest' }))
-    // A new guest opens the demo board, not the start page.
-    expect(onSignedIn).toHaveBeenCalledWith(expect.objectContaining({ is_guest: true }), '/?open=first')
+    // T-801: a new guest also starts on the start page.
+    expect(onSignedIn).toHaveBeenCalledWith(expect.objectContaining({ is_guest: true }))
   })
 
   test('explains a failed Google sign-in', async () => {

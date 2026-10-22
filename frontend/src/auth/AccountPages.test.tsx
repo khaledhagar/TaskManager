@@ -84,8 +84,8 @@ describe('verify email', () => {
     vi.mocked(auth.verify).mockResolvedValue(user)
     const onSignedIn = vi.fn()
     render(<VerifyEmail onSignedIn={onSignedIn} />)
-    // A just-verified account opens its demo board.
-    await vi.waitFor(() => expect(onSignedIn).toHaveBeenCalledWith(user, '/?open=first'))
+    // T-801: signing in leads to the start page (the app's default landing).
+    await vi.waitFor(() => expect(onSignedIn).toHaveBeenCalledWith(user))
     expect(auth.verify).toHaveBeenCalledTimes(1)
     expect(auth.verify).toHaveBeenCalledWith('tok-abcdefghij')
   })

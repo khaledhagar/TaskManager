@@ -82,7 +82,7 @@ def test_callback_with_bad_state_is_rejected(gclient, settings):
 def test_callback_creates_verified_user(gclient, identity, settings):
     r = callback(gclient)
     assert r.status_code == 302
-    assert r.headers["location"] == f"{settings.app_url}/?open=first"
+    assert r.headers["location"] == f"{settings.app_url}/"  # T-801: the start page
     me = gclient.get("/api/auth/me").json()
     assert me["email"] == "alice@example.com"
     assert me["email_verified"] and me["google_linked"] and not me["has_password"]

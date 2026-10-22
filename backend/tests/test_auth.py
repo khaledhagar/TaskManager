@@ -86,6 +86,7 @@ def test_guest_gets_demo_board(client):
         assert len(s.exec(select(Board)).all()) == 1
 
 
+@pytest.mark.real_start
 def test_guest_board_has_the_columns_only(client):
     """T-764: a guest starts with the demo board's columns and no example cards or labels."""
     client.post("/api/auth/guest")
@@ -96,9 +97,14 @@ def test_guest_board_has_the_columns_only(client):
     assert board["labels"] == []
 
 
-def test_new_accounts_keep_the_example_cards(client):
+@pytest.mark.real_start
+def test_new_accounts_start_with_the_columns_only(client):
+    """T-804: a new account's first board has To Do, In Progress, Done and no cards or labels."""
     sign_up(client)
-    assert sum(len(c["cards"]) for c in first_board(client)["columns"]) > 0
+    board = first_board(client)
+    assert column_titles(board) == ["To Do", "In Progress", "Done"]
+    assert [c["cards"] for c in board["columns"]] == [[], [], []]
+    assert board["labels"] == []
 
 
 def test_me_requires_cookie(client):

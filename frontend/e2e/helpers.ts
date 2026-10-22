@@ -18,10 +18,24 @@ export async function emailLink(request: APIRequestContext, to: string, page: '/
   return new URL(link).pathname + new URL(link).hash
 }
 
-/** Start as a guest and wait for the demo board. */
+/** Sign-in lands on the start page (T-801); open the first board (named `board`) from there. */
+export async function openFirstBoard(page: Page, board = DEMO) {
+  await page.getByRole('link', { name: new RegExp(`^${board}`) }).first().click()
+  await expect(page.getByRole('heading', { name: board })).toBeVisible()
+}
+
+/** Start as a guest and open the first board. */
 export async function startAsGuest(page: Page) {
   await page.goto('/')
   await page.getByRole('button', { name: 'Continue as guest' }).click()
+  await expect(page.getByRole('heading', { name: 'Your work', level: 1 })).toBeVisible()
+  await openFirstBoard(page)
+}
+
+/** The full example board (cards, labels, due dates) for a signed-up user, opened. */
+export async function openExampleBoard(page: Page, email: string) {
+  const { id } = await (await page.request.post(`/__e2e/example-board?email=${encodeURIComponent(email)}`)).json()
+  await page.goto(`/?board=${id}`)
   await expect(page.getByRole('heading', { name: DEMO })).toBeVisible()
 }
 
@@ -35,7 +49,8 @@ export async function signUp(page: Page, email = newEmail(), password = PASSWORD
   await page.getByRole('button', { name: 'Create account' }).click()
   await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeVisible()
   await page.goto(await emailLink(page.request, email))
-  await expect(page.getByRole('heading', { name: DEMO })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Your work', level: 1 })).toBeVisible()
+  await openFirstBoard(page)
   return email
 }
 

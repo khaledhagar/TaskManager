@@ -39,14 +39,11 @@ async def google_callback(request: Request, session: SessionDep, current: Option
     app_url = request.app.state.settings.app_url
     try:
         identity = await google.fetch_identity(request)
-        known = find_by_google_id(session, identity.sub) or find_by_email(session, identity.email)
         user = resolve_user(session, identity, current)
     except (OAuthError, GoogleRejected) as exc:
         log.info("Google sign-in rejected: %s", type(exc).__name__)
         return RedirectResponse(f"{app_url}/signin?error=google", status.HTTP_302_FOUND)
-    # A brand-new account opens its demo board; a returning one sees the start page.
-    landing = "/" if known or current else "/?open=first"
-    response = RedirectResponse(f"{app_url}{landing}", status.HTTP_302_FOUND)
+    response = RedirectResponse(f"{app_url}/", status.HTTP_302_FOUND)
     start_session(request, response, user)
     return response
 

@@ -2,7 +2,8 @@
 
 Run from `backend/`: `uv run python ../frontend/e2e/server.py`. The app itself is unchanged; this
 file only raises the rate limits (one test machine is one IP), points Google sign-in at a fake
-OpenID provider, and adds `/__e2e` routes that read the console outbox and pick the Google user.
+OpenID provider, and adds `/__e2e` routes that read the console outbox, pick the Google user and
+give a user the full example board (new accounts start with empty columns).
 """
 
 import os
@@ -17,6 +18,7 @@ import uvicorn
 from authlib.jose import JsonWebKey, jwt
 from fastapi import FastAPI, Form
 from fastapi.responses import RedirectResponse
+from sqlmodel import Session
 
 PORT = 8001
 BASE = f"http://127.0.0.1:{PORT}"
@@ -40,6 +42,8 @@ sys.path.insert(0, os.getcwd())
 from app import google, ratelimit  # noqa: E402
 from app.config import load_settings  # noqa: E402
 from app.factory import create_app  # noqa: E402
+from app.seed import build_board  # noqa: E402
+from app.users import find_by_email  # noqa: E402
 
 LIMITS = ("SIGN_IN", "GUEST", "EMAIL_PER_ADDRESS", "EMAIL_PER_IP", "AI_PER_MINUTE", "UPLOADS")
 for name in (*LIMITS, "INVITES", "ACCESS_REQUESTS", "PUBLIC_VIEWS", "MEETING_EMAILS"):
@@ -63,6 +67,13 @@ def outbox(to: str) -> dict:
     """The newest console email sent to `to`."""
     mail = [m for m in app.state.mailer.outbox if m.to == to]
     return {"subject": mail[-1].subject, "text": mail[-1].text} if mail else {}
+
+
+@tools.post("/example-board")
+def example_board(email: str) -> dict:
+    """Give the user the demo template with its cards, labels and due dates; returns its id."""
+    with Session(app.state.engine) as session:
+        return {"id": build_board(session, find_by_email(session, email).id, "demo").id}
 
 
 @tools.post("/google/identity")

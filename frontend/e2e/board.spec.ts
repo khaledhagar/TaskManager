@@ -1,9 +1,10 @@
 import { expect, test, type Page } from '@playwright/test'
-import { card, column, columnCards, DEMO, getBoard, openBoard, signUp } from './helpers.ts'
+import { card, column, columnCards, DEMO, getBoard, openBoard, openExampleBoard, signUp } from './helpers.ts'
 
-// A new account opens the full demo board (guests start with empty columns since 2026-10-22).
+// New accounts start with empty columns (T-804); tests that need example cards open the example board.
+let email = ''
 test.beforeEach(async ({ page }) => {
-  await signUp(page)
+  email = await signUp(page)
 })
 
 async function newBoard(page: Page, template: string, name: string) {
@@ -135,6 +136,7 @@ test('T-308 move a card with the keyboard only', async ({ page }) => {
 })
 
 test('T-309 search and each filter narrow the visible cards; clearing restores them', async ({ page }) => {
+  await openExampleBoard(page, email)
   const cards = page.locator('li[class*=cardSlot]')
   await expect(cards).toHaveCount(7)
   await page.getByLabel('Search cards').fill('pricing')
@@ -154,6 +156,7 @@ test('T-309 search and each filter narrow the visible cards; clearing restores t
 })
 
 test('T-310 overdue card is highlighted; progress updates when a card is completed', async ({ page }) => {
+  await openExampleBoard(page, email)
   await expect(card(page, 'Fix checkout timeout').locator('[data-status=overdue]')).toBeVisible()
   await expect(page.getByText('2 of 7 done')).toBeVisible()
   await page.getByRole('checkbox', { name: 'Completed: Set up analytics' }).click()

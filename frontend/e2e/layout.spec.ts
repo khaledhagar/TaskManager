@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { getBoard, openBoard, seedCards, startAsGuest } from './helpers.ts'
+import { getBoard, openBoard, seedCards, startAsGuest, openFirstBoard } from './helpers.ts'
 
 const TEXT = {
   en: { guest: 'Continue as guest', board: 'Website Launch', card: /^Design pricing page/, ask: 'Ask AI', newBoard: 'New board', timer: 'Focus timer' },
@@ -32,7 +32,7 @@ async function everyScreen(page: Page, lang: 'en' | 'ar', theme: string, width: 
   await page.goto('/signin')
   const found = await problems(page, 'sign-in')
   await page.getByRole('button', { name: L.guest }).click()
-  await expect(page.getByRole('heading', { name: L.board })).toBeVisible()
+  await openFirstBoard(page, L.board)
   await seedCards(page, [[lang === 'en' ? 'Design pricing page' : 'تصميم صفحة الأسعار']])
   found.push(...(await problems(page, 'board')))
   await page.getByRole('button', { name: L.card }).click()

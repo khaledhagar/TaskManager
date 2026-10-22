@@ -37,7 +37,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 24 - Organize: Archive, Copies, Templates, Stars, WIP, Auto-complete, Covers, Focus Sessions | 6 / 6 | Done |
 | Phase 25 - List View and Export | 3 / 3 | Done |
 | Phase 26 - Workspaces, Start Page and Full Regression | 11 / 11 | Done |
-| Phase 27 - Voice Commands | 6 / 6 | Done |
+| Phase 27 - Voice Commands | 7 / 7 | Done |
 | Phase 28 - Deployment (Vercel) | 0 / 14 | Not started |
 | Phase 29 - Documentation (Word files) | 0 / 8 | Not started |
 
@@ -720,6 +720,7 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 - [x] AI fallback: phrases not understood go to the AI chat panel
 - [x] English and Arabic, right to left, light and dark, phone to desktop, keyboard and screen reader
 - [x] Tests T-780 to T-794 pass; SEC-218 and SEC-219 ticked; full regression
+- [x] Fixes from the user's third check on 2026-10-22: the focus timer's card list stays inside its panel; every sign-in (email link, Google, guest) opens the start page; new accounts start with empty To Do / In Progress / Done columns; the Task Manager name opens the start page; saved templates can be deleted from the start page; sending the meeting link also notifies each member (T-800 to T-805)
 
 ## Phase 28 - Deployment (Vercel)
 

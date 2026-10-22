@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
-import { column, getBoard, openBoard, startAsGuest } from './helpers.ts'
+import { column, getBoard, openBoard, startAsGuest, openFirstBoard } from './helpers.ts'
 
 /**
  * Replace the browser's speech recognition with a fake that "hears" `window.__words` a moment
@@ -77,7 +77,7 @@ test('T-612 Arabic speech uses ar-EG and fills the field right to left', async (
   await page.addInitScript(() => localStorage.setItem('language', 'ar'))
   await page.goto('/')
   await page.getByRole('button', { name: 'المتابعة كضيف' }).click()
-  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await openFirstBoard(page, 'إطلاق الموقع')
   await say(page, 'إطلاق الموقع')
   await page.getByRole('button', { name: 'بدء الإدخال الصوتي' }).first().click()
   const search = page.getByRole('searchbox')
@@ -97,7 +97,7 @@ test('T-613 microphone buttons at phone width, dark, Arabic; no axe violations',
   await fakeSpeech(page)
   await page.goto('/')
   await page.getByRole('button', { name: 'المتابعة كضيف' }).click()
-  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await openFirstBoard(page, 'إطلاق الموقع')
   const mic = page.getByRole('button', { name: 'بدء الإدخال الصوتي' }).first()
   await expect(mic).toBeVisible()
   const box = (await mic.boundingBox())!

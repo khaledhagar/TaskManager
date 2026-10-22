@@ -14,9 +14,3 @@ export function boardSections(boards: BoardSummary[], workspaces: Workspace[] = 
     archived: boards.filter((b) => b.archived),
   }
 }
-
-/** The board to open for a new guest or account: the first one in the switcher. */
-export function firstBoard(boards: BoardSummary[]): BoardSummary | undefined {
-  const s = boardSections(boards)
-  return [...s.starred, ...s.own, ...s.shared, ...s.archived][0]
-}

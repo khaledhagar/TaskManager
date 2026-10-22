@@ -13,7 +13,6 @@ import { Logo } from '../ui/Logo'
 import { useToast } from '../ui/toastContext'
 import ui from '../ui/ui.module.css'
 import { AccountMenu } from './AccountMenu'
-import { firstBoard } from './boardSections'
 import { BoardSwitcher } from './BoardSwitcher'
 import { NewBoardDialog } from './NewBoardDialog'
 import { NotificationBell } from './NotificationBell'
@@ -25,7 +24,7 @@ type Props = { user: User; onUserChange: (user: User) => void; onSignedOut: () =
 
 /**
  * Signed-in frame: header with board switcher and account controls, then a board or the start
- * screen. `/?open=first` (a new guest or a just-verified account) opens the first board.
+ * screen (the landing page after every sign-in).
  */
 export function AppShell({ user, onUserChange, onSignedOut }: Props) {
   const { params } = useLocation()
@@ -43,8 +42,7 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
     workspaceApi.list().then(setWorkspaces, () => setWorkspaces([]))
   }, [])
 
-  const opening = params.get('open') === 'first' ? firstBoard(list ?? [])?.id : undefined
-  const selectedId = Number(params.get('board')) || opening
+  const selectedId = Number(params.get('board')) || undefined
   const select = (id: number) => navigate(`/?board=${id}`)
 
   function updated(id: number, changes: Partial<BoardSummary>) {
@@ -71,9 +69,17 @@ export function AppShell({ user, onUserChange, onSignedOut }: Props) {
   return (
     <div className={css.shell}>
       <header className={css.header}>
-        <span className={css.logo}>
+        <a
+          href="/"
+          className={css.logo}
+          aria-label={t('shell.home')}
+          onClick={(e) => {
+            e.preventDefault()
+            navigate('/')
+          }}
+        >
           <Logo collapsible />
-        </span>
+        </a>
         <button
           type="button"
           className={`${ui.iconButton} ${css.allBoards}`}

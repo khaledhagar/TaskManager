@@ -120,6 +120,20 @@ def test_email_the_link_to_members(alice, bob, board):
     assert bob.post(url).status_code == 403
 
 
+def test_sending_the_link_notifies_each_member(alice, bob, board):
+    """T-803: members also get a notification that opens the board; the admin gets none."""
+    join(alice, bob, board["id"], "bob@example.com")
+    set_meeting(alice, board["id"], ZOOM)
+    alice.post(f"/api/boards/{board['id']}/meeting/email")
+    meetings = [n for n in bob.get("/api/notifications").json()["items"] if n["kind"] == "meeting"]
+    assert len(meetings) == 1
+    assert meetings[0]["board_id"] == board["id"]
+    assert meetings[0]["actor_email"] == "alice@example.com"
+    assert meetings[0]["data"] == {"board": board["title"]}
+    mine = alice.get("/api/notifications").json()["items"]
+    assert not [n for n in mine if n["kind"] == "meeting"]
+
+
 def test_meeting_email_in_arabic_and_rate_limited(alice, bob, board, monkeypatch):
     monkeypatch.setattr(ratelimit, "MEETING_EMAILS", ratelimit.Limit(1, 3600))
     join(alice, bob, board["id"], "bob@example.com")

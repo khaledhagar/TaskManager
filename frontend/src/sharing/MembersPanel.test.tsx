@@ -169,9 +169,9 @@ describe('public link and meeting link (T-571, T-575, T-576)', () => {
     expect(start).toHaveAttribute('href', 'https://zoom.us/j/1')
     expect(start).toHaveAttribute('rel', 'noopener noreferrer')
     expect(start).toHaveAttribute('target', '_blank')
-    await userEvent.click(screen.getByRole('button', { name: 'Email the link to members' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Send the link to members' }))
     expect(sharing.emailMeeting).toHaveBeenCalledWith(5)
-    expect(await screen.findByText('The meeting link was emailed to the members.')).toBeInTheDocument()
+    expect(await screen.findByText('The meeting link was emailed to the members, and each one has a notification.')).toBeInTheDocument()
   })
 })
 

@@ -76,9 +76,18 @@ describe('app shell', () => {
     expect(location.search).toBe('?board=2')
   })
 
+  test('the Task Manager name goes back to the start page (T-805)', async () => {
+    history.replaceState(null, '', '/?board=1')
+    renderShell()
+    await screen.findByRole('heading', { name: 'Website Launch' })
+    await userEvent.click(screen.getByRole('link', { name: 'Task Manager, start page' }))
+    expect(await screen.findByRole('heading', { name: 'Your work', level: 1 })).toBeInTheDocument()
+    expect(location.search).toBe('')
+  })
+
   test('creates a new board and opens it', async () => {
     vi.mocked(boards.createWithColumns).mockResolvedValue({ id: 3, title: 'Q4 Roadmap', created_at: '', role: 'admin' as const })
-    history.replaceState(null, '', '/?open=first')
+    history.replaceState(null, '', '/?board=1')
     renderShell()
     await screen.findByRole('heading', { name: 'Website Launch' })
     await userEvent.click(screen.getByRole('button', { name: 'New board' }))

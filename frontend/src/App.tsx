@@ -34,11 +34,11 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only when a different user signs in
   }, [userId])
 
-  // After signing in, go back to an invitation the user opened while signed out.
-  // A new guest or a just-verified account opens its demo board; others see the start screen.
-  const signedIn = useCallback((next: User, landing = '/') => {
+  // After signing in, go back to an invitation the user opened while signed out; otherwise the
+  // start page.
+  const signedIn = useCallback((next: User) => {
     setUser(next)
-    navigate(savedInvite() ? '/invite' : (takeReturn() ?? landing), { replace: true })
+    navigate(savedInvite() ? '/invite' : (takeReturn() ?? '/'), { replace: true })
   }, [])
 
   useEffect(() => {

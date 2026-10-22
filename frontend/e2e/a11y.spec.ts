@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
-import { card, DEMO, seedCards } from './helpers.ts'
+import { card, openFirstBoard, seedCards } from './helpers.ts'
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 
@@ -26,7 +26,7 @@ async function auditScreens(page: Page, theme: string, lang: 'en' | 'ar') {
   found.push(...(await violations(page, 'signup')))
   await page.goto('/signin')
   await page.getByRole('button', { name: L.guest }).click()
-  await expect(page.getByRole('heading', { name: L.board })).toBeVisible()
+  await openFirstBoard(page, L.board)
   await seedCards(page, [[L.card]])
   found.push(...(await violations(page, 'board')))
   await card(page, L.card).click()
@@ -50,7 +50,7 @@ for (const theme of ['light', 'dark']) {
 test('T-352 a modal traps focus and returns focus to its trigger', async ({ page }) => {
   await page.goto('/signin')
   await page.getByRole('button', { name: 'Continue as guest' }).click()
-  await expect(page.getByRole('heading', { name: DEMO })).toBeVisible()
+  await openFirstBoard(page)
   await seedCards(page, [['Design pricing page']])
   const trigger = card(page, 'Design pricing page')
   await trigger.click()
@@ -71,7 +71,7 @@ test('T-353 reduced motion turns animations off', async ({ browser }) => {
   const page = await (await browser.newContext({ reducedMotion: 'reduce' })).newPage()
   await page.goto('/signin')
   await page.getByRole('button', { name: 'Continue as guest' }).click()
-  await expect(page.getByRole('heading', { name: DEMO })).toBeVisible()
+  await openFirstBoard(page)
   await seedCards(page, [['Design pricing page']])
   await card(page, 'Design pricing page').click()
   const durations = await page.evaluate(() =>

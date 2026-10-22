@@ -6,8 +6,8 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 
 - Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
 - Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Phases 21-26 are done and pushed** (21 voice, waiting only for the user's real-microphone check; 22 comments, activity, Alembic; 23 notifications and reminders; 24 organize; 25 list view and export; 26 workspaces, start page, AI column suggestions, the user's bug list and the full regression). **Phase 27 (Voice Commands) is done and pushed (approved 2026-10-22). Next: Phase 28 (Deployment), which starts by asking the user before deleting local test data; do not start it without the user.** Phase 29 is Documentation (Word files). Deferred features are listed under "Deferred" in PLAN.md.
-- Tests at the end of Phase 27 (full regression, T-794): backend 529 passing (99% coverage); frontend 385 passing; Playwright 126 passing (Edge full suite, Firefox and WebKit smoke). In the full run 4 tests failed from machine load; each passed alone. T-578 (three users in WebKit) needed its limit raised to 3 min: about 1 s per call was measured with three pages open, the same with and without Phase 27. Lighthouse not rerun this phase (last: performance 92-95, accessibility 100). `npm audit --omit=dev` and `pip-audit` clean; ruff, oxlint and tsc clean.
-- Checklists: every test up to T-794 is ticked except T-620 to T-627 (Phase 29, Documentation); open security items are only Deployment and Documentation ones.
+- Tests after the user's third check (2026-10-22, T-800 to T-805): backend 530 passing (99% coverage); frontend 387 passing; Playwright 127 passing (Edge full suite, Firefox and WebKit smoke). T-578 (three users in WebKit) has a 3 min limit: about 1 s per call was measured with three pages open. Lighthouse not rerun (last: performance 92-95, accessibility 100). `npm audit --omit=dev` and `pip-audit` clean at Phase 27.
+- Checklists: every test up to T-805 is ticked except T-620 to T-627 (Phase 29, Documentation); open security items are only Deployment and Documentation ones.
 
 | Done | Phase |
 |------|-------|
@@ -16,6 +16,15 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 | Yes | 27 Voice commands |
 | Next | 28 Deployment (Vercel): ask the user first |
 | Later | 29 Documentation (Word files) |
+
+## Fixes from the user's third check (2026-10-22, T-800 to T-805)
+
+- **Focus timer card list (T-800):** a long card title made the "Focus on a card" list 470 px wide inside a 300 px panel. Root cause: `.field` in `ui.module.css` was a grid whose column grew to its content; it is now `minmax(0, 1fr)` for every form field.
+- **Landing (T-801):** every sign-in (email link, Google new or returning, guest) opens the start page. The `/?open=first` landing and `firstBoard` were removed; `App.signedIn` always goes to `/` (or a saved invitation / return path).
+- **Empty first board (T-804):** new accounts, like guests, start with To Do / In Progress / Done and no cards or labels (`users.create_user` builds the demo template with `empty=True`). The business requirement in CLAUDE.md notes the change. Backend tests still get example cards through the autouse `example_cards` fixture in `tests/conftest.py`; tests of the real first board use `@pytest.mark.real_start`. In e2e, `openExampleBoard(page, email)` (test-only route `/__e2e/example-board`) gives the full example board; `openFirstBoard(page, name)` opens a board from the start page.
+- **Task Manager name (T-805):** the header logo is a link to the start page (label "Task Manager, start page", since phones hide the word).
+- **Delete a saved template (T-802):** a bin button on each "Your templates" tile on the start page, with a confirm window (`TemplateTiles.tsx`). Deleting was already possible in the New board window.
+- **Meeting link (T-803):** "Send the link to members" (was "Email the link to members") emails each member and adds a `meeting` notification ("... invites you to a meeting for ...") that opens the board, where Start meeting is. The admin gets none. The link box stays in the Members window.
 
 ## Phase 27 notes (voice commands)
 

@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import { drag } from './sharingHelpers.ts'
-import { card, column, openBoard, seedCards, startAsGuest } from './helpers.ts'
+import { card, column, openBoard, seedCards, startAsGuest, openFirstBoard } from './helpers.ts'
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']
 
@@ -87,6 +87,20 @@ test('T-698 point the focus timer at a card; a finished period shows on the card
   await expect(card(page, 'Write report')).toContainText('1 focus session, 25 min')
 })
 
+test('T-800 a long card title keeps the focus card picker inside the timer panel', async ({ page }) => {
+  await startAsGuest(page)
+  await openBoard(page, 'Focus', [['Write the quarterly report for the marketing team with all the numbers'], [], []])
+  await page.getByRole('button', { name: 'Focus timer' }).click()
+  const panel = page.getByRole('dialog', { name: 'Focus timer' })
+  for (const width of [1280, 390]) {
+    await page.setViewportSize({ width, height: 800 })
+    const outer = (await panel.boundingBox())!
+    const pick = (await panel.getByLabel('Focus on a card').boundingBox())!
+    expect(pick.x + pick.width).toBeLessThanOrEqual(outer.x + outer.width)
+    expect(outer.x + outer.width).toBeLessThanOrEqual(width)
+  }
+})
+
 test('T-693 T-694 new panels in Arabic, right to left, dark, at phone width; no axe violations', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 360, height: 780 }, colorScheme: 'dark' })
   await context.addInitScript(() => {
@@ -96,7 +110,7 @@ test('T-693 T-694 new panels in Arabic, right to left, dark, at phone width; no 
   const page = await context.newPage()
   await page.goto('/signin')
   await page.getByRole('button', { name: 'المتابعة كضيف' }).click()
-  await expect(page.getByRole('heading', { name: 'إطلاق الموقع' })).toBeVisible()
+  await openFirstBoard(page, 'إطلاق الموقع')
   // Guests start with empty columns: two cards make the WIP limit of 1 show its warning.
   await seedCards(page, [[], ['تصميم الصفحة', 'بناء الواجهة']])
   expect(await page.evaluate(() => document.documentElement.dir)).toBe('rtl')

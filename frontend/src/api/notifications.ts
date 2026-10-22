@@ -2,7 +2,7 @@ import { api } from './client'
 
 export type Notice = {
   id: number
-  kind: 'assigned' | 'mentioned' | 'due_soon' | 'overdue' | 'invited' | 'card_changed'
+  kind: 'assigned' | 'mentioned' | 'due_soon' | 'overdue' | 'invited' | 'card_changed' | 'meeting'
   board_id: number
   card_id: number | null
   actor_email: string | null

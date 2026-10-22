@@ -14,7 +14,7 @@ def build_board(
 ) -> Board:
     """Create a board from a named template, in the request language.
 
-    `empty` keeps only the board name and column names (no cards or labels): a guest's board.
+    `empty` keeps only the board name and column names (no cards or labels): a new account's board.
     """
     data = TEMPLATES[current_language()][template]
     if empty:

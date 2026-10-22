@@ -75,6 +75,8 @@
 
 .field {
   display: grid;
+  /* A select with a long option must not grow wider than its container. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 6px;
 }
 
