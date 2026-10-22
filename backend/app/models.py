@@ -287,4 +287,4 @@ from app.models_collab import Activity, Comment  # noqa: E402, F401
 from app.models_links import MeetingLink, PublicLink  # noqa: E402, F401
 from app.models_notify import Notification, NotificationSetting  # noqa: E402, F401
 from app.models_organize import BoardStar, FocusSession, UserTemplate, Workspace  # noqa: E402, F401
-from app.models_rate import RateCount  # noqa: E402, F401
+from app.models_rate import Heartbeat, RateCount  # noqa: E402, F401

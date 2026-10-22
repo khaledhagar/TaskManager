@@ -11,9 +11,18 @@ from sqlmodel import Session, select
 
 from app.config import Settings
 from app.mailer import Mailer, MailError
-from app.models import Board, BoardColumn, Card, CardAssignee, User
+from app.models import Board, BoardColumn, Card, CardAssignee, Heartbeat, User, utcnow
 from app.models_notify import Notification, NotificationSetting
 from app.notify import DUE, build_email, emails_on
+
+
+def heartbeat(session: Session, name: str = "cron") -> datetime:
+    """Record that a job ran: one real write a day keeps a free Supabase project from pausing."""
+    row = session.get(Heartbeat, name) or Heartbeat(name=name, at=utcnow())
+    row.at = utcnow()
+    session.add(row)
+    session.commit()
+    return row.at
 
 
 def _when(due: date, today: date) -> str:

@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 from app.access import not_found
 from app.db import SessionDep
 from app.i18n import tr
-from app.jobs import send_reminders
+from app.jobs import heartbeat, send_reminders
 from app.ratelimit import drop_expired
 from app.users import cleanup_guests
 
@@ -35,6 +35,7 @@ def reminders(request: Request, session: SessionDep) -> dict:
 
 @router.get("/cleanup")
 def cleanup(session: SessionDep) -> dict:
-    """Remove guests older than 7 days and rate-limit counters whose window has ended."""
+    """Remove old guests and ended rate-limit counters, then record the heartbeat."""
     guests = cleanup_guests(session)
-    return {"guests": guests, "counters": drop_expired(session, now=time())}
+    counters = drop_expired(session, now=time())
+    return {"guests": guests, "counters": counters, "heartbeat": heartbeat(session).isoformat()}
