@@ -22,7 +22,10 @@ def engine_url(url: str) -> str:
 def make_engine(url: str) -> Engine:
     """Create the engine and bring the tables up to date; SQLite gets foreign keys and WAL."""
     if not url.startswith("sqlite"):
-        engine = create_engine(engine_url(url), pool_pre_ping=True)
+        # Supabase's transaction pooler (used on Vercel) cannot keep prepared statements.
+        engine = create_engine(
+            engine_url(url), pool_pre_ping=True, connect_args={"prepare_threshold": None}
+        )
     else:
         engine = create_engine(url, connect_args={"check_same_thread": False})
         event.listen(engine, "connect", _sqlite_pragmas)
