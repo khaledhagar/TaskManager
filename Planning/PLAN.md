@@ -31,14 +31,14 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 18 - Board Sharing (backend) | 9 / 9 | Done |
 | Phase 19 - Board Sharing (UI) | 7 / 7 | Done |
 | Phase 20 - Public Boards, Assignment and Meeting Link | 7 / 7 | Done |
-| Phase 21 - Voice Input | 6 / 7 | In progress |
+| Phase 21 - Voice Input | 7 / 7 | Done |
 | Phase 22 - Collaboration: Comments and Activity | 6 / 6 | Done |
 | Phase 23 - Notifications and Reminders | 4 / 4 | Done |
 | Phase 24 - Organize: Archive, Copies, Templates, Stars, WIP, Auto-complete, Covers, Focus Sessions | 6 / 6 | Done |
 | Phase 25 - List View and Export | 3 / 3 | Done |
 | Phase 26 - Workspaces, Start Page and Full Regression | 11 / 11 | Done |
 | Phase 27 - Voice Commands | 7 / 7 | Done |
-| Phase 28 - Deployment (Vercel) | 0 / 14 | Not started |
+| Phase 28 - Deployment (Vercel) | 1 / 14 | In progress |
 | Phase 29 - Documentation (Word files) | 0 / 8 | Not started |
 
 ## Stack
@@ -665,7 +665,7 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 - [x] `Permissions-Policy: microphone=(self)` on the server; camera and geolocation stay blocked
 - [x] Tests T-600 to T-614 pass; SEC-180 to SEC-183 ticked
 - [x] Browser review: phone and desktop, light and dark, English and Arabic
-- [ ] Real check by the user in Edge or Chrome with a microphone
+- [x] Real check by the user in Edge or Chrome with a microphone
 
 ## Phase 22 - Collaboration: Comments and Activity
 
@@ -724,7 +724,7 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 
 ## Phase 28 - Deployment (Vercel)
 
-- [ ] FIRST TASK (remind the user, do it only with their OK): delete the local test data `backend/taskmanager.db` and `backend/storage/`
+- [x] FIRST TASK (remind the user, do it only with their OK): delete the local test data `backend/taskmanager.db` and `backend/storage/`
 - [ ] Use a dedicated Gmail account for the app's emails (sender shows as "Task Manager")
 - [ ] Choose Postgres provider (Neon or Supabase); add Postgres driver with `uv add`
 - [ ] Full backend test suite passes against Postgres
