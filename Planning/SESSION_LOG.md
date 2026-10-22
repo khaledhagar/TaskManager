@@ -2,7 +2,7 @@
 
 Handoff notes for the next working session. Read this first, then `CLAUDE.md`, then the Progress table in `Planning/PLAN.md`.
 
-## Where the project stands (2026-10-21)
+## Where the project stands (2026-10-22)
 
 - Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
 - Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Phases 21-26 are done and pushed** (21 voice, waiting only for the user's real-microphone check; 22 comments, activity, Alembic; 23 notifications and reminders; 24 organize; 25 list view and export; 26 workspaces, start page, AI column suggestions, the user's bug list and the full regression). **Phase 27 (Voice Commands) is done and pushed (approved 2026-10-22). Next: Phase 28 (Deployment), which starts by asking the user before deleting local test data; do not start it without the user.** Phase 29 is Documentation (Word files). Deferred features are listed under "Deferred" in PLAN.md.
@@ -12,10 +12,39 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 | Done | Phase |
 |------|-------|
 | Yes | 1 Scaffolding to 20 Public boards / assignment / meeting link |
-| Yes | 21 Voice (waits for the mic check), 22 Collaboration, 23 Notifications, 24 Organize, 25 List view and export, 26 Workspaces and start page |
+| Yes | 21 Voice (mic check done by the user 2026-10-22), 22 Collaboration, 23 Notifications, 24 Organize, 25 List view and export, 26 Workspaces and start page |
 | Yes | 27 Voice commands |
-| Next | 28 Deployment (Vercel): ask the user first |
+| **In progress** | 28 Deployment (Vercel + Supabase): see "Phase 28 status" below and `Planning/vercel.txt` |
 | Later | 29 Documentation (Word files) |
+
+## Phase 28 status (deployment, 2026-10-22) - START HERE
+
+**The user is new to deploying: one small step at a time, exact clicks, wait for them.** Their step-by-step guide for the open step is `Planning/vercel.txt` (no secrets in it).
+
+**Where we stopped:** the Vercel project exists but every request fails (`FUNCTION_INVOCATION_FAILED`). Vercel's log shows `sqlite3.OperationalError: unable to open database file`: `DATABASE_URL` (and the other settings) did not reach the Production deployment. The user will add the variables from `.env.vercel` (Settings -> Environment Variables, Production ticked) and Redeploy, then say "done". Next: probe `https://task-manager-opal-xi-63.vercel.app/` and `/api/health`, read the Vercel logs if it still fails.
+
+**Accounts and names**
+- Live address: `https://task-manager-opal-xi-63.vercel.app` (Vercel project `task-manager`, team `khaledelsaidhagar`, Hobby, Root Directory `backend`, preset FastAPI). `APP_URL` in `.env.vercel` matches it.
+- Supabase project `task-manager` in **eu-west-1 (Ireland)**, RLS on (automatic RLS event trigger `ensure_rls`), Postgres 17. Database `postgres` = production (tables already created and migrated to 0007 by starting the app locally with the production settings); database `taskmanager_test` = tests only.
+- Supabase Storage bucket `task-manager-files` (private), S3 keys in `.env`.
+- Emails: the user's current Gmail (App Password), decided 2026-10-22.
+
+**Secrets (never print them, never commit them)**
+- `.env` (local): adds `SUPABASE_DB_URL` (session pooler, port 5432) and `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`. The local app ignores `SUPABASE_DB_URL`.
+- `.env.vercel` (local, git-ignored by `.env.*`): the 19 production variables for Vercel: `ENV=production`, `APP_URL`, new `JWT_SECRET` and `CRON_SECRET`, `DATABASE_URL` (transaction pooler, **port 6543**), `FRONTEND_DIST=frontend_dist`, `EMAIL_MODE=smtp`, SMTP, Google, OpenRouter, S3, `LITELLM_LOCAL_MODEL_COST_MAP=True`, `CUSTOM_TIKTOKEN_CACHE_DIR=/tmp/tiktoken`.
+- Check secrets only by shape (length, host, port) with a script; scratch scripts in the scratchpad read `../.env` from `backend/`.
+
+**Code done this phase (pushed: `f1f2cb4`, `cc571e0`)**
+- `db.engine_url`: `postgresql://` / `postgres://` -> `postgresql+psycopg://` (`psycopg[binary]` added). Postgres engines use `prepare_threshold=None` (the transaction pooler cannot keep prepared statements).
+- `storage.S3Storage` + `make_storage(settings)`: S3 bucket when `S3_BUCKET` is set, else the local folder. Supabase answers a missing object with **404 and an empty error code** (not `NoSuchKey`); verified put/get/delete on the real bucket.
+- Rate limits: `DbStore` (table `rate_counts`, migration `0007_rate_counts`, one upsert per hit) on Postgres, `MemoryStore` on SQLite (`ratelimit.make_store`). The user chose the database over Upstash Redis. `drop_expired` removes ended counters.
+- On Vercel (`VERCEL=1` -> `settings.on_vercel`) the visitor IP comes from `x-real-ip` (Vercel overwrites it; it cannot be faked there).
+- `routes/cron.py`: `GET /api/cron/reminders` and `GET /api/cron/cleanup` (old guests + ended counters) behind `Authorization: Bearer <CRON_SECRET>` (404 when no secret). Vercel Cron calls with GET, UTC; schedules in `backend/vercel.json` (cleanup 03:00, reminders 06:00), region `dub1`.
+- Vercel build: `[tool.vercel.scripts] build` in `backend/pyproject.toml` builds the website into `backend/frontend_dist` (git-ignored). A relative `FRONTEND_DIST` is resolved inside `backend/`. FastAPI serves the site itself, so the CSP and other headers stay (Vercel keeps static files in the function when the app has middleware).
+- Tests: `TEST_DATABASE_URL` runs the backend suite on Postgres (`tests/conftest.py`: first test drops the schema, later tests TRUNCATE). Runner script idea: read `SUPABASE_DB_URL`, swap the database name to `taskmanager_test`. About 8 s per test from Egypt to Ireland (the full suite is over an hour). `test_auth.py` passed on Supabase (30/30); **the full Postgres run was still going when the session ended: re-run it** (port 6543 too, to prove the pooler setting).
+- Local suite: backend 547 passing (99% coverage).
+
+**Still open in Phase 28 (in PLAN.md):** working deployment; full backend suite on Postgres; bundle size and cold start; Google OAuth callback for the live address (`/api/auth/google/callback`); file storage verified on the live site; Playwright smoke against the live URL; security headers, Secure cookie and HSTS on the live URL.
 
 ## Fixes from the user's third check (2026-10-22, T-800 to T-805)
 

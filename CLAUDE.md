@@ -84,12 +84,12 @@ The site will be published. It must be secure and meet functional and non-functi
 
 ## Production Target
 
-Build and test locally on SQLite. Production will be Vercel with hosted Postgres (Neon or Supabase), handled in the final Deployment phase. Keep the code portable:
+Build and test locally on SQLite. Production is Vercel with Supabase (Postgres and Storage), handled in the Deployment phase (see `Planning/vercel.txt` and "Phase 28 status" in the session log). Keep the code portable:
 
 - All configuration from environment variables
 - No SQLite-specific SQL; SQLite pragmas only when the URL is SQLite
-- Rate-limit counters behind one swappable store class (memory locally, Redis in production)
-- File storage behind one interface (local folder in development, S3-compatible R2 or Supabase Storage in production)
+- Rate-limit counters behind one swappable store class (memory locally, the database on Postgres)
+- File storage behind one interface (local folder in development, Supabase Storage through its S3 API in production)
 - Background jobs (guest cleanup) as plain functions, callable on startup or from a cron endpoint
 
 ## UI/UX

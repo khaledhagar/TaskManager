@@ -1,0 +1,63 @@
+Task Manager - Vercel deployment steps (2026-10-22)
+====================================================
+
+Live address:  https://task-manager-opal-xi-63.vercel.app
+GitHub:        https://github.com/khaledhagar/TaskManager
+Vercel:        project "task-manager" (Root Directory: backend, Preset: FastAPI, Hobby plan)
+Supabase:      project "task-manager" (eu-west-1 Ireland), bucket "task-manager-files" (private)
+
+The passwords and keys are in Task_Manager\.env.vercel on your computer (never on GitHub).
+Never paste them in a chat or a screenshot.
+
+
+WHERE WE STOPPED
+----------------
+The first deployment fails with "FUNCTION_INVOCATION_FAILED".
+Cause (from the Vercel logs): "sqlite3.OperationalError: unable to open database file".
+The app could not see DATABASE_URL, so the environment variables did not reach the
+Production deployment. Fix: Part A and Part B below.
+
+.env.vercel already has the right APP_URL:
+APP_URL=https://task-manager-opal-xi-63.vercel.app
+
+
+PART A - Add the settings (about 5 minutes)
+--------------------------------------------
+1. In Vercel open the project "task-manager" and click Settings (top).
+2. In the left menu click Environment Variables.
+3. Look at the list:
+   - If variables such as DATABASE_URL are listed, check they are ticked for Production.
+     If not, edit each one, or delete them all and do step 4.
+   - If the list is empty, do step 4.
+4. Add them all at once:
+   - Open Task_Manager\.env.vercel in your editor, press Ctrl + A, then Ctrl + C.
+   - In Vercel click into the first Key box and press Ctrl + V. Vercel fills in all rows.
+   - Make sure Environments includes Production (ticking all three is fine).
+   - Click Save.
+5. You should see about 19 variables, including DATABASE_URL, JWT_SECRET and APP_URL.
+
+
+PART B - Rebuild with the new settings
+--------------------------------------
+Settings only apply to new builds.
+1. Click Deployments (top).
+2. On the top deployment click the "..." menu on the right, then Redeploy, and confirm.
+3. Wait until it shows Ready (a few minutes).
+4. Open https://task-manager-opal-xi-63.vercel.app - the sign-in page should appear.
+5. Tell Claude "done" in the next session; it checks the live site and continues.
+
+
+STILL TO DO AFTER THE SITE WORKS (Claude guides each step)
+----------------------------------------------------------
+- Google sign-in: add the live callback address to the Google OAuth client
+  (https://task-manager-opal-xi-63.vercel.app/api/auth/google/callback).
+- Check on the live site: sign up and the confirmation email, guest, uploads to Supabase
+  Storage, AI, security headers, secure cookie.
+- Run the browser smoke tests against the live address.
+- Re-run the full backend test suite against the Supabase test database.
+
+
+IF SOMETHING FAILS
+------------------
+In Vercel: project -> Logs -> click a red row (status 500) -> copy the error text
+(it contains no passwords) and give it to Claude.
