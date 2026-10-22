@@ -38,7 +38,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 25 - List View and Export | 3 / 3 | Done |
 | Phase 26 - Workspaces, Start Page and Full Regression | 11 / 11 | Done |
 | Phase 27 - Voice Commands | 7 / 7 | Done |
-| Phase 28 - Deployment (Vercel) | 14 / 17 | In progress |
+| Phase 28 - Deployment (Vercel) | 15 / 17 | In progress |
 | Phase 29 - Documentation (Word files) | 0 / 8 | Not started |
 
 ## Stack
@@ -728,7 +728,7 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 - [x] Gmail for the app's emails: the user keeps their current Gmail (App Password), decided 2026-10-22
 - [x] Postgres provider: Supabase (project in eu-west-1, RLS on for every table, Data API unused); `psycopg[binary]` added with `uv add`; `postgresql://` addresses use the psycopg 3 driver
 - [ ] Daily heartbeat: the cleanup cron updates one `heartbeats` row (migration 0008) so the free Supabase project is never paused for inactivity; verified on the live database the day after (T-840)
-- [ ] Full backend test suite passes against Postgres
+- [x] Full backend test suite passes against Postgres (2026-10-23, Supabase `taskmanager_test` through the transaction pooler, port 6543, one file at a time: 546 passed; the SQLite pragma check and the 500-card timing check are skipped on Postgres because they measure the local SQLite database, and from this laptop each query to Ireland costs about 79 ms; the live app runs in `dub1` next to the database)
 - [x] Alembic migrations (set up in Phase 22) run against Postgres (all 7 from an empty Supabase test database, 19 s; no differences from the models)
 - [x] Rate-limit counters shared by every server instance: kept in the Supabase database (`rate_counts` table, migration 0007; the user chose this over Upstash Redis on 2026-10-22); memory store on SQLite; on Vercel the visitor's IP comes from `x-real-ip`
 - [x] `GET /api/cron/cleanup` (old guests, ended counters) and `GET /api/cron/reminders` protected by `CRON_SECRET`, scheduled daily in `backend/vercel.json` (Vercel Cron calls with GET)

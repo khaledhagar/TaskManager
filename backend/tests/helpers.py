@@ -1,8 +1,16 @@
 """Small helpers shared by API tests."""
 
+import os
+
+import pytest
 from fastapi.testclient import TestClient
 
 PASSWORD = "correct-horse"
+
+sqlite_only = pytest.mark.skipif(
+    bool(os.environ.get("TEST_DATABASE_URL")),
+    reason="checks the local SQLite database, not a remote Postgres one",
+)
 
 
 def outbox(client: TestClient) -> list:

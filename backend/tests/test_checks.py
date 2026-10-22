@@ -8,7 +8,7 @@ from pathlib import Path
 import coverage
 import pytest
 from fastapi.testclient import TestClient
-from helpers import first_board, sign_up
+from helpers import first_board, sign_up, sqlite_only
 from sqlalchemy import event
 from sqlmodel import Session
 
@@ -150,6 +150,7 @@ def test_no_env_or_database_files_in_git():
 # --- NFR-01 a 500-card board loads quickly -------------------------------------------------------
 
 
+@sqlite_only
 def test_board_with_500_cards_loads_in_under_300_ms(client, ids):
     with Session(client.app.state.engine) as s:
         cards = (Card(column_id=ids["column"], title=f"C{i}", position=10 + i) for i in range(493))

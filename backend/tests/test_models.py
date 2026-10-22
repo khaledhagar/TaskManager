@@ -3,6 +3,7 @@
 from datetime import date
 
 import pytest
+from helpers import sqlite_only
 from sqlalchemy import text
 from sqlmodel import Session, func, select
 
@@ -73,6 +74,7 @@ def test_deleting_user_removes_boards(session, user):
     assert count(session, Card) == 0
 
 
+@sqlite_only
 def test_sqlite_pragmas(session):
     assert session.exec(text("PRAGMA foreign_keys")).one()[0] == 1
     assert session.exec(text("PRAGMA journal_mode")).one()[0] == "wal"
