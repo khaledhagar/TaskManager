@@ -1,6 +1,7 @@
 """Prompts, model answer shapes, and cleaning of model answers before use."""
 
 import json
+import re
 from datetime import date
 from typing import Literal
 
@@ -106,8 +107,13 @@ def checklist_messages(card: Card) -> list[dict]:
     ]
 
 
+LIST_MARKER = re.compile(r"^\s*(?:\d+[.)]|[-.*•·])(?:\s+|$)")
+
+
 def clean_checklist(draft: ChecklistDraft) -> list[str]:
-    items = [_clip(i, 300) for i in draft.items if i.strip()][:MAX_ITEMS]
+    """Steps without list markers such as "1." or "-" that some models add."""
+    steps = (LIST_MARKER.sub("", i, count=1) for i in draft.items)
+    items = [_clip(s, 300) for s in steps if s.strip()][:MAX_ITEMS]
     if not items:
         raise _bad_answer()
     return items

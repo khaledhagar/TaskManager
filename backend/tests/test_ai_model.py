@@ -1,5 +1,8 @@
 """The complete() helper: free models, bad output and friendly provider errors (T-110, T-111)."""
 
+import subprocess
+import sys
+from pathlib import Path
 from types import SimpleNamespace
 
 import litellm
@@ -7,8 +10,10 @@ import pytest
 from fastapi import HTTPException
 from helpers import first_board, sign_up
 
-from app import ai
+from app import ai, assistant
 from app.assistant import ChecklistDraft
+
+ROOT = Path(__file__).parents[1]
 
 
 @pytest.fixture
@@ -97,3 +102,35 @@ def test_route_returns_friendly_error_json(user, board, monkeypatch):
     r = user.post(f"/api/ai/cards/{card_id}/checklist")
     assert r.status_code == 429
     assert r.json() == {"detail": ai.LIMIT_MESSAGE}
+
+
+def test_litellm_loads_on_first_ai_call_not_at_startup():
+    """T-851: importing LiteLLM at startup made the first visit after idle take 18 s."""
+    code = "import sys, app.main; print('litellm' in sys.modules)"
+    cmd = [sys.executable, "-c", code]
+    out = subprocess.run(cmd, capture_output=True, text=True, check=True, cwd=ROOT)  # noqa: S603
+    assert out.stdout.strip() == "False"
+
+
+def test_checklist_steps_lose_list_markers():
+    """T-852: a free model answered ". Review copy"; the dot was saved with the step."""
+    raw = [
+        ". Review copy",
+        "1. Draft intro",
+        "2) Add link",
+        "- Post",
+        "• Tweet",
+        "* Proofread",
+        "-",
+        "3D check",
+    ]
+    steps = assistant.clean_checklist(ChecklistDraft(items=raw))
+    assert steps == [
+        "Review copy",
+        "Draft intro",
+        "Add link",
+        "Post",
+        "Tweet",
+        "Proofread",
+        "3D check",
+    ]

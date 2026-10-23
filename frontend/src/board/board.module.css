@@ -255,6 +255,12 @@
     max-width: none;
   }
 
+  /* With a background the header has padding; the buttons wrap instead of pushing the page sideways. */
+  .boardActions {
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+  }
+
   .filters {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));

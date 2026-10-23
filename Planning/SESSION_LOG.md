@@ -2,12 +2,12 @@
 
 Handoff notes for the next working session. Read this first, then `CLAUDE.md`, then the Progress table in `Planning/PLAN.md`.
 
-## Where the project stands (2026-10-22)
+## Where the project stands (2026-10-23)
 
 - Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
 - Phases 17 (password strength), 18 (sharing backend), 19 (sharing UI) and 20 (public boards, card assignment, meeting link) are done and pushed. **Phases 21-26 are done and pushed** (21 voice, waiting only for the user's real-microphone check; 22 comments, activity, Alembic; 23 notifications and reminders; 24 organize; 25 list view and export; 26 workspaces, start page, AI column suggestions, the user's bug list and the full regression). **Phase 27 (Voice Commands) is done and pushed (approved 2026-10-22). Next: Phase 28 (Deployment), which starts by asking the user before deleting local test data; do not start it without the user.** Phase 29 is Documentation (Word files). Deferred features are listed under "Deferred" in PLAN.md.
 - Tests after the user's third check (2026-10-22, T-800 to T-805): backend 530 passing (99% coverage); frontend 387 passing; Playwright 127 passing (Edge full suite, Firefox and WebKit smoke). T-578 (three users in WebKit) has a 3 min limit: about 1 s per call was measured with three pages open. Lighthouse not rerun (last: performance 92-95, accessibility 100). `npm audit --omit=dev` and `pip-audit` clean at Phase 27.
-- Checklists: every test up to T-805 is ticked except T-620 to T-627 (Phase 29, Documentation); open security items are only Deployment and Documentation ones.
+- 2026-10-23: backend 551 passing (99% coverage), frontend 390, Playwright 128 (3 WebKit smoke tests time out only under full load; they pass alone), Postgres 546. Every test (to T-853) and every security item is ticked. Phase 28 has 2 open items: heartbeat seen after a Vercel Cron run (fixed by T-853, needs the deploy) and start-up time after idle (fixed by T-851, re-measure after the deploy).
 
 | Done | Phase |
 |------|-------|
@@ -15,7 +15,19 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 | Yes | 21 Voice (mic check done by the user 2026-10-22), 22 Collaboration, 23 Notifications, 24 Organize, 25 List view and export, 26 Workspaces and start page |
 | Yes | 27 Voice commands |
 | **In progress** | 28 Deployment (Vercel + Supabase): see "Phase 28 status" below and `Planning/vercel.txt` |
-| Later | 29 Documentation (Word files) |
+| Yes | 29 Documentation: 9 Word files, README.docx, feature video, screenshots (see "Phase 29 notes") |
+
+## Phase 29 notes (documentation, 2026-10-23)
+
+- **Outputs are never pushed** (`.gitignore`: `Documentation/*` except `Documentation/build/`). Copies for the user: `C:\Users\khale\Downloads\Task_Manager\` (README.docx, the 8 Word files, `Task_Manager_Features.mp4`, `Screenshots\`).
+- **Rebuild everything** (local test server only; the live site is never touched):
+  1. `cd frontend && npm run build && npm run docs:shots` writes `Documentation/Screenshots/` (38 PNGs; the "ai screenshots" test is separate because the free AI is sometimes down: `npx playwright test -c playwright.docs.config.ts shots -g "ai screenshots"`).
+  2. `cd Documentation/build && uv run python build_video.py voice` (Windows voice Zira, `tts.ps1`), then `cd frontend && npm run docs:video` (records 31 scenes; `FAST=1` skips the narration waits for a quick dry run), then `uv run python build_video.py mix` (ffmpeg from `imageio-ffmpeg`).
+  3. `cd Documentation/build && uv run python build_docs.py && pwsh update_fields.ps1 (Get-ChildItem ..\*.docx).FullName` (Word fills the contents pages and writes PDFs to check), then `uv run pytest` (T-620 to T-629).
+- The docs scripts have their own TypeScript config (`frontend/tsconfig.docs.json`) that the Vercel build never reads, so a mistake there cannot break a deploy.
+- Captions in the video are a popover so they sit above the app's `<dialog>` windows (top layer).
+- **Bugs found while making the docs (fixed, tested first):** T-850 phone layout pushed sideways when a board has a background (header buttons now wrap); T-851 LiteLLM and openai loaded at startup (9.4 s import, 18 s first visit after idle on Vercel; now loaded on the first AI call, import 2.5 s); T-852 a free model returned checklist steps starting with ". " (list markers now stripped).
+- The free NVIDIA AI models had an outage on 2026-10-23 (backup model 0% uptime); the app showed "AI unavailable" as designed.
 
 ## Phase 28 status (deployment, 2026-10-22) - START HERE
 

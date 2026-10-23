@@ -66,6 +66,8 @@ def load_settings() -> Settings:
     env = os.getenv
     app_url = env("APP_URL", d.app_url).rstrip("/")
     hosts = env("ALLOWED_HOSTS") or urlparse(app_url).hostname or ""
+    # Vercel Cron calls the deployment's own address, which Vercel puts in VERCEL_URL.
+    hosts = ",".join(filter(None, [hosts, env("VERCEL_URL")]))
     return Settings(
         jwt_secret=os.environ["JWT_SECRET"],
         openrouter_api_key=env("OPENROUTER_API_KEY", ""),

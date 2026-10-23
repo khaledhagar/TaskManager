@@ -11,7 +11,9 @@
     "test": "vitest run",
     "typecheck": "tsc -b --noEmit",
     "e2e": "playwright test",
-    "e2e:live": "playwright test --config playwright.live.config.ts"
+    "e2e:live": "playwright test --config playwright.live.config.ts",
+    "docs:shots": "tsc -p tsconfig.docs.json && playwright test --config playwright.docs.config.ts shots",
+    "docs:video": "tsc -p tsconfig.docs.json && playwright test --config playwright.docs.config.ts video"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

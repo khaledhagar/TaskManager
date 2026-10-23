@@ -532,20 +532,27 @@ Tools: `pytest` + `TestClient` (backend unit), `vitest` + Testing Library (front
 - [x] T-804 A new account's first board has To Do, In Progress and Done with no cards or labels (like a guest's)
 - [x] T-805 The Task Manager name in the header opens the start page
 - [x] T-840 The daily cleanup job writes the `heartbeats` row (one row, updated each run) so the free Supabase project never sees a quiet week
+- [x] T-850 A board with a background, the focus timer and a meeting link fits a phone (360 and 390 px, English and Arabic): the header buttons wrap instead of pushing the page sideways (found while taking the Phase 29 screenshots)
+- [x] T-851 LiteLLM and openai load with the first AI call, not at startup (importing them took about 10 s and made the first visit after idle take 18 s on Vercel)
+- [x] T-852 Suggested checklist steps lose list markers that a model adds ("1.", "2)", ".", "-", "*", bullets); seen live in the video recording as ". Review copy"
+- [x] T-853 The deployment's own address (VERCEL_URL) is an allowed host: Vercel Cron calls it, and got 400 every night (proved with the Vercel log of a manual Run on 2026-10-23)
 - [x] T-830 Live site (`npm run e2e:live`): security headers, HSTS, health, privacy page, signed-out API answers 401/404
 - [x] T-831 Live site: a guest gets an HttpOnly, Secure, SameSite=Lax cookie, drags a card (order kept after reload), switches to dark mode, then deletes the account
 - [x] T-810 `/privacy` shows the privacy policy signed in or out (English and Arabic, contact email link); the sign-in page links to it; no axe violations (light, dark, Arabic)
 
 ### E6. Documentation (Phase 29)
 
-- [ ] T-620 The build script writes all 8 `.docx` files and each one opens (read back with `python-docx`)
-- [ ] T-621 Every file has a title page with "Task Manager", headings, and page numbers; long files have a table of contents
-- [ ] T-622 `01_Overview.docx` has a short description (at most 2 sentences) and a long description
-- [ ] T-623 `03_Test_Plan.docx` lists every test ID in `TEST_PLAN.md` and every test file in the repository
-- [ ] T-624 `04_Project_Plan.docx` lists every phase and `05_Security.docx` every SEC and NFR item
-- [ ] T-625 `07_Pages.docx` has a screenshot for every page; `06_User_Flows.docx` covers every flow in the design
-- [ ] T-626 `08_Build_Prompts.docx` has one prompt per phase, each with goal, tasks and success criteria
-- [ ] T-627 No document contains secrets: no `.env` values, API keys, tokens, passwords or personal email addresses (SEC-190)
+- [x] T-620 The build script writes all 9 `.docx` files and each one opens (read back with `python-docx`)
+- [x] T-621 Every file has a title page with "Task Manager", headings, and page numbers; long files have a table of contents
+- [x] T-622 `01_Overview.docx` has a short description (at most 2 sentences) and a long description
+- [x] T-623 `03_Test_Plan.docx` lists every test ID in `TEST_PLAN.md` and every test file in the repository
+- [x] T-624 `04_Project_Plan.docx` lists every phase and `05_Security.docx` every SEC and NFR item
+- [x] T-625 `07_Pages.docx` has a screenshot for every page; `06_User_Flows.docx` covers every flow in the design
+- [x] T-626 `08_Build_Prompts.docx` has one prompt per phase, each with goal, tasks and success criteria
+- [x] T-627 No document contains secrets: no `.env` values, API keys, tokens, passwords or personal email addresses (SEC-190)
+- [x] T-628 `README.docx` opens; its first block is the Spam or Junk note; it has a section and a screenshot for every feature group
+- [x] T-629 `Task_Manager_Features.mp4` plays: it has a video and an audio track, lasts 4 to 15 minutes, and every caption in the script is spoken
+- [x] T-630 `09_Phase_Checklist.docx` lists every phase of `PLAN.md` in order and every task with its Done or Open mark
 
 ## D. Release checks
 

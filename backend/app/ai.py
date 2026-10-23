@@ -1,8 +1,6 @@
 """LLM calls via LiteLLM and OpenRouter free models, with friendly errors."""
 
 from fastapi import HTTPException, status
-from litellm import completion
-from openai import APIError, RateLimitError
 from pydantic import BaseModel, ValidationError
 
 from app.i18n import tr
@@ -17,8 +15,17 @@ UNAVAILABLE_MESSAGE = "The AI assistant is unavailable right now. Please try aga
 BAD_ANSWER_MESSAGE = "The AI assistant returned an unexpected answer. Please try again."
 
 
+def completion(**kwargs):
+    """LiteLLM's completion, imported on the first AI call (the import takes seconds at startup)."""
+    from litellm import completion as litellm_completion
+
+    return litellm_completion(**kwargs)
+
+
 def complete[T: BaseModel](messages: list[dict], schema: type[T], api_key: str) -> T:
     """Ask the model for a structured answer and parse it into `schema`."""
+    from openai import APIError, RateLimitError  # loaded with the first AI call, like LiteLLM
+
     try:
         response = completion(
             model=MODEL,

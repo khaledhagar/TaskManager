@@ -78,6 +78,15 @@ def test_allowed_hosts_default_to_the_app_url_host(monkeypatch):
     assert load_settings().allowed_hosts == ("a.example.com", "b.example.com")
 
 
+def test_vercel_cron_calls_the_deployment_host_which_is_allowed(monkeypatch):
+    """T-853: Vercel Cron calls the deployment's own address (VERCEL_URL); it got 400."""
+    monkeypatch.setenv("APP_URL", "https://tasks.example.com")
+    monkeypatch.delenv("ALLOWED_HOSTS", raising=False)
+    monkeypatch.setenv("VERCEL_URL", "task-manager-abc123-team.vercel.app")
+    hosts = load_settings().allowed_hosts
+    assert hosts == ("tasks.example.com", "task-manager-abc123-team.vercel.app")
+
+
 # --- T-004 generic errors -----------------------------------------------------------------------
 
 

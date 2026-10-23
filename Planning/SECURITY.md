@@ -181,7 +181,7 @@ Test IDs refer to `Planning/TEST_PLAN.md`.
 
 ## 16. Documentation (Phase 29)
 
-- [ ] Documents and screenshots contain no secrets or personal data: no `.env` values, keys, tokens, passwords or real user emails (screenshots use test accounts) (SEC-190)
+- [x] Documents and screenshots contain no secrets or personal data: no `.env` values, keys, tokens, passwords or real user emails (screenshots use test accounts) (SEC-190)
 
 ## Performance
 

@@ -39,7 +39,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 26 - Workspaces, Start Page and Full Regression | 11 / 11 | Done |
 | Phase 27 - Voice Commands | 7 / 7 | Done |
 | Phase 28 - Deployment (Vercel) | 15 / 17 | In progress |
-| Phase 29 - Documentation (Word files) | 0 / 8 | Not started |
+| Phase 29 - Documentation (Word files) | 12 / 12 | Done |
 
 ## Stack
 
@@ -744,11 +744,15 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 
 ## Phase 29 - Documentation (Word files)
 
-- [ ] `Documentation/build/` script with shared styles (title page, contents, headings, page numbers, colors)
-- [ ] `01_Overview.docx`: name, short and long description
-- [ ] `02_Documentation.docx`: features, target audience, how to use, limits, browsers and devices
-- [ ] `03_Test_Plan.docx`: approach, all tests with status, all test files, how to run, final results
-- [ ] `04_Project_Plan.docx` from `PLAN.md` and `05_Security.docx` from `SECURITY.md`
-- [ ] `06_User_Flows.docx` with flow diagrams and `07_Pages.docx` with screenshots
-- [ ] `08_Build_Prompts.docx`: every phase as a prompt
-- [ ] Tests T-620 to T-627 pass; every file opened and checked by the user
+- [x] `Documentation/build/` script with shared styles (title page, contents, headings, page numbers, colors)
+- [x] `01_Overview.docx`: name, short and long description
+- [x] `02_Documentation.docx`: features, target audience, how to use, limits, browsers and devices
+- [x] `03_Test_Plan.docx`: approach, all tests with status, all test files, how to run, final results
+- [x] `04_Project_Plan.docx` from `PLAN.md` and `05_Security.docx` from `SECURITY.md`
+- [x] `06_User_Flows.docx` with flow diagrams and `07_Pages.docx` with screenshots
+- [x] `08_Build_Prompts.docx`: every phase as a prompt
+- [x] `README.docx` (approved 2026-10-23): a user guide; at the top a boxed note that the sign-up confirmation email usually lands in Spam or Junk; then every feature step by step with screenshots
+- [x] Feature video `Task_Manager_Features.mp4` (approved 2026-10-23): a scripted browser walk through every feature, recorded on the local app with fresh demo accounts, on-screen captions and an English computer voice (Windows), about 5 minutes (31 scenes)
+- [x] `09_Phase_Checklist.docx` (asked by the user 2026-10-23): the Progress table and every phase of `PLAN.md` with each task marked Done or Open
+- [x] Screenshots of the site in `Documentation/Screenshots/`; every output copied to `Downloads/Task_Manager` (outputs are never pushed)
+- [x] Tests T-620 to T-630 pass; every file opened and checked by the user

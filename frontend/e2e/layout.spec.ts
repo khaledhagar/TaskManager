@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { getBoard, openBoard, seedCards, startAsGuest, openFirstBoard } from './helpers.ts'
+import { getBoard, openBoard, openExampleBoard, seedCards, signUp, startAsGuest, openFirstBoard } from './helpers.ts'
 
 const TEXT = {
   en: { guest: 'Continue as guest', board: 'Website Launch', card: /^Design pricing page/, ask: 'Ask AI', newBoard: 'New board', timer: 'Focus timer' },
@@ -97,4 +97,31 @@ test('T-335 touch drag and drop on a phone, where columns stack; a quick swipe s
   await touch('touchEnd', 0, 0)
   await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(before)
   expect((await placed())[0]).toEqual(['T2', 'T3', 'T4', 'T5', 'T6'])
+})
+
+test('T-850 a board with a background, focus timer and meeting link fits a phone in both languages', async ({ page }) => {
+  const email = await signUp(page)
+  await openExampleBoard(page, email)
+  await page.getByRole('button', { name: 'Board options' }).click()
+  await page.getByRole('menuitem', { name: 'Change background' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Dusk' }).click()
+  await expect(page.getByText('Saving...')).toHaveCount(0)
+  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: 'Board options' }).click()
+  await page.getByRole('menuitem', { name: 'Members' }).click()
+  await page.getByLabel('Meeting link (Zoom, Google Meet, Teams)').fill('https://zoom.us/j/123456789')
+  await page.getByRole('button', { name: 'Save link' }).click()
+  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: 'Focus timer' }).click()
+  await page.keyboard.press('Escape')
+  const found: string[] = []
+  for (const lang of ['en', 'ar']) {
+    if (lang === 'ar') await page.getByRole('button', { name: 'العربية' }).click()
+    for (const width of [360, 390]) {
+      await page.setViewportSize({ width, height: 800 })
+      await page.waitForTimeout(300)
+      found.push(...(await problems(page, `${width}px ${lang} board with background`)))
+    }
+  }
+  expect(found).toEqual([])
 })
