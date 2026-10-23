@@ -2,16 +2,13 @@
 
 Handoff notes for the next working session. Read this first, then `CLAUDE.md`, then the Progress table in `Planning/PLAN.md`.
 
-## RESUME HERE (2026-10-23, 08:50 UTC)
+## RESUME HERE (2026-10-23, 15:00 UTC)
 
-**State:** every phase is done except **one item of Phase 28**: measure the start-up time after idle (cold start) now that T-851 is live. Live site runs commit `d656fef` (Phase 29 + fixes T-850 to T-853). Phase 29 is ticked 12/12.
+**State:** all 29 phases are done (Progress table all Done). Live site runs commit `d656fef`.
 
-**What was running when this was written:** a one-hour idle timer started about 08:50 UTC; it then times 3 requests to `/api/health`. If the session was interrupted, measure it again yourself:
-1. Do not open the live site (or run `npm run e2e:live`) for one hour.
-2. Run three times: `curl -s -o /dev/null -w "%{http_code} %{time_total}s\n" https://task-manager-opal-xi-63.vercel.app/api/health`
-3. Before the fix the first request took **18 s** (the next ones 0.3-0.5 s). Vercel's log of a cold request shows "Response finished in ...".
-4. If the first request is now a few seconds: tick the Phase 28 item "Test deploy confirms the function bundle (including LiteLLM) fits Vercel's size limit; cold start measured" with the numbers (bundle **66.1 MB** of Vercel's 250 MB, read from the deployment's Resources tab; cold start before 18 s, after X s), let `Planning/tick_phase.py` or a manual edit rebuild the Progress row (28 becomes 17/17), commit and push.
-5. If it is still slow: measure imports with `cd backend && uv run python -X importtime -c "import app.main"` (now 2.5 s locally: fastapi, sqlmodel, boto3, authlib; the Alembic check at startup is about 0.2 s). Prove the cause before changing anything.
+**Cold start measured 2026-10-23 14:57 UTC** (site idle about 6 h): first `/api/health` request **8.4 s** (18 s before T-851), the next two 0.36 s and 0.38 s. LiteLLM is no longer imported at startup (`-X importtime` shows no litellm/openai). Local `import app.main` is 2.5-3.8 s (fastapi, sqlmodel, boto3 0.25 s, authlib 0.2 s); the rest of the 8.4 s is Vercel starting the 66.1 MB function and the first database connection. Possible later cut (not needed): load boto3 and authlib on first use (about 0.45 s).
+
+To re-measure: leave the site idle one hour, then run three times `curl -s -o /dev/null -w "%{http_code} %{time_total}s\n" https://task-manager-opal-xi-63.vercel.app/api/health`.
 
 **Next checks (no action needed unless they fail):**
 - **Heartbeat:** fixed and verified 2026-10-23 08:39 UTC (Vercel Cron "Run" wrote `heartbeats.at`). The first automatic nightly run is 03:00 UTC on 2026-10-24. Check with Vercel **Logs**, search `/api/cron`, status **200** (the free plan keeps logs about one hour, so use the **Run** button in Settings > Cron Jobs to test on demand), or read `select at from heartbeats` with a Python script that loads `../.env.vercel` (never print secrets).
@@ -34,7 +31,7 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 | Yes | 1 Scaffolding to 20 Public boards / assignment / meeting link |
 | Yes | 21 Voice (mic check done by the user 2026-10-22), 22 Collaboration, 23 Notifications, 24 Organize, 25 List view and export, 26 Workspaces and start page |
 | Yes | 27 Voice commands |
-| **In progress** | 28 Deployment (Vercel + Supabase): only the cold start measurement is left (see RESUME HERE) |
+| Yes | 28 Deployment (Vercel + Supabase): live; cold start 8.4 s after idle (was 18 s) |
 | Yes | 29 Documentation: 9 Word files, README.docx, feature video, screenshots (see "Phase 29 notes") |
 
 ## Phase 29 notes (documentation, 2026-10-23)
@@ -78,7 +75,7 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 - Tests: `TEST_DATABASE_URL` runs the backend suite on Postgres (`tests/conftest.py`: first test drops the schema, later tests TRUNCATE). Runner script idea: read `SUPABASE_DB_URL`, swap the database name to `taskmanager_test`. About 8 s per test from Egypt to Ireland (the full suite is over an hour). `test_auth.py` passed on Supabase (30/30); **the full Postgres run was still going when the session ended: re-run it** (port 6543 too, to prove the pooler setting).
 - Local suite: backend 548 passing (99% coverage).
 
-**Still open in Phase 28 (in PLAN.md):** only the cold start measurement after T-851 (bundle size is 66.1 MB of 250 MB). See RESUME HERE at the top.
+**Phase 28 is complete** (2026-10-23): bundle 66.1 MB of 250 MB, cold start 8.4 s (see RESUME HERE).
 
 ## Fixes from the user's third check (2026-10-22, T-800 to T-805)
 

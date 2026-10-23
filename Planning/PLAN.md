@@ -38,7 +38,7 @@ The app will be published, so two companion checklists are part of every phase:
 | Phase 25 - List View and Export | 3 / 3 | Done |
 | Phase 26 - Workspaces, Start Page and Full Regression | 11 / 11 | Done |
 | Phase 27 - Voice Commands | 7 / 7 | Done |
-| Phase 28 - Deployment (Vercel) | 15 / 17 | In progress |
+| Phase 28 - Deployment (Vercel) | 17 / 17 | Done |
 | Phase 29 - Documentation (Word files) | 12 / 12 | Done |
 
 ## Stack
@@ -733,7 +733,7 @@ How they are made: a script in `Documentation/build/` (run with `uv run`) reads 
 - [x] Rate-limit counters shared by every server instance: kept in the Supabase database (`rate_counts` table, migration 0007; the user chose this over Upstash Redis on 2026-10-22); memory store on SQLite; on Vercel the visitor's IP comes from `x-real-ip`
 - [x] `GET /api/cron/cleanup` (old guests, ended counters) and `GET /api/cron/reminders` protected by `CRON_SECRET`, scheduled daily in `backend/vercel.json` (Vercel Cron calls with GET)
 - [x] Vercel project with Root Directory `backend`: the build step makes the website into `backend/frontend_dist` and FastAPI serves it with its security headers (Vercel keeps static files in the function when the app has middleware); region `dub1` next to the database
-- [ ] Test deploy confirms the function bundle (including LiteLLM) fits Vercel's size limit; cold start measured
+- [x] Test deploy confirms the function bundle (including LiteLLM) fits Vercel's size limit; cold start measured (bundle 66.1 MB of 250 MB; first request after 6 h idle: 18 s before T-851, 8.4 s after, then 0.36 s)
 - [x] Production environment variables set in Vercel; `ENV=production`, `ALLOWED_HOSTS`, `APP_URL`, `EMAIL_MODE=smtp` set
 - [x] Production callback URL added to the Google OAuth client (sign-in tested on the live site 2026-10-22)
 - [x] File storage provider chosen (Cloudflare R2, or Supabase Storage if the database is Supabase); `S3Storage` added with `uv add boto3`; upload, download and delete verified on the deployed URL; uploads stay under Vercel's 4.5 MB limit
