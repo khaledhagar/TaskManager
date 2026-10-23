@@ -2,6 +2,26 @@
 
 Handoff notes for the next working session. Read this first, then `CLAUDE.md`, then the Progress table in `Planning/PLAN.md`.
 
+## RESUME HERE (2026-10-23, 08:50 UTC)
+
+**State:** every phase is done except **one item of Phase 28**: measure the start-up time after idle (cold start) now that T-851 is live. Live site runs commit `d656fef` (Phase 29 + fixes T-850 to T-853). Phase 29 is ticked 12/12.
+
+**What was running when this was written:** a one-hour idle timer started about 08:50 UTC; it then times 3 requests to `/api/health`. If the session was interrupted, measure it again yourself:
+1. Do not open the live site (or run `npm run e2e:live`) for one hour.
+2. Run three times: `curl -s -o /dev/null -w "%{http_code} %{time_total}s\n" https://task-manager-opal-xi-63.vercel.app/api/health`
+3. Before the fix the first request took **18 s** (the next ones 0.3-0.5 s). Vercel's log of a cold request shows "Response finished in ...".
+4. If the first request is now a few seconds: tick the Phase 28 item "Test deploy confirms the function bundle (including LiteLLM) fits Vercel's size limit; cold start measured" with the numbers (bundle **66.1 MB** of Vercel's 250 MB, read from the deployment's Resources tab; cold start before 18 s, after X s), let `Planning/tick_phase.py` or a manual edit rebuild the Progress row (28 becomes 17/17), commit and push.
+5. If it is still slow: measure imports with `cd backend && uv run python -X importtime -c "import app.main"` (now 2.5 s locally: fastapi, sqlmodel, boto3, authlib; the Alembic check at startup is about 0.2 s). Prove the cause before changing anything.
+
+**Next checks (no action needed unless they fail):**
+- **Heartbeat:** fixed and verified 2026-10-23 08:39 UTC (Vercel Cron "Run" wrote `heartbeats.at`). The first automatic nightly run is 03:00 UTC on 2026-10-24. Check with Vercel **Logs**, search `/api/cron`, status **200** (the free plan keeps logs about one hour, so use the **Run** button in Settings > Cron Jobs to test on demand), or read `select at from heartbeats` with a Python script that loads `../.env.vercel` (never print secrets).
+- **Cause found today:** Vercel Cron calls the deployment's own address (`task-manager-<hash>-khaledelsaidhagar.vercel.app`, user agent `vercel-cron/1.0`); `TrustedHostMiddleware` returned 400 until `VERCEL_URL` was added to the allowed hosts (T-853, `app/config.py`).
+- **AI:** the free NVIDIA models were unsteady on 2026-10-23 (backup model 0% uptime, main around 85%); a live checklist call returned 502 once and 200 on the retry. "AI unavailable" is the designed message, not a bug.
+
+**Files for the user:** `C:\Users\khale\Downloads\Task_Manager\` holds README.docx, 01-09 Word files, `Task_Manager_Features.mp4` and `Screenshots\` (38 PNGs). The same folder also has the user's own files (`KhaledElsaidHagar_FinalProject.docx/.pdf`, folders `Documentation`, `Project_Plan`, `ReadMe`, `Testing&Security`, `User_Flow`): never touch them. To rebuild the documents see "Phase 29 notes" below; copy the outputs to that folder afterwards.
+
+**Working with the user:** one small step at a time with exact clicks; wait for them. Ask before starting long test runs again after the system stopped one for low memory (use `npx playwright test --workers=2`).
+
 ## Where the project stands (2026-10-23)
 
 - Phases 1-15 are done and pushed; Phase 16 is done except its final task (deleting local test data) (`main`, https://github.com/khaledhagar/TaskManager).
@@ -14,7 +34,7 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 | Yes | 1 Scaffolding to 20 Public boards / assignment / meeting link |
 | Yes | 21 Voice (mic check done by the user 2026-10-22), 22 Collaboration, 23 Notifications, 24 Organize, 25 List view and export, 26 Workspaces and start page |
 | Yes | 27 Voice commands |
-| **In progress** | 28 Deployment (Vercel + Supabase): see "Phase 28 status" below and `Planning/vercel.txt` |
+| **In progress** | 28 Deployment (Vercel + Supabase): only the cold start measurement is left (see RESUME HERE) |
 | Yes | 29 Documentation: 9 Word files, README.docx, feature video, screenshots (see "Phase 29 notes") |
 
 ## Phase 29 notes (documentation, 2026-10-23)
@@ -35,7 +55,7 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 
 **Where we stopped:** the site is live (2026-10-22): `/` and `/api/health` answer 200 on Supabase. Root cause of the earlier `FUNCTION_INVOCATION_FAILED` (`sqlite3.OperationalError`): the user had pasted the 14 variables of the local `.env` (no `DATABASE_URL`, `ENV`, `APP_URL`) instead of the 19 of `.env.vercel`; replaced and redeployed. A 400 on the per-deployment URL (`task-manager-<hash>-khaledelsaidhagar.vercel.app`) is expected: only the main host is in `ALLOWED_HOSTS`. Google sign-in works on the live site (callback added, tested with the user's account). The Google app was in Testing and Publish was disabled until the Branding page had a privacy policy link, so a public `/privacy` page was added (T-810). The privacy link is on the Google Branding page and the Google app is published (In production, 2026-10-22). Checked live with the user: email sign-up + confirmation email (Gmail SMTP), attachment upload / download / delete in the Supabase bucket. AI checklist works live. Live smoke suite: `cd frontend && npm run e2e:live` (Edge, guests only, deletes its guest; at most 5 guests per hour per IP; `LIVE_URL` overrides the address); passes. Alembic: all 8 migrations run from scratch on `taskmanager_test`, no differences from the models.
 
-**2026-10-23:** daily heartbeat added (T-840): `/api/cron/cleanup` also writes the `heartbeats` row (migration `0008_heartbeat`, live database migrated) so the free Supabase project is not paused after 7 days without activity. A manual call returned 200. **To check:** the live `heartbeats.at` should be near 03:00 UTC on the morning after 2026-10-22; that proves Vercel Cron fires, then tick the heartbeat item in PLAN.md. Full backend suite passed on Postgres (port 6543): run it file by file with a resumable script that logs PASS/FAIL per file and skips files already passed (a single run used too much memory and was killed). `test_ai_live.py` runs no tests there (live AI marker, deselected). Two checks are marked `sqlite_only` (`tests/helpers.py`): the SQLite pragmas and the 500-card timing (about 79 ms per query from Egypt to Ireland). Still open: cold start and bundle size.
+**2026-10-23:** daily heartbeat added (T-840): `/api/cron/cleanup` also writes the `heartbeats` row (migration `0008_heartbeat`, live database migrated) so the free Supabase project is not paused after 7 days without activity. A manual call returned 200. **Checked 2026-10-23:** the 03:00 run did not write it (Vercel Cron got 400 on the deployment address); fixed by T-853 and verified at 08:39 UTC (see RESUME HERE). Full backend suite passed on Postgres (port 6543): run it file by file with a resumable script that logs PASS/FAIL per file and skips files already passed (a single run used too much memory and was killed). `test_ai_live.py` runs no tests there (live AI marker, deselected). Two checks are marked `sqlite_only` (`tests/helpers.py`): the SQLite pragmas and the 500-card timing (about 79 ms per query from Egypt to Ireland). Still open: cold start and bundle size.
 
 **Accounts and names**
 - Live address: `https://task-manager-opal-xi-63.vercel.app` (Vercel project `task-manager`, team `khaledelsaidhagar`, Hobby, Root Directory `backend`, preset FastAPI). `APP_URL` in `.env.vercel` matches it.
@@ -58,7 +78,7 @@ Handoff notes for the next working session. Read this first, then `CLAUDE.md`, t
 - Tests: `TEST_DATABASE_URL` runs the backend suite on Postgres (`tests/conftest.py`: first test drops the schema, later tests TRUNCATE). Runner script idea: read `SUPABASE_DB_URL`, swap the database name to `taskmanager_test`. About 8 s per test from Egypt to Ireland (the full suite is over an hour). `test_auth.py` passed on Supabase (30/30); **the full Postgres run was still going when the session ended: re-run it** (port 6543 too, to prove the pooler setting).
 - Local suite: backend 548 passing (99% coverage).
 
-**Still open in Phase 28 (in PLAN.md):** heartbeat seen in the live database after the 03:00 UTC cron; bundle size and cold start. Then Phase 29 (Documentation, Word files).
+**Still open in Phase 28 (in PLAN.md):** only the cold start measurement after T-851 (bundle size is 66.1 MB of 250 MB). See RESUME HERE at the top.
 
 ## Fixes from the user's third check (2026-10-22, T-800 to T-805)
 
